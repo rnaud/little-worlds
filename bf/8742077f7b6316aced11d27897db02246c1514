@@ -1,0 +1,31 @@
+.openai/hosting.json
+  s_d374d22a78c9c9::t_77f08454e2d4b0 1-6
+dist/game.js
+  s_9ca76055a220ed::t_d203e13a1733ff 1-58
+tests/game.cjs
+  s_d374d22a78c9c9::t_41e215abf64aa7 1-12
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "bf8742077f7b6316aced11d27897db02246c1514",
+  "prompts": {},
+  "sessions": {
+    "s_9ca76055a220ed": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "ad390326-b580-46fb-9177-587902db9ecb",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Arnaud Ferreri <rnaud@users.noreply.github.com>"
+    },
+    "s_d374d22a78c9c9": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a12666-4148-7e71-9955-1807df37149a",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Arnaud Ferreri <rnaud@users.noreply.github.com>"
+    }
+  }
+}
