@@ -28,7 +28,8 @@
     "test:meadow": "node tests/meadow-browser.cjs",
     "test:discoveries": "node tests/discoveries-browser.cjs",
     "test:deployment": "node tests/deployment-browser.cjs",
-    "test:summit": "node tests/summit-browser.cjs"
+    "test:summit": "node tests/summit-browser.cjs",
+    "test:fullscreen": "node tests/fullscreen-browser.cjs"
   },
   "dependencies": {
     "three": "^0.180.0"

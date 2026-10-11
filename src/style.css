@@ -2335,3 +2335,100 @@ dialog {
     min-height: 188px; /* A 180px screen plus its top and bottom borders. */
   }
 }
+
+/* A cartridge owns the viewport. Integer-scaled artwork remains letterboxed. */
+body.playing {
+  overflow: hidden;
+}
+body.playing .site-header {
+  display: none;
+}
+body.playing #play {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  width: 100%;
+  height: 100dvh;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  background: #100e1c;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+body.playing .play-heading {
+  flex: 0 0 auto;
+  margin: 0;
+  padding: env(safe-area-inset-top, 0px) 12px 0;
+  gap: 8px;
+  min-height: 48px;
+}
+body.playing .play-heading > div:nth-child(2),
+body.playing #restart {
+  display: none;
+}
+body.playing .play-heading button {
+  min-height: 44px;
+}
+body.playing .game-hud {
+  flex: 0 0 auto;
+  margin: 0;
+  padding: 0 8px 4px;
+  max-width: none;
+  width: 100%;
+  font-size: 10px;
+}
+body.playing .game-stage {
+  flex: 1 1 0;
+  width: 100%;
+  min-height: 0;
+  max-height: none;
+  aspect-ratio: auto;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  background: #100e1c;
+}
+body.playing .game-help,
+body.playing .context-hint {
+  display: none;
+}
+body.playing .game-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  padding: 16px;
+  backdrop-filter: none;
+  background: #100e1cd9;
+}
+body.playing .overlay-card {
+  max-height: calc(100dvh - 32px);
+}
+body.playing .touch-controls {
+  position: static;
+  flex: 0 0 auto;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 8px max(12px, env(safe-area-inset-right))
+    max(12px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
+}
+@media (hover: hover) and (pointer: fine) {
+  body.playing .touch-controls {
+    display: none;
+  }
+}
+@media (orientation: landscape) and (hover: none) {
+  body.playing .touch-controls {
+    position: absolute;
+    inset: auto 0 0;
+    pointer-events: none;
+    background: transparent;
+  }
+  body.playing .touch-controls button {
+    pointer-events: auto;
+    opacity: 0.8;
+  }
+}

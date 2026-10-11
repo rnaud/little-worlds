@@ -90,6 +90,11 @@ const assert = require("node:assert/strict");
     await page.waitForFunction(
       () => window.arcade?.snapshot().characterArtwork.loaded,
     );
+    // OS fullscreen windows cannot be resized by CDP. Exercise the viewport
+    // fallback after checking native fullscreen separately.
+    await page.evaluate(async () => {
+      if (document.fullscreenElement) await document.exitFullscreen();
+    });
     for (const viewport of [
       { width: 1440, height: 1100 },
       { width: 390, height: 844 },
@@ -133,6 +138,11 @@ const assert = require("node:assert/strict");
     await page.setViewportSize({ width: 1440, height: 1100 });
     await page.locator('[data-game="summit"]').click();
     await page.locator("#overlay-action").click();
+    // OS fullscreen windows cannot be resized by CDP. Exercise the viewport
+    // fallback after checking native fullscreen separately.
+    await page.evaluate(async () => {
+      if (document.fullscreenElement) await document.exitFullscreen();
+    });
     for (const viewport of [
       { width: 1440, height: 1100 },
       { width: 390, height: 844 },

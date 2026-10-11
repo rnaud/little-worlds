@@ -395,6 +395,7 @@ function launch(id, level) {
   $("#home").hidden = true;
   $("#play").hidden = false;
   document.body.classList.add("playing");
+  enterGameFullscreen();
   window.scrollTo({ top: 0, behavior: "instant" });
   try {
     painter ??= new Painter($("#game-canvas"));
@@ -428,7 +429,7 @@ function launch(id, level) {
   $("#touch-a").textContent = `A · ${selected.a}`;
   $("#touch-b").textContent = `B · ${selected.b}`;
   $("#game-score").textContent = "Ready when you are";
-  $("#pause").textContent = "Ⅱ Pause";
+  $("#pause").textContent = "☰ Menu";
   mode = "intro";
   $("#level-picker").innerHTML = levels
     .map(
@@ -459,7 +460,7 @@ function start() {
   explored.add(selected.id);
   save();
   $("#game-overlay").hidden = true;
-  $("#pause").textContent = "Ⅱ Pause";
+  $("#pause").textContent = "☰ Menu";
   $("#game-canvas").focus({ preventScroll: true });
   fitPlayView();
 }
@@ -506,26 +507,40 @@ $("#coop-touch").onchange = (e) => {
   configureCoop();
   save();
 };
-function fitPlayView() {
-  if (mode !== "playing" || document.querySelector("dialog[open]")) return;
-  if (matchMedia("(orientation:landscape)").matches) {
-    window.scrollTo({ top: 0, behavior: "instant" });
-  } else if (innerWidth <= 620) {
-    const controls = $(".touch-controls").getBoundingClientRect();
-    if (controls.bottom > innerHeight)
-      window.scrollBy({
-        top: controls.bottom - innerHeight + 8,
-        behavior: "instant",
-      });
-  }
+// Gamepad polling has no browser user activation. The viewport layout is the
+// reliable fullscreen fallback; a click/key can additionally hide browser chrome.
+let gameFullscreen = false;
+function enterGameFullscreen() {
+  if (document.fullscreenElement || !navigator.userActivation?.isActive) return;
+  const request = document.documentElement.requestFullscreen?.();
+  request
+    ?.then(() => {
+      gameFullscreen = true;
+      if (mode === "home") leaveGameFullscreen();
+    })
+    .catch(() => {});
 }
-matchMedia("(orientation:landscape)").addEventListener("change", () =>
-  requestAnimationFrame(fitPlayView),
-);
+function leaveGameFullscreen() {
+  if (gameFullscreen && document.fullscreenElement)
+    document.exitFullscreen().catch(() => {});
+  gameFullscreen = false;
+}
+document.addEventListener("fullscreenchange", () => {
+  if (!document.fullscreenElement && gameFullscreen) {
+    gameFullscreen = false;
+    if (mode === "playing") pause();
+  }
+  painter?.resize();
+});
+function fitPlayView() {
+  window.scrollTo({ top: 0, behavior: "instant" });
+  painter?.resize();
+}
 function home() {
   latchMenu();
   sound.stop();
   mode = "home";
+  leaveGameFullscreen();
   input.enabled = false;
   input.clear();
   $("#play").hidden = true;
@@ -543,12 +558,12 @@ function pause() {
     mode = "paused";
     sound.stop();
     input.clear();
-    $("#pause").textContent = "▶ Resume";
+    $("#pause").textContent = "☰ Menu";
     overlay(
-      "A LITTLE BREATHER",
-      "Cloud break.",
+      "PAUSED",
+      "Game menu",
       `${selected.help}. ${game.hint || "Your adventure will be right here."}`,
-      "Keep playing →",
+      "Resume game →",
     );
   } else if (mode === "paused") start();
 }
