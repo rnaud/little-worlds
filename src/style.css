@@ -2327,3 +2327,11 @@ dialog {
   color: #fff0c6;
   margin: 5px 0 0;
 }
+
+/* Match the native screen during phone play; menus retain their scroll room. */
+@media (max-width: 620px) and (orientation: portrait) {
+  .game-stage:has(> #game-overlay[hidden]) {
+    aspect-ratio: 16 / 9;
+    min-height: 188px; /* A 180px screen plus its top and bottom borders. */
+  }
+}
