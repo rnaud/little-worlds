@@ -1,0 +1,29 @@
+README.md
+  s_74ed6129120f6d::t_e60352cd138a9f 31-33,66
+src/engine.js
+  s_74ed6129120f6d::t_26aace1ad68153 873-924,926-928,932,934
+src/games.js
+  s_74ed6129120f6d::t_0dc1d4c025bbbb 210-213,218,228,434,481,495,778,858,885,1113,1306,1336,1487-1493,1509,1665,1680,1712,1716
+src/main.js
+  s_74ed6129120f6d::t_c834c56df27945 920
+src/platform-motion.js
+  s_74ed6129120f6d::t_cffbc042639803 130
+tests/audio-browser.cjs
+  s_74ed6129120f6d::t_f4458a3ae2583d 54-114,181-205,211,214-215
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "6243a19ac20a97a6f759728e6385b3e41f37a59f",
+  "prompts": {},
+  "sessions": {
+    "s_74ed6129120f6d": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a12b36-7519-7462-9cc9-a30336c7a79d",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Arnaud Ferreri <rnaud@users.noreply.github.com>"
+    }
+  }
+}
