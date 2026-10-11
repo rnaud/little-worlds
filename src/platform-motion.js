@@ -127,8 +127,7 @@ export function platformMotion(state, dt, input, world, hero = "gaia") {
       state.coyote = 0;
       state.springLock = 0.24;
       spring.flash = 0.3;
-      world.burst(spring.x, spring.y - 12, "#a5d8e6");
-      world.sound.play(880, 0.12);
+      world.burst(spring.x, spring.y - 12, "#a5d8e6", "spring");
     }
   return p.y > 600;
 }

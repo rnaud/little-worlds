@@ -917,6 +917,7 @@ window.arcade = {
       enabled: sound.enabled,
       voices: sound.voices.size + (sound.engineVoice ? 1 : 0),
       theme: sound.musicWorld || null,
+      motor: !!sound.engineVoice,
     },
     artwork: { ...artStatus },
     characterArtwork: { ...characterArtStatus },

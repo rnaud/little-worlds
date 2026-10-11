@@ -870,14 +870,68 @@ export class Sound {
         [523, 0.045, 0],
         [784, 0.065, 0.04],
       ],
+      wand: [
+        [880, 0.045, 0, "sine"],
+        [1320, 0.08, 0.035, "sine"],
+      ],
+      plant: [
+        [523, 0.1, 0, "sine"],
+        [659, 0.1, 0.065, "sine"],
+        [784, 0.16, 0.13, "sine"],
+      ],
+      push: [
+        [180, 0.045, 0],
+        [240, 0.045, 0.035],
+      ],
+      undo: [
+        [659, 0.06, 0],
+        [440, 0.09, 0.055],
+      ],
+      launch: [
+        [330, 0.06, 0],
+        [660, 0.09, 0.045],
+      ],
+      bounce: [
+        [392, 0.035, 0, "square"],
+        [587, 0.045, 0.025],
+      ],
+      shield: [
+        [196, 0.08, 0, "sine"],
+        [392, 0.08, 0.06, "sine"],
+        [784, 0.12, 0.12, "sine"],
+      ],
+      shot: [
+        [1047, 0.025, 0],
+        [740, 0.035, 0.018],
+      ],
+      bump: [
+        [147, 0.07, 0],
+        [98, 0.1, 0.05],
+      ],
+      respawn: [
+        [220, 0.09, 0, "sine"],
+        [277, 0.09, 0.08, "sine"],
+        [330, 0.16, 0.16, "sine"],
+      ],
+      spring: [
+        [330, 0.04, 0],
+        [660, 0.055, 0.04],
+        [990, 0.09, 0.08],
+      ],
+      checkpoint: [
+        [523, 0.1, 0],
+        [784, 0.16, 0.08],
+      ],
     };
-    for (const [frequency, duration, delay] of motifs[name] || [])
+    for (const [frequency, duration, delay, wave = "triangle"] of motifs[
+      name
+    ] || [])
       this.play(
         frequency,
         duration,
-        "triangle",
+        wave,
         delay,
-        name === "victory" ? 0.055 : 0.04,
+        name === "victory" ? 0.055 : name === "shot" ? 0.025 : 0.04,
       );
   }
   motor(speed, boost = false) {

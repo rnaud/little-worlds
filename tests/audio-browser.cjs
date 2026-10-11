@@ -51,6 +51,67 @@ const { chromium } = require("playwright"),
       assert.ok(peak < 0.08, id + " unclipped quiet mix");
       assert.ok(rms > 0.001, id + " audible theme");
     }
+    const effects = await page.evaluate(async () => {
+      const { Sound } = await import("/src/engine.js");
+      const results = [];
+      for (const name of [
+        "pickup",
+        "victory",
+        "jump",
+        "dash",
+        "select",
+        "wand",
+        "plant",
+        "push",
+        "undo",
+        "launch",
+        "bounce",
+        "shield",
+        "shot",
+        "bump",
+        "respawn",
+        "spring",
+        "checkpoint",
+      ]) {
+        const context = new OfflineAudioContext(1, 44100, 44100),
+          sound = new Sound();
+        sound.ctx = context;
+        sound.unlock = () => {};
+        sound.effect(name);
+        const samples = (await context.startRendering()).getChannelData(0);
+        let peak = 0,
+          energy = 0;
+        for (const sample of samples) {
+          peak = Math.max(peak, Math.abs(sample));
+          energy += sample * sample;
+        }
+        results.push({
+          name,
+          peak,
+          energy,
+          signature: Array.from(
+            samples.filter((_, n) => n % 97 === 0),
+            (n) => Math.round(n * 1e6),
+          ).join(","),
+        });
+      }
+      return results;
+    });
+    assert.equal(
+      new Set(effects.map((e) => e.signature)).size,
+      effects.length,
+      "action cues have distinct waveforms",
+    );
+    for (const effect of effects) {
+      assert.ok(
+        effect.peak > 0.005 && effect.peak < 0.16,
+        effect.name + " audible and unclipped",
+      );
+      assert.ok(
+        effect.energy > 0.005,
+        effect.name + " has a complete envelope",
+      );
+    }
     await page.locator('[data-game="space"]').click();
     await page.locator("#overlay-action").click();
     assert.equal(
@@ -117,13 +178,41 @@ const { chromium } = require("playwright"),
       0,
       "unchanged live hints are not announced repeatedly",
     );
+    await page.locator("#back").click();
+    await page.locator("#sound").click();
+    await page.locator('[data-game="rally"]').click();
+    await page.locator("#overlay-action").click();
+    await page.waitForFunction(() => window.arcade.snapshot().audio.motor);
+    await page.keyboard.press("Escape");
+    await page.waitForFunction(() => window.arcade.snapshot().mode === "paused");
+    assert.equal(
+      (await page.evaluate(() => window.arcade.snapshot())).audio.motor,
+      false,
+      "pause stops the motor",
+    );
+    assert.equal(
+      (await page.evaluate(() => window.arcade.snapshot())).audio.voices,
+      0,
+      "pause stops every voice",
+    );
+    await page.locator("#overlay-action").click();
+    await page.waitForFunction(() => window.arcade.snapshot().audio.motor);
+    await page.locator("#sound").click();
+    assert.equal(
+      (await page.evaluate(() => window.arcade.snapshot())).audio.motor,
+      false,
+      "mute stops the motor",
+    );
     assert.deepEqual(errors, []);
     console.log(
       JSON.stringify({
         result: "PASS",
         levels,
+        effects: effects.map(({ name, peak }) => ({ name, peak })),
         checks: [
           "quiet original themes",
+          "17 distinct action cues",
+          "motor stops on pause and mute",
           "immediate mute",
           "sound returns game focus",
           "profile pauses simulation",

@@ -207,11 +207,15 @@ class World {
       this.bean.actor.update(dt, { state: "celebrate" });
     }
   }
+  cue(name, frequency = 440, duration = 0.08) {
+    if (this.sound.effect) this.sound.effect(name);
+    else this.sound.play(frequency, duration);
+  }
   announce(text) {
     this.notice = text;
     this.noticeTime = 2.5;
   }
-  burst(x, y, c = "#fff0a3") {
+  burst(x, y, c = "#fff0a3", cue = "pickup") {
     for (let i = 0; i < 14; i++)
       this.particles.push({
         x,
@@ -221,8 +225,7 @@ class World {
         life: 0.7,
         c,
       });
-    if (this.sound.effect) this.sound.effect("pickup");
-    else this.sound.play(660 + this.score * 35);
+    if (cue) this.cue(cue, 660 + this.score * 35);
   }
   effects(p, camera = 0) {
     for (const d of this.dust)
@@ -428,7 +431,7 @@ export class Platformer extends World {
     this.player.ground = false;
     this.announce("Back at the checkpoint. Your collectibles are safe.");
     this.inv = 1;
-    this.sound.play(220, 0.1);
+    this.cue("respawn", 220, 0.1);
   }
   update(dt, i) {
     const p = this.player;
@@ -475,7 +478,7 @@ export class Platformer extends World {
         this.checkpoint.x < point.x
       ) {
         this.checkpoint = { ...point };
-        this.burst(point.x, point.y - 30, "#b9e8d1");
+        this.burst(point.x, point.y - 30, "#b9e8d1", "checkpoint");
         this.announce("Checkpoint! Your stars are safe.");
       }
     if (
@@ -489,7 +492,7 @@ export class Platformer extends World {
         y: this.levelInfo.checkpoint[1],
       };
       this.checkpointSaved = true;
-      this.burst(this.checkpoint.x, this.checkpoint.y);
+      this.burst(this.checkpoint.x, this.checkpoint.y, "#b9e8d1", "checkpoint");
       this.announce("Picnic checkpoint saved. Your bananas are safe!");
     }
     for (const b of this.items)
@@ -772,9 +775,7 @@ export class Forest extends World {
     this.sniffTarget = null;
     this.sniffTime = 0;
     this.health = Math.min(5, this.health + 1);
-    this.burst(secret.x, secret.y, "#a5d8e6");
-    this.sound.play(440, 0.07);
-    this.sound.play(660, 0.09, "sine", 0.1);
+    this.burst(secret.x, secret.y, "#a5d8e6", "plant");
     this.announce(
       `${this.hero === "bean" ? "You" : "Bean"} found ${secret.title}! Saved in the family album.`,
     );
@@ -854,7 +855,7 @@ export class Forest extends World {
     if (i.pressed.a && this.cool <= 0) {
       this.swing = 0.24;
       this.cool = 0.38;
-      this.sound.play(500, 0.08);
+      this.cue("wand", 500, 0.08);
     }
     if (!this.key && near(p, this.keyPos, 32)) {
       this.key = true;
@@ -881,7 +882,7 @@ export class Forest extends World {
       } else if (near(p, e, 28) && this.inv <= 0) {
         this.inv = 1.5;
         if (!this.gentle) this.health--;
-        this.sound.play(190, 0.12);
+        this.cue("bump", 190, 0.12);
         if (this.health <= 0) {
           this.failed = true;
           this.message = "The woods are ready for another try.";
@@ -1109,7 +1110,7 @@ export class Rally extends World {
         } else if (this.inv <= 0) {
           this.bump = this.gentle ? 0.5 : 1.2;
           this.inv = 1;
-          this.sound.play(170, 0.16);
+          this.cue("bump", 170, 0.16);
         }
       }
     }
@@ -1302,7 +1303,7 @@ export class Bricks extends World {
       b.y = 450;
       if (i.pressed.a) {
         this.launched = true;
-        this.sound.play(440);
+        this.cue("launch");
       }
     } else {
       const factor = i.current.b ? 0.55 : 1;
@@ -1332,7 +1333,7 @@ export class Bricks extends World {
           b.vx = (Math.sign(b.vx) || Math.sign(i.x) || 1) * 65;
         b.vy = -Math.sqrt(Math.max(190 ** 2, 330 ** 2 - b.vx ** 2));
         b.y = this.paddle.y - 17;
-        this.sound.play(390, 0.07);
+        this.cue("bounce", 390, 0.07);
       }
       for (const r of this.bricks)
         if (r.alive && overlap({ x: b.x, y: b.y, w: 16, h: 16 }, r)) {
@@ -1483,7 +1484,13 @@ export class Garden extends World {
     if (box) {
       box.x += dx;
       box.y += dy;
-      this.sound.play(430, 0.08);
+      this.cue(
+        this.targets.some((t) => t.x === box.x && t.y === box.y)
+          ? "plant"
+          : "push",
+        430,
+        0.08,
+      );
     }
     if (dx) this.facing = dx;
     if (box) this.actionTime = 0.22;
@@ -1499,6 +1506,7 @@ export class Garden extends World {
       this.boxes = state.boxes;
       this.moves = state.moves;
       this.done = false;
+      this.cue("undo");
     }
   }
   update(dt, i) {
@@ -1654,6 +1662,7 @@ export class Space extends World {
     this.player.y = clamp(this.player.y + (i.y / norm) * 245 * dt, 95, 495);
     if (this.shield >= 0.25) this.shieldLocked = false;
     const shield = !!i.current.b && this.shield > 0 && !this.shieldLocked;
+    if (shield && !this.shieldActive) this.cue("shield");
     this.shieldActive = shield;
     this.shield = clamp(this.shield + (shield ? -0.35 : 0.13) * dt, 0, 1);
     if (this.shield <= 0) {
@@ -1668,7 +1677,7 @@ export class Space extends World {
         vx: 540,
         friend: true,
       });
-      this.sound.play(800, 0.045);
+      this.cue("shot", 800, 0.045);
     }
     this.firing = !!i.current.a;
     for (const e of this.enemies) {
@@ -1700,11 +1709,11 @@ export class Space extends World {
       } else if (near(b, this.player, shield ? 54 : 26)) {
         b.dead = true;
         if (shield) {
-          this.burst(b.x, b.y, "#c2e9e2");
+          this.burst(b.x, b.y, "#c2e9e2", "bounce");
         } else if (this.inv <= 0) {
           this.inv = 1;
           if (!this.gentle) this.health--;
-          this.sound.play(190, 0.1);
+          this.cue("bump", 190, 0.1);
           if (this.health <= 0) this.failed = true;
         }
       }
