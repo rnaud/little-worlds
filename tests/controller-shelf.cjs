@@ -74,7 +74,11 @@ const { chromium } = require("playwright"),
     await press(13);
     assert.equal(await focused(), "garden");
     await press(12);
-    assert.equal(await focused(), "meadow");
+    assert.equal(
+      await focused(),
+      "meadow",
+      await page.evaluate(() => document.activeElement.outerHTML),
+    );
     await page.screenshot({
       path: "tests/artifacts/cartridge-shelf.png",
       fullPage: true,

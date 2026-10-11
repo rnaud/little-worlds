@@ -221,7 +221,7 @@ require("node:fs").mkdirSync("tests/artifacts", { recursive: true });
     JSON.stringify({
       result: "PASS",
       checks: [
-        "8 rendered games",
+        "7 rendered games",
         "four family characters persist across reload",
         "320x180 pixel framebuffer and nearest-neighbor display",
         "pause and resume",

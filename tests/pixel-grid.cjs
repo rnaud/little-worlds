@@ -142,10 +142,32 @@ const assert = require("node:assert/strict");
     ]) {
       await page.setViewportSize(viewport);
       await page.waitForTimeout(150);
+      await page.waitForFunction(
+        () => {
+          const c = document.querySelector("#game-canvas"),
+            r = c.getBoundingClientRect();
+          return (
+            r.width <= c.parentElement.clientWidth + 0.1 &&
+            r.height <= c.parentElement.clientHeight + 0.1
+          );
+        },
+        null,
+        { timeout: 5000 },
+      );
       const display = await page.locator("#game-canvas").evaluate((c) => {
         const r = c.getBoundingClientRect(),
           d = devicePixelRatio;
         return {
+          rect: {
+            x: r.x,
+            y: r.y,
+            w: r.width,
+            h: r.height,
+            parentW: c.parentElement.clientWidth,
+            parentH: c.parentElement.clientHeight,
+            viewport: innerWidth,
+            cssWidth: c.style.width,
+          },
           width: c.width,
           height: c.height,
           sx: (r.width * d) / 320,
@@ -163,7 +185,7 @@ const assert = require("node:assert/strict");
       assert.equal(display.height, 180);
       assert.ok(
         display.fits,
-        `${dpr}: entire native framebuffer fits ${viewport.width}x${viewport.height}`,
+        `${dpr}: entire native framebuffer fits ${viewport.width}x${viewport.height}: ${JSON.stringify(display)}`,
       );
       for (const k of ["sx", "sy", "x", "y"])
         assert.ok(

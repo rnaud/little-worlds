@@ -1,3 +1,4 @@
+import { paintRallyRoad } from "./rally-art.js";
 import { cover, sprite } from "./pixels.js";
 import { worldCover } from "./world-art.js";
 import {
@@ -30,6 +31,11 @@ export function art(kind, large = false) {
     ])
       actor(id, "celebrate", x, 109);
   } else if (kind === "rally") {
+    const road = document.createElement("canvas");
+    road.width = 320;
+    road.height = 180;
+    paintRallyRoad(road.getContext("2d"), 350);
+    ctx.drawImage(road, 32, 10, 256, 160, 0, 0, 256, 160);
     draw(kartDebugFrames("gaia")[1], 89, 110);
     draw(kartDebugFrames("bean")[2], 147, 117);
   } else if (kind === "space") {
@@ -50,10 +56,6 @@ export function art(kind, large = false) {
     actor("gaia", "actionUp", 101, 107, 0.1);
     actor("bean", "curious", 143, 110);
     draw(objectFrame("amber-lantern"), 85, 111);
-  } else if (kind === "rhythm") {
-    actor("gaia", "celebrate", 99, 107);
-    actor("bean", "play", 143, 110);
-    draw(objectFrame("festival-drum"), 66, 123);
   } else if (kind === "meadow") {
     actor("gaia", "run", 92, 110, 0.12);
     actor("bean", "run", 140, 110, 0.17);

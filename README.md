@@ -18,19 +18,21 @@ Vite prints the local and LAN URLs. Open the LAN URL from a phone on the same ne
 
 ## Games
 
-| Game              | Genre                | Finish condition                                                                          |
-| ----------------- | -------------------- | ----------------------------------------------------------------------------------------- |
-| Cloudberry Climb  | Precision platformer | Collect three stars and reach the summit flag; jump, wall-slide/jump and directional dash |
-| Banana Meadows    | Classic platformer   | Six stages: collect bananas, ride ferries, bounce on flower springs and reach the cottage |
-| The Lantern Woods | Top-down adventure   | Find a key, unlock the gate, recover three lanterns and return to the shrine              |
-| Rainbow Rally     | Mode 7 style racer   | Finish an 1,800 m route; steer, boost, brake and avoid puddles                            |
-| Starlight Bounce  | Brick breaker        | Clear all 24 bricks; paddle, launch and slow-motion assist                                |
-| Pocket Garden     | Push-block puzzle    | Eight progressively harder gardens, from one pot to four; unlimited undo and reset        |
-| Unicorns in Orbit | Space shooter        | Clear three waves; move, fire and use a rechargeable shield                               |
+| Game              | Genre                | Finish condition                                                                                |
+| ----------------- | -------------------- | ----------------------------------------------------------------------------------------------- |
+| Cloudberry Climb  | Precision platformer | Three mountain journeys: jumps, dash crossings and crumbling ice; collect three stars per stage |
+| Banana Meadows    | Classic platformer   | Six stages: collect bananas, ride ferries, bounce on flower springs and reach the cottage       |
+| The Lantern Woods | Top-down adventure   | Find a key, unlock the gate, recover three lanterns and return to the shrine                    |
+| Rainbow Rally     | Mode 7 style racer   | Finish an 1,800 m route; steer, boost, brake and avoid puddles                                  |
+| Starlight Bounce  | Brick breaker        | Clear all 24 bricks; paddle, launch and slow-motion assist                                      |
+| Pocket Garden     | Push-block puzzle    | Eight progressively harder gardens, from one pot to four; unlimited undo and reset              |
+| Unicorns in Orbit | Space shooter        | Clear three waves; move, fire and use a rechargeable shield                                     |
 
 These are small complete games with authored levels, not full commercial-scale campaigns. Inspirations are genre conventions, with original names and drawn assets. Banana Meadows supports a second family helper, with shared collectibles and free recovery; the other games are single player, designed for taking turns on the same device.
 
 ## New journeys and family play
+
+Cloudberry Climb has three authored routes: First Ascent, Glacier Steps and The Cloud Relay. Broad early landings teach jumping, long crossings require an airborne dash, and the later routes introduce cracked ice. Stable beacons save checkpoints before difficult sections. Collectibles survive retries.
 
 Banana Meadows has six separate stages: Banana Bay, The Palm Walk, Spring Picnic, Lagoon Ferries, Butterfly Steps and The Family Picnic. Each introduces or combines routes, springs, moving leaf platforms and crumbling coral. Checkpoints and unlimited retries remain available. All six have been completed in both difficulties using normal movement controls without retries in deterministic checks.
 
@@ -101,6 +103,7 @@ npm run test:assets
 npm run test:controller
 npm run test:campaign
 npm run test:meadow
+npm run test:summit
 npm run test:coop
 npm run test:discoveries
 # Optional, with Playwright WebKit and Firefox installed:
@@ -151,7 +154,7 @@ Research: [SLYNYRD’s side-view tiles](https://www.slynyrd.com/blog/2020/5/21/p
 
 The background atlas was created using the **imagegen skill and built-in image generation tool**. Its exact prompt is saved in `public/art/prompt.txt`; the generated original is `public/art/eight-worlds-v1.png`. The preparation pipeline crops the eight panels using their inspected boundaries, converts each to 320×180 native pixels and a maximum of 32 colors, suppresses small isolated artifacts, and reduces background brightness to preserve playability. The game normally loads the prepared native atlas; original sheets provide a local fallback. This is generated artwork processed for the pixel pipeline, not a claim that every background pixel was individually hand placed. Foreground plants, crystals, lanterns and gears come from `public/art/flora-v1.png`; collision surfaces and repeating materials are code-authored in `src/world-art.js`. All consumed assets live in this repository; no remote image service is needed to play.
 
-Platformer backgrounds now have three independently scrolling layers, using a maximum of five colors per layer. They are prepared from `public/art/platform-parallax-v1.png` (exact prompt: `public/art/platform-parallax-prompt.txt`). Palette-preserving majority cleanup removes source stippling. Platforms have a bright continuous top edge and a sparse dark body so landings read at a glance. Banana Bay has broad, short-gap beach islands and optional elevated bananas; thin Meadows ledges allow jumping up through them. Cloudberry Climb has deliberate jump practice, two dash gaps, recovery terrain and three checkpoints.
+Platformer backgrounds now have three independently scrolling layers, using a maximum of five colors per layer. They are prepared from `public/art/platform-parallax-v1.png` (exact prompt: `public/art/platform-parallax-prompt.txt`). Palette-preserving majority cleanup removes source stippling. Platforms have a bright continuous top edge and a sparse dark body so landings read at a glance. Banana Bay has broad, short-gap beach islands and optional elevated bananas; thin Meadows ledges allow jumping up through them or dropping with Down + A. Cloudberry Climb has deliberate jump practice, two dash gaps, recovery terrain and three checkpoints.
 
 Rainbow Rally uses a 320×180 scanline-projected ground plane, depth-sorted obstacles and rear-view family karts. All perspective size variants are rasterized before drawing at 1:1, keeping a single pixel grid. [Kulor’s Mode 7 perspective guide](https://forums.nesdev.org/viewtopic.php?t=24053) informed the per-scanline perspective approach; this is an original browser implementation, not an SNES emulator.
 

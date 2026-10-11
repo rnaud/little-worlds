@@ -10,7 +10,7 @@ export const games = [
     icon: "mountain",
     time: "3–5 min",
     description:
-      "Climb for three stars. Bean bounds along beside you; Arnaud cheers you on at the summit.",
+      "Three mountain journeys: practice your dash, cross crumbling ice and link the cloud relay. Bean bounds along beside you.",
     objective: "Find 3 stars and reach the summit flag",
     help: "← → move · Space / A jump · X / B dash · Jump against walls to wall-jump",
     a: "Jump",
@@ -29,7 +29,7 @@ export const games = [
     description:
       "Six picnic stages: banana trails, flower springs, leaf ferries and crumbly coral. Bring the family home.",
     objective: "Collect 5 bananas, then find the cottage",
-    help: "← → move · Space / A jump · X / B sprint · Jump on the sleepy slimes",
+    help: "← → move · Space / A jump · X / B sprint · ↓ + A drop through ledges",
     a: "Jump",
     b: "Sprint",
   },

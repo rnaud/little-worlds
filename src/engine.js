@@ -76,6 +76,16 @@ export class Painter {
     const parent = this.canvas.parentElement,
       r = parent.getBoundingClientRect();
     const dpr = window.devicePixelRatio || 1;
+    if (!parent.clientWidth || !parent.clientHeight) return;
+    const layout = [
+      parent.clientWidth,
+      parent.clientHeight,
+      r.x,
+      r.y,
+      dpr,
+    ].join(":");
+    if (this.displayLayout === layout) return;
+    this.displayLayout = layout;
     const scale = Math.max(
       1,
       Math.floor(
@@ -87,7 +97,8 @@ export class Painter {
     );
     const width = (320 * scale) / dpr,
       height = (180 * scale) / dpr;
-    this.renderer.setSize(320, 180, false);
+    if (this.canvas.width !== 320 || this.canvas.height !== 180)
+      this.renderer.setSize(320, 180, false);
     Object.assign(this.canvas.style, {
       width: `${width}px`,
       height: `${height}px`,
@@ -492,12 +503,23 @@ export class Painter {
       };
       rect(0, 0, width, height, 0);
       rect(1, 2, width - 2, height - 3, 1);
-      rect(1, 1, width - 2, 2, 3);
-      rect(1, 3, width - 2, 2, 2);
-      for (let px = 9; px < width - 6; px += 26) {
-        rect(px, Math.min(height - 2, 8 + (px % 3)), 6, 1, 0);
-        if (height > 18) rect(px + 8, 20, 5, 1, 0);
+      rect(1, 1, width - 2, 1, 3);
+      rect(1, 2, width - 2, 2, 2);
+      // Unbroken bright landing edge; organic clusters stay below that edge.
+      for (let px = 3; px < width - 3; px += 9) {
+        const dip = 1 + (px % 3);
+        rect(px, 4, 3, dip, 2);
+        if (kind === "summit") rect(px + 1, 4, 1, dip, 3);
       }
+      for (let py = 9; py < height - 2; py += 9)
+        for (let px = 3 + ((py / 9) % 2) * 7; px < width - 7; px += 19) {
+          rect(Math.floor(px), py, 7, 1, 0);
+          rect(Math.floor(px) + 6, py + 1, 1, 2, 0);
+          if (kind === "summit") rect(Math.floor(px) + 1, py - 1, 5, 1, 2);
+        }
+      // Cut the bottom corners to keep thin ledges from looking like UI boxes.
+      ctx.clearRect(0, height - 1, 1, 1);
+      ctx.clearRect(width - 1, height - 1, 1, 1);
       this.texture(key, canvas);
     }
     return this.shape(
@@ -548,6 +570,8 @@ export class Painter {
     );
   }
   finish() {
+    // ResizeObserver can lag viewport changes; also align after fractional scrolling.
+    this.resize();
     for (let i = this.cursor; i < this.pool.length; i++)
       this.pool[i].visible = false;
     this.renderer.render(this.scene, this.camera);
@@ -796,7 +820,18 @@ export class Sound {
     if (!this.enabled) return;
     try {
       this.ctx ??= new (window.AudioContext || window.webkitAudioContext)();
-      if (this.ctx.state === "suspended") this.ctx.resume().catch(() => {});
+      if (
+        this.ctx.state === "suspended" &&
+        (!this.resuming || globalThis.navigator?.userActivation?.isActive)
+      ) {
+        this.resuming = true;
+        this.ctx
+          .resume()
+          .catch(() => {})
+          .finally(() => {
+            this.resuming = false;
+          });
+      }
     } catch {}
   }
   stop() {

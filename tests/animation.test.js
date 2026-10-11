@@ -174,3 +174,24 @@ test("garden routing avoids pots and does not cut corners", () => {
   assert.ok(states.has("exploring"));
   assert.ok(states.has("returning"));
 });
+
+test("blocked autoplay keeps one pending resume request instead of growing every game frame", async () => {
+  const sound = new Sound();
+  let calls = 0,
+    release;
+  sound.ctx = {
+    state: "suspended",
+    resume() {
+      calls++;
+      return new Promise((resolve) => (release = resolve));
+    },
+  };
+  for (let n = 0; n < 600; n++) sound.unlock();
+  assert.equal(calls, 1);
+  release();
+  await Promise.resolve();
+  await Promise.resolve();
+  sound.ctx.state = "running";
+  sound.unlock();
+  assert.equal(calls, 1);
+});

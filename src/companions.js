@@ -51,7 +51,7 @@ export class BeanCompanion {
           safe.x - safe.w / 2 + 36,
           safe.x + safe.w / 2 - 36,
         ),
-        ty: safe.y - safe.h / 2 - 12,
+        ty: safe.y - safe.h / 2 - 13.68,
         platform: index,
         elapsed: 0,
         duration: clamp(Math.abs(safe.x - this.x) / 380, 0.35, 1.1),
@@ -78,7 +78,7 @@ export class BeanCompanion {
     }
     const floor = platforms[this.platform];
     this.x += floor.dx || 0;
-    this.y = floor.y - floor.h / 2 - 12;
+    this.y = floor.y - floor.h / 2 - 13.68;
     this.landings = this.landings.filter((index) => !platforms[index]?.hidden);
     if (this.landings.length) {
       const index = this.landings.shift(),
@@ -93,7 +93,7 @@ export class BeanCompanion {
         x: this.x,
         y: this.y,
         tx,
-        ty: destination.y - destination.h / 2 - 12,
+        ty: destination.y - destination.h / 2 - 13.68,
         platform: index,
         elapsed: 0,
         duration: clamp(Math.abs(tx - this.x) / 360, 0.35, 0.85),

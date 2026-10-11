@@ -1,7 +1,13 @@
+import { paintRallyRoad, rallyRoad } from "./rally-art.js";
 import { clamp, overlap, near, W, H } from "./engine.js";
 import { BeanCompanion, clearSight } from "./companions.js";
 import { ActorAnimation, directionalState } from "./animation.js";
-import { MEADOW_LEVELS, GARDEN_LEVELS, KEEPSAKES } from "./levels.js";
+import {
+  SUMMIT_LEVELS,
+  MEADOW_LEVELS,
+  GARDEN_LEVELS,
+  KEEPSAKES,
+} from "./levels.js";
 import { platformMotion } from "./platform-motion.js";
 class World {
   constructor(gentle = false, sound = { play() {} }) {
@@ -246,11 +252,10 @@ export class Platformer extends World {
     super(gentle, sound);
     this.kind = kind;
     this.precision = kind === "summit";
-    this.level = this.precision
-      ? 0
-      : clamp(Math.floor(level) || 0, 0, MEADOW_LEVELS.length - 1);
-    this.levelInfo = this.precision ? null : MEADOW_LEVELS[this.level];
-    this.need = this.precision ? 3 : this.levelInfo.need;
+    const levels = this.precision ? SUMMIT_LEVELS : MEADOW_LEVELS;
+    this.level = clamp(Math.floor(level) || 0, 0, levels.length - 1);
+    this.levelInfo = levels[this.level];
+    this.need = this.levelInfo.need;
     this.camera = 0;
     this.deaths = 0;
     this.checkpoint = { x: 100, y: 400 };
@@ -270,21 +275,8 @@ export class Platformer extends World {
     this.coyote = 0;
     this.dashTime = 0;
     this.trail = [];
-    this.finishX = this.precision ? 2260 : 2130;
-    this.platforms = this.precision
-      ? [
-          [180, 489, 360, 102], // Safe clearing: practice a full jump.
-          [390, 390, 156, 24],
-          [570, 336, 204, 24],
-          [790, 489, 260, 102], // Rest before the first dash crossing.
-          [1290, 489, 260, 102],
-          [1420, 378, 156, 24],
-          [1580, 312, 180, 24],
-          [1760, 246, 180, 24],
-          [2180, 306, 264, 108], // Wide final landing, with a visible flag.
-          [1640, 515, 440, 50], // Recovery shelf under the ascent.
-        ]
-      : this.levelInfo.platforms;
+    this.finishX = this.levelInfo.finish[0];
+    this.platforms = this.levelInfo.platforms;
     this.platforms = this.platforms.map(([x, y, w, h]) => ({
       x,
       y,
@@ -292,15 +284,7 @@ export class Platformer extends World {
       h,
       oneWay: !this.precision && h <= 24,
     }));
-    this.items = (
-      this.precision
-        ? [
-            [570, 285],
-            [1760, 195],
-            [2180, 213],
-          ]
-        : this.levelInfo.items
-    ).map(([x, y]) => ({ x, y, got: false }));
+    this.items = this.levelInfo.items.map(([x, y]) => ({ x, y, got: false }));
     this.hazards = this.precision
       ? []
       : this.levelInfo.enemies.map(([x, y]) => [x, y, 30, 28]);
@@ -344,15 +328,14 @@ export class Platformer extends World {
     if (this.levelInfo) {
       this.finishX = this.levelInfo.finish[0];
       this.flag = { x: this.finishX, y: this.levelInfo.finish[1] };
-      this.objective = `Collect ${this.need} bananas, then reach the picnic · ${this.levelInfo.title}`;
+      this.objective = this.precision
+        ? `Find ${this.need} stars and reach the flag · ${this.levelInfo.title}`
+        : `Collect ${this.need} bananas, then reach the picnic · ${this.levelInfo.title}`;
     }
-    this.checkpoints = this.precision
-      ? [
-          { x: 790, y: 411 },
-          { x: 1290, y: 411 },
-          { x: 1760, y: 207 },
-        ]
-      : [];
+    this.checkpoints = (this.levelInfo.checkpoints || []).map(([x, y]) => ({
+      x,
+      y,
+    }));
     this.checkpointSaved = false;
   }
   stepPlatforms(dt) {
@@ -547,15 +530,8 @@ export class Platformer extends World {
     const cameraTarget = clamp(p.x - 330 + p.face * 35, 0, this.finishX - 750);
     this.camera += (cameraTarget - this.camera) * (1 - Math.exp(-7 * dt));
     this.bean.platformStep(dt, p, this.platforms, this.camera, this.checkpoint);
-    this.hint = this.precision
-      ? p.x < 690
-        ? "Follow the first star. Hold A for a higher jump."
-        : p.x < 1300
-          ? "Jump from the edge, then press B in the air to dash across."
-          : p.x < 1840
-            ? "Climb to the second star. Each landing refills your dash."
-            : "One last jump and dash to the flag!"
-      : this.levelInfo.lesson + " Hold B to sprint.";
+    this.hint =
+      this.levelInfo.lesson + (this.precision ? "" : " Hold B to sprint.");
     if (this.score >= need)
       this.hint = this.precision
         ? "All stars collected! Land by the flag to finish."
@@ -628,9 +604,9 @@ export class Platformer extends World {
           this.checkpoint.x >= point.x ? 1 : 0.65,
         );
       // Two chevrons identify the deliberate dash gaps, not decoration.
-      for (const x of [955, 1910]) {
-        p.line(x - c, 373, x - c + 18, 385, 6, "#f8e9ac");
-        p.line(x - c + 18, 385, x - c, 397, 6, "#f8e9ac");
+      for (const [x, y] of this.levelInfo.dashSigns) {
+        p.line(x - c, y - 12, x - c + 18, y, 6, "#f8e9ac");
+        p.line(x - c + 18, y, x - c, y + 12, 6, "#f8e9ac");
       }
     }
     for (const b of this.items)
@@ -668,7 +644,7 @@ export class Platformer extends World {
     for (const q of this.trail)
       p.person(
         q.x - c,
-        q.y + (this.player.h - 38) / 2,
+        q.y + this.player.h / 2 - 15.3,
         0.85,
         this.t,
         this.player.face,
@@ -679,7 +655,7 @@ export class Platformer extends World {
     this.drawHero(
       p,
       this.player.x - c,
-      this.player.y + (this.player.h - 38) / 2,
+      this.player.y + this.player.h / 2 - 15.3,
       0.85,
       this.player.face,
       this.inv > 0,
@@ -689,7 +665,7 @@ export class Platformer extends World {
         body = b.player;
       p.person(
         body.x - c,
-        body.y + (body.h - 38) / 2,
+        body.y + body.h / 2 - 15.3,
         0.85,
         b.actor.time,
         body.face,
@@ -704,7 +680,7 @@ export class Platformer extends World {
     if (p.hero !== "nur" && this.buddy?.hero !== "nur")
       p.person(
         178 - c,
-        this.precision ? 412 : 420,
+        this.platforms[0].y - this.platforms[0].h / 2 - 15.3,
         0.85,
         this.t,
         1,
@@ -714,7 +690,7 @@ export class Platformer extends World {
     if (p.hero !== "arnaud" && this.buddy?.hero !== "arnaud")
       p.person(
         this.finishX - c - 60,
-        this.flag.y - 22,
+        (this.precision ? this.flag.y : 438) - 15.3,
         0.85,
         this.t,
         1,
@@ -1062,7 +1038,7 @@ export class Rally extends World {
     this.nextMilestone = 600;
   }
   road(y) {
-    return 480 + Math.sin(this.distance / 360 + y / 220) * 85;
+    return rallyRoad(this.distance, y);
   }
   update(dt, i) {
     this.tick(dt);
@@ -1148,56 +1124,7 @@ export class Rally extends World {
       this.roadCanvas.width = 320;
       this.roadCanvas.height = 180;
     }
-    const ctx = this.roadCanvas.getContext("2d");
-    const rect = (x, y, w, h, c) => {
-      ctx.fillStyle = c;
-      ctx.fillRect(Math.round(x), Math.round(y), Math.round(w), Math.round(h));
-    };
-    rect(0, 0, 320, 180, "#b9d9d8");
-    rect(0, 32, 320, 26, "#d5e7d9");
-    rect(252, 17, 17, 17, "#fff1bd");
-    // A quiet coast stays fixed on the horizon; only the ground rushes by.
-    for (let x = 0; x < 320; x += 3) {
-      const hill =
-        10 +
-        Math.round(
-          5 * Math.sin((x + this.distance * 0.012) / 37) + 3 * Math.sin(x / 13),
-        );
-      rect(x, 58 - hill, 3, hill, "#89aaa3");
-    }
-    rect(0, 55, 320, 3, "#83b8c2");
-    for (let py = 58; py < 180; py++) {
-      const depth = 90 / Math.max(0.5, py - 58),
-        y = 424 - 140 * (depth - 1),
-        scale = 1.5 / depth;
-      const center = (480 + (this.road(y) - this.road(424)) * scale) / 3;
-      const stripe = Math.floor((y + this.distance * 2.85) / 76) % 2 === 0;
-      rect(0, py, 320, 1, stripe ? "#80a478" : "#88aa7d");
-      rect(center - (205 * scale) / 3, py, (410 * scale) / 3, 1, "#d9c398");
-      rect(
-        center - (188 * scale) / 3,
-        py,
-        (376 * scale) / 3,
-        1,
-        stripe ? "#fcf0cb" : "#c77263",
-      );
-      rect(
-        center - (173 * scale) / 3,
-        py,
-        (346 * scale) / 3,
-        1,
-        stripe ? "#737c86" : "#78818b",
-      );
-      if (stripe)
-        for (const lane of [-58, 58])
-          rect(
-            center + ((lane - 2) * scale) / 3,
-            py,
-            Math.max(1, (4 * scale) / 3),
-            1,
-            "#f3e4b8",
-          );
-    }
+    paintRallyRoad(this.roadCanvas.getContext("2d"), this.distance);
     const texture = p.texture("rally:mode7", this.roadCanvas);
     texture.image = this.roadCanvas;
     texture.needsUpdate = true;

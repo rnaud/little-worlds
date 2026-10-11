@@ -1,5 +1,107 @@
 // Authored bite-sized journeys. Geometry is independent of the artwork.
 const ground = (x, w, top = 438) => [x, (top + 540) / 2, w, 540 - top];
+const ledge = (x, top, w = 180) => [x, top + 12, w, 24];
+export const SUMMIT_LEVELS = [
+  {
+    title: "First Ascent",
+    need: 3,
+    lesson:
+      "Hold A to jump. Jump from the edge, then B to dash over the long gaps.",
+    platforms: [
+      ground(180, 360),
+      ledge(390, 378, 156),
+      ledge(570, 324, 204),
+      ground(790, 260),
+      ground(1290, 260),
+      ledge(1420, 366, 156),
+      ledge(1580, 300),
+      ledge(1760, 234),
+      [2180, 306, 264, 108],
+      ground(1640, 440, 490),
+    ],
+    items: [
+      [570, 285],
+      [1760, 195],
+      [2180, 213],
+    ],
+    checkpoints: [
+      [790, 411],
+      [1290, 411],
+      [1760, 207],
+    ],
+    dashSigns: [
+      [955, 385],
+      [1910, 245],
+    ],
+    finish: [2260, 252],
+  },
+  {
+    title: "Glacier Steps",
+    need: 3,
+    lesson:
+      "Cracked ice shakes before it falls. Keep hopping; rest at the beacons.",
+    platforms: [
+      ground(150, 300),
+      ledge(410, 372),
+      ledge(625, 306),
+      ledge(835, 240),
+      ledge(1045, 306),
+      ground(1280, 260),
+      ground(1760, 280),
+      ledge(1900, 366, 160),
+      ledge(2100, 294, 240),
+    ],
+    items: [
+      [625, 267],
+      [1045, 267],
+      [2100, 255],
+    ],
+    crumbling: [1, 2, 3],
+    checkpoints: [
+      [1045, 279],
+      [1280, 411],
+      [1760, 411],
+    ],
+    dashSigns: [[1480, 385]],
+    finish: [2170, 294],
+  },
+  {
+    title: "The Cloud Relay",
+    need: 3,
+    lesson:
+      "Link your jumps and dashes. Every landing refills your dash; blue beacons save your progress.",
+    platforms: [
+      ground(170, 340),
+      ledge(420, 378),
+      ledge(620, 318, 200),
+      ledge(860, 258, 240),
+      ledge(1370, 258, 280),
+      ledge(1540, 324),
+      ground(1800, 260),
+      ledge(1990, 366),
+      ledge(2190, 300),
+      ledge(2420, 234, 220),
+      ledge(2900, 234, 260),
+    ],
+    items: [
+      [620, 279],
+      [2190, 261],
+      [2900, 195],
+    ],
+    crumbling: [1, 2, 8],
+    checkpoints: [
+      [860, 231],
+      [1370, 231],
+      [1800, 411],
+      [2420, 207],
+    ],
+    dashSigns: [
+      [1020, 220],
+      [2570, 200],
+    ],
+    finish: [2970, 234],
+  },
+];
 export const MEADOW_LEVELS = [
   {
     title: "Banana Bay",
@@ -352,6 +454,7 @@ export const GARDEN_LEVELS = [
 ];
 
 export function levelsFor(id) {
+  if (id === "summit") return SUMMIT_LEVELS;
   return id === "meadow" ? MEADOW_LEVELS : id === "garden" ? GARDEN_LEVELS : [];
 }
 

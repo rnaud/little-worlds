@@ -1,16 +1,44 @@
 // Follow the authored route with ordinary jump/dash inputs, never teleport.
-const route = [
-  [390, 1],
-  [570, 2],
-  [790, 3],
-  [1290, 4],
-  [1420, 5],
-  [1580, 6],
-  [1760, 7],
-  [2180, 8],
-  [2260, 8],
+const routes = [
+  [
+    [390, 1],
+    [570, 2],
+    [790, 3],
+    [1290, 4],
+    [1420, 5],
+    [1580, 6],
+    [1760, 7],
+    [2180, 8],
+    [2260, 8],
+  ],
+  [
+    [410, 1],
+    [625, 2],
+    [835, 3],
+    [1045, 4],
+    [1280, 5],
+    [1760, 6],
+    [1900, 7],
+    [2100, 8],
+    [2170, 8],
+  ],
+  [
+    [420, 1],
+    [620, 2],
+    [860, 3],
+    [1370, 4],
+    [1540, 5],
+    [1800, 6],
+    [1990, 7],
+    [2190, 8],
+    [2420, 9],
+    [2900, 10],
+    [2970, 10],
+  ],
 ];
-export function summitDriver() {
+export function summitDriver(level = 0) {
+  const route = routes[level],
+    dashAt = [[3, 7], [5], [3, 9]][level];
   let at = 0,
     held = false,
     airTime = 0,
@@ -39,7 +67,7 @@ export function summitDriver() {
         dir = Math.abs(delta) > 5 ? Math.sign(delta) : 0;
       const floor = g.platforms[on],
         gap = floor ? target.x - target.w / 2 - (floor.x + floor.w / 2) : 0;
-      const dashGap = at === 3 || at === 7;
+      const dashGap = dashAt.includes(at);
       const edge = floor ? floor.x + floor.w / 2 : 0;
       const rise = target.y - target.h / 2 - (p.y + p.h / 2),
         v = g.gentle ? 520 : 480;

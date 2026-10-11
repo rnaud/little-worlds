@@ -27,7 +27,8 @@
     "test:coop": "node tests/coop-browser.cjs",
     "test:meadow": "node tests/meadow-browser.cjs",
     "test:discoveries": "node tests/discoveries-browser.cjs",
-    "test:deployment": "node tests/deployment-browser.cjs"
+    "test:deployment": "node tests/deployment-browser.cjs",
+    "test:summit": "node tests/summit-browser.cjs"
   },
   "dependencies": {
     "three": "^0.180.0"

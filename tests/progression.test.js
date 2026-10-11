@@ -158,3 +158,48 @@ test("all six meadow stages can be completed with ordinary controls in both diff
       assert.equal(game.deaths, 0, `${level}: fair route without retries`);
     }
 });
+
+import { summitDriver } from "./summit-driver.js";
+test("all three summit stages teach jumps, dash crossings and cracked ice with safe checkpoints", () => {
+  for (const gentle of [false, true])
+    for (let level = 0; level < 3; level++) {
+      const g = new Platformer("summit", gentle, undefined, level),
+        driver = summitDriver(level);
+      for (const point of g.checkpoints)
+        assert.ok(
+          g.platforms.some(
+            (b) =>
+              !b.crumble &&
+              Math.abs(b.x - point.x) < b.w / 2 &&
+              Math.abs(b.y - b.h / 2 - point.y - 27) < 1,
+          ),
+        );
+      for (let tick = 0; tick < 120 * 40 && !g.done; tick++)
+        g.update(1 / 120, driver.input(g));
+      assert.ok(g.done, `stage ${level} gentle ${gentle}`);
+      assert.equal(g.deaths, 0);
+      assert.equal(g.score, 3);
+    }
+});
+
+test("Meadows thin ledges allow jumping up and deliberate down-jump drops", () => {
+  const g = new Platformer("meadow", false),
+    b = g.platforms[5],
+    top = b.y - b.h / 2;
+  Object.assign(g.player, {
+    x: b.x,
+    y: top + 40,
+    vy: -300,
+    vx: 0,
+    ground: false,
+  });
+  g.update(1 / 120, idle());
+  assert.ok(g.player.vy < 0, "underside does not cancel the jump");
+  Object.assign(g.player, { x: b.x, y: top - 27, vy: 0, ground: true });
+  g.update(1 / 120, { ...idle(), y: 1, pressed: { a: true } });
+  assert.equal(g.player.ground, false);
+  assert.ok(g.player.vy > 0);
+  step(g, 0.6);
+  assert.ok(g.player.ground);
+  assert.equal(g.player.y + 27, 438);
+});

@@ -46,7 +46,7 @@ const keepsakes = new Set(
   ),
 );
 const levelRecords = {};
-for (const id of ["meadow", "garden"]) {
+for (const id of ["summit", "meadow", "garden"]) {
   levelRecords[id] = {};
   for (const [key, record] of Object.entries(saved.levelRecords?.[id] || {})) {
     if (
@@ -116,8 +116,8 @@ const artObserver = new ResizeObserver((entries) => {
     const r = target.getBoundingClientRect();
     const scale = Math.max(
       1,
-      Math.floor(
-        Math.min(
+      Math.ceil(
+        Math.max(
           (target.clientWidth * dpr) / 256,
           (target.clientHeight * dpr) / 160,
         ),
@@ -130,7 +130,7 @@ const artObserver = new ResizeObserver((entries) => {
       height: `${height}px`,
       transform: "none",
       left: `${Math.round((r.left + target.clientLeft + (target.clientWidth - width) / 2) * dpr) / dpr - r.left - target.clientLeft}px`,
-      top: `${Math.round((r.top + target.clientTop + (target.clientHeight - height) / 2) * dpr) / dpr - r.top - target.clientTop}px`,
+      top: `${Math.round((r.top + target.clientTop + (target.clientHeight - height) * 0.85) * dpr) / dpr - r.top - target.clientTop}px`,
     });
   }
 });
@@ -244,7 +244,7 @@ $("#gentle").onchange = (e) => {
 };
 let dialogReturn = null;
 function openDialog(id, trigger) {
-  menuNeutral = true;
+  latchMenu();
   if (mode === "playing") pause();
   dialogReturn = trigger;
   const dialog = $(id);
@@ -323,7 +323,7 @@ $("#surprise").onclick = () => {
   );
 };
 function overlay(label, title, copy, action) {
-  menuNeutral = true;
+  latchMenu();
   $("#game-overlay").dataset.mode = mode;
   $("#overlay-results").hidden = mode !== "won";
   $("#overlay-label").textContent = label;
@@ -523,7 +523,7 @@ matchMedia("(orientation:landscape)").addEventListener("change", () =>
   requestAnimationFrame(fitPlayView),
 );
 function home() {
-  menuNeutral = true;
+  latchMenu();
   sound.stop();
   mode = "home";
   input.enabled = false;
@@ -662,6 +662,11 @@ function navigateMenu(targets, direction) {
     }
   }
   focusMenu(best);
+}
+function latchMenu() {
+  menuNeutral = ["left", "right", "up", "down", "a", "b", "pause"].some(
+    (k) => input.current[k] || input.previous[k],
+  );
 }
 function menuControls(i) {
   const dialog = document.querySelector("dialog[open]");
@@ -825,7 +830,7 @@ function frame(now) {
         "A LITTLE VICTORY",
         `You did it, ${name}!`,
         levels.length
-          ? `${game.levelInfo.title} complete! ${Object.keys(levelRecords[selected.id]).length} of ${levels.length} stages finished.${selected.id === "garden" ? ` ${game.moves} moves.` : ` ${game.score} bananas brought home.`}`
+          ? `${game.levelInfo.title} complete! ${Object.keys(levelRecords[selected.id]).length} of ${levels.length} stages finished.${selected.id === "garden" ? ` ${game.moves} moves.` : ` ${game.score} ${selected.id === "summit" ? "stars" : "bananas"} brought home.`}`
           : `${selected.title} complete. Another little memory for the collection.`,
         currentLevel < levels.length - 1 ? "Next stage →" : "Play again ↗",
       );

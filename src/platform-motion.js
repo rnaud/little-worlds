@@ -13,7 +13,9 @@ export function platformMotion(state, dt, input, world, hero = "gaia") {
     p.y += (p.h - height) / 2;
     p.h = height;
   }
-  const floors = world.platforms.filter((b) => !(b.hidden > 0));
+  state.dropTime = Math.max(0, (state.dropTime || 0) - dt);
+  let floors = world.platforms.filter((b) => !(b.hidden > 0));
+  let dropping = false;
   if (p.ground) {
     const riding = floors.find(
       (b) =>
@@ -23,11 +25,22 @@ export function platformMotion(state, dt, input, world, hero = "gaia") {
     if (riding) {
       p.x += riding.dx || 0;
       p.y += riding.dy || 0;
+      if (riding.oneWay && input.y > 0.3 && input.pressed.a) {
+        state.dropTime = 0.22;
+        dropping = true;
+        p.ground = false;
+        p.y += 4;
+        p.vy = 60;
+        state.coyote = 0;
+        state.jumpBuffer = 0;
+      }
     }
   }
+  if (state.dropTime > 0) floors = floors.filter((b) => !b.oneWay);
   state.coyote = p.ground ? 0.12 : Math.max(0, state.coyote - dt);
   state.jumpBuffer = Math.max(0, state.jumpBuffer - dt);
-  if (input.pressed.a || input.pressed.up) state.jumpBuffer = 0.14;
+  if (!dropping && (input.pressed.a || input.pressed.up))
+    state.jumpBuffer = 0.14;
   if (p.wall) {
     state.wallGrace = 0.1;
     state.lastWall = p.wall;
