@@ -1,0 +1,31 @@
+.github/workflows/pages.yml
+  s_74ed6129120f6d::t_1aae9fc7515260 39
+index.html
+  s_74ed6129120f6d::t_84de881645064f 71,134,142,177
+package.json
+  s_74ed6129120f6d::t_0fd62e967bacf7 31-32
+src/main.js
+  s_74ed6129120f6d::t_bd6e08eadc122d 398,432,463,510-531,533-537,543,561,563-564,566
+src/style.css
+  s_74ed6129120f6d::t_b1debf61f2126d 2338-2434
+tests/fullscreen-browser.cjs
+  s_74ed6129120f6d::t_dce4398c359caf 1-73
+tests/pixel-grid.cjs
+  s_74ed6129120f6d::t_574c39a1d7b062 93-97,141-145
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "3b27527e52f32509c3d7ddababd127f3ace11b42",
+  "prompts": {},
+  "sessions": {
+    "s_74ed6129120f6d": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a12b36-7519-7462-9cc9-a30336c7a79d",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Arnaud Ferreri <rnaud@users.noreply.github.com>"
+    }
+  }
+}
