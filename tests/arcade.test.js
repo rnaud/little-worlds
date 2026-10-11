@@ -1,3 +1,4 @@
+import { rallyPose, rallyRoad, projectRallyActor } from "../src/rally-art.js";
 import { summitDriver } from "./summit-driver.js";
 import { overlap } from "../src/engine.js";
 import test from "node:test";
@@ -423,4 +424,31 @@ test("space diagonal travel is normalized and shield turns off on release", () =
   assert.equal(a.bullets.length, 0);
   step(a, 125);
   assert.equal(a.wave, 2);
+});
+
+test("Mode 7 actors share the collision plane throughout the closed circuit", () => {
+  for (let distance = 0; distance <= 1800; distance += 75) {
+    for (const lane of [-140, 0, 140]) {
+      const x = rallyRoad(distance, 424) + lane;
+      const kart = projectRallyActor(distance, lane, x, 424);
+      assert.ok(Math.abs(kart.depth - 140) < 1e-8);
+      assert.ok(Math.abs(kart.y - 444) < 1e-8);
+      assert.ok(Math.abs(kart.x - (480 + lane * 1.2)) < 1e-8);
+      const ahead = projectRallyActor(
+        distance,
+        lane,
+        rallyRoad(distance, 200) + lane,
+        200,
+      );
+      assert.ok(
+        ahead.depth > kart.depth,
+        "upcoming objects recede toward the horizon",
+      );
+      assert.ok(ahead.y < kart.y);
+      assert.ok(ahead.scale < kart.scale);
+    }
+  }
+  const start = rallyPose(0),
+    finish = rallyPose(1800);
+  assert.ok(Math.hypot(start.x - finish.x, start.y - finish.y) < 1e-8);
 });

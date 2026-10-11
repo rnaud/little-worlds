@@ -831,7 +831,9 @@ function frame(now) {
         `You did it, ${name}!`,
         levels.length
           ? `${game.levelInfo.title} complete! ${Object.keys(levelRecords[selected.id]).length} of ${levels.length} stages finished.${selected.id === "garden" ? ` ${game.moves} moves.` : ` ${game.score} ${selected.id === "summit" ? "stars" : "bananas"} brought home.`}`
-          : `${selected.title} complete. Another little memory for the collection.`,
+          : selected.id === "rally"
+            ? `${["", "First", "Second", "Third"][game.place]} across the line! ${game.score} bananas collected. Race again to try a faster lap.`
+            : `${selected.title} complete. Another little memory for the collection.`,
         currentLevel < levels.length - 1 ? "Next stage →" : "Play again ↗",
       );
     } else if (game.failed) {
@@ -901,6 +903,7 @@ window.arcade = {
     playfield: game
       ? {
           distance: game.distance,
+          place: game.place,
           ball: game.ball ? { ...game.ball } : null,
           paddle: game.paddle ? { ...game.paddle } : null,
           launched: game.launched,

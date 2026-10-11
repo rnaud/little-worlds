@@ -61,8 +61,8 @@ export const games = [
     icon: "rally",
     time: "1–2 min",
     description:
-      "Arnaud’s family road trip takes a colorful turn. Boost, brake, and chase the checkered flag.",
-    objective: "Drive 1,800 m along Rainbow Road",
+      "A family race around the island. Catch the other karts, save your boost, and chase the checkered flag.",
+    objective: "Race the family around the 1,800 m island circuit",
     help: "← → steer · Space / A boost · ↓ / B brake · Avoid puddles and collect bananas",
     a: "Boost",
     b: "Brake",

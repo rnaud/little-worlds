@@ -1,4 +1,11 @@
-import { paintRallyRoad, rallyRoad } from "./rally-art.js";
+import {
+  paintRallyRoad,
+  rallyRoad,
+  rallyPose,
+  rallyCamera,
+  projectRallyPoint,
+  projectRallyActor,
+} from "./rally-art.js";
 import { clamp, overlap, near, W, H } from "./engine.js";
 import { BeanCompanion, clearSight } from "./companions.js";
 import { ActorAnimation, directionalState } from "./animation.js";
@@ -1036,6 +1043,11 @@ export class Rally extends World {
     this.fuel = 1;
     this.countdown = 1.5;
     this.nextMilestone = 600;
+    this.rivals = [
+      { distance: 18, lane: -88, pace: 212 },
+      { distance: 42, lane: 86, pace: 248 },
+    ];
+    this.place = 3;
   }
   road(y) {
     return rallyRoad(this.distance, y);
@@ -1058,6 +1070,14 @@ export class Rally extends World {
     const target = this.bump > 0 ? 70 : brake ? 100 : boost ? 370 : 240;
     this.speed += (target - this.speed) * dt * 3;
     this.distance += this.speed * dt * 0.35;
+    for (let n = 0; n < this.rivals.length; n++) {
+      const rival = this.rivals[n];
+      rival.distance +=
+        (rival.pace + Math.sin(this.t * 0.8 + n * 2) * 14) * dt * 0.35;
+      rival.lane = (n ? 86 : -88) + Math.sin(this.t * 0.65 + n) * 22;
+    }
+    this.place =
+      1 + this.rivals.filter((rival) => rival.distance > this.distance).length;
     this.player.x = clamp(this.player.x + i.x * 300 * dt, 180, 780);
     const center = this.road(424);
     if (Math.abs(this.player.x - center) > 160) {
@@ -1105,17 +1125,16 @@ export class Rally extends World {
           ? "Off road! Steer back between the white lines."
           : "Bananas refill boost. Keep a clear lane around the puddles.";
     if (this.distance >= 1800) this.win();
-    this.message = `${Math.min(1800, Math.floor(this.distance))} / 1,800 m · Boost ${Math.round(this.fuel * 100)}%`;
+    this.message = `${this.place === 1 ? "1st" : this.place === 2 ? "2nd" : "3rd"} · ${Math.min(1800, Math.floor(this.distance))} / 1,800 m · Boost ${Math.round(this.fuel * 100)}%`;
   }
   // A flat world projected scanline by scanline: SNES-style Mode 7 perspective.
   project(x, y) {
-    const depth = Math.max(0.38, 1 + (424 - y) / 140);
-    const scale = 1.5 / depth;
-    return {
-      x: 480 + (x - this.road(424)) * scale,
-      y: 174 + 270 / depth,
-      scale,
-    };
+    return projectRallyActor(
+      this.distance,
+      this.player.x - this.road(424),
+      x,
+      y,
+    );
   }
   draw(p) {
     p.begin("#b8d8d5");
@@ -1124,20 +1143,29 @@ export class Rally extends World {
       this.roadCanvas.width = 320;
       this.roadCanvas.height = 180;
     }
-    paintRallyRoad(this.roadCanvas.getContext("2d"), this.distance);
+    paintRallyRoad(
+      this.roadCanvas.getContext("2d"),
+      this.distance,
+      this.player.x - this.road(424),
+    );
     const texture = p.texture("rally:mode7", this.roadCanvas);
     texture.image = this.roadCanvas;
     texture.needsUpdate = true;
     p.shape("rect", 480, 270, 960, 540, "#ffffff", 0, 1, texture);
     // Everything shares the same projection, including Bean's independent kart.
     const actors = [];
-    for (let n = 0; n < 14; n++) {
-      const y = ((n * 143 + this.distance * 2.85) % 1900) - 1350;
-      const x = this.road(y) + (n % 2 ? 240 : -240),
-        q = this.project(x, y);
-      if (q.y > 174 && q.y < 570)
+    const camera = rallyCamera(this.distance, this.player.x - this.road(424));
+    for (let n = 0; n < 40; n++) {
+      const pose = rallyPose((n * 1800) / 40);
+      const offset = n % 2 ? 245 : -245;
+      const q = projectRallyPoint(
+        camera,
+        pose.x + pose.rx * offset,
+        pose.y + pose.ry * offset,
+      );
+      if (q.depth > 40 && q.y > 174 && q.y < 570 && q.x > -100 && q.x < 1060)
         actors.push({
-          y,
+          depth: q.depth,
           draw: () => {
             const size = Math.max(2, Math.round(q.scale * 9));
             p.rect(
@@ -1154,9 +1182,9 @@ export class Rally extends World {
     }
     for (const o of this.objects) {
       const q = this.project(o.x, o.y);
-      if (q.y > 565) continue;
+      if (q.depth <= 40 || q.y > 565) continue;
       actors.push({
-        y: o.y,
+        depth: q.depth,
         draw: () => {
           if (o.banana)
             p.object("bananas", q.x, q.y - 10 * q.scale, {
@@ -1179,8 +1207,9 @@ export class Rally extends World {
     }
     const addKart = (id, x, y, steer, boost, small, alpha = 1) => {
       const q = this.project(x, y);
+      if (q.depth <= 40) return;
       actors.push({
-        y,
+        depth: q.depth,
         draw: () => {
           p.shape(
             "circle",
@@ -1194,6 +1223,21 @@ export class Rally extends World {
         },
       });
     };
+    const family = ["nur", "arnaud", "gaia"].filter((id) => id !== p.hero);
+    for (let n = 0; n < this.rivals.length; n++) {
+      const rival = this.rivals[n],
+        gap = rival.distance - this.distance;
+      if (gap < -18 || gap > 240) continue;
+      const y = 424 - gap / 0.35;
+      addKart(
+        family[n],
+        this.road(y) + rival.lane,
+        y,
+        Math.sin(this.t * 0.65 + n),
+        false,
+        false,
+      );
+    }
     addKart(
       p.hero,
       this.player.x,
@@ -1212,10 +1256,10 @@ export class Rally extends World {
         this.bean.state === "exploring",
         true,
       );
-    for (const a of actors.sort((a, b) => a.y - b.y)) a.draw();
+    for (const a of actors.sort((a, b) => b.depth - a.depth)) a.draw();
     for (const particle of this.particles) {
       const q = this.project(particle.x, particle.y);
-      if (q.y < 550)
+      if (q.depth > 40 && q.y < 550)
         p.star(
           q.x,
           q.y - 15 * q.scale,
