@@ -1,0 +1,12 @@
+Use case: stylized-concept
+Asset type: production 16-bit platform game parallax layer sheet, NOT a finished game screenshot.
+Create ONE sheet containing exactly SIX equal rectangular panels in TWO columns and THREE rows. No gutters, labels, borders or text. Overall aspect ratio 32:27 so every panel is 16:9. Each panel designed at 320 by 180 native pixels, displayed with crisp nearest-neighbor enlargement. Real restrained SNES pixel clusters, no anti-aliasing.
+
+LEFT COLUMN is a quiet alpine morning for Cloudberry Climb.
+RIGHT COLUMN is a quiet coastal meadow for Banana Meadows.
+Rows are SEPARATE LAYERS to be composited in a game:
+TOP ROW: opaque sky backgrounds only. Left muted powder-blue grey sky with just two broad pale cloud clusters near the upper corners. Right pale desaturated mint/cream morning sky with two broad cream cloud clusters near the upper corners. Mostly flat empty color. No ground, trees or mountains in top row.
+MIDDLE ROW: genuine transparent canvas above a very distant horizon silhouette occupying only the bottom 65 pixels of each 180-pixel panel. Left broad distant alpine mountain silhouettes, soft desaturated blue-lavender, very sparse snow patches, huge quiet shapes. Right distant low rounded coastal hills and one gentle island silhouette, muted blue-green. Atmospheric LOW contrast, no tiny details. The transparent upper area must remain truly transparent, not a sky painted behind mountains.
+BOTTOM ROW: genuine transparent canvas above a middle-distance silhouette confined to bottom 55 pixels. Left rounded foothills with a few small clustered pine silhouettes, dusty slate blue, unobtrusive. Right simple low grassy coastal bluffs with a few sparse rounded shrub clusters, sage teal. Transparent above silhouettes. All silhouette land fills to panel bottom. No foreground palms, framing foliage, rocky arches, buildings, platforms, collectables or characters.
+
+Critical gameplay readability: These layers are behind bright characters and solid platforms. Keep 70 percent of every panel empty or almost flat. Broad calm shape language, 8 to 12 colors per layer, clean deliberate clusters, no texture noise, no particles, no stars, no glitter, no dense vegetation, no busy high-contrast edges. The background must feel spacious and easy to read. Far scenery has less contrast than near scenery. Each panel should repeat horizontally with matching left/right edge heights and colors; no abrupt seams. Authentic single-pixel grid at native 320x180. Do not draw simulated checkerboards; transparent areas have actual alpha.

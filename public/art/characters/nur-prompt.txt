@@ -1,0 +1,11 @@
+Use case: stylized-concept
+Asset type: one production transparent character animation atlas.
+Subject: NUR, an Italian mother with shoulder-length black hair, a friendly expressive face, teal cardigan over a cream blouse, plum trousers, warm brown boots and a small terracotta satchel. Original adventurous mother character, warm and capable. Adult proportions in a compact 16-bit RPG sprite, not a child.
+Exactly FOUR columns and FOUR rows, SIXTEEN individual full-body sprites, equal cells, entire image aspect ratio 4:5. Each cell is conceived as a 32x40 native-pixel sprite enlarged without smoothing. Identical character size, costume, camera and limited palette throughout, grounded feet on same cell baseline. Transparent space between sprites, no grid lines, words, labels or contact.
+Polished SNES-era pixel art with deliberate 1-pixel dark plum outline at native resolution, face readable in a few pixels, clean clusters, shoulder-length black hair with cool indigo highlights and subtle follow-through. Teal fabric 3-shade ramp, warm skin highlight/shadow. No gradients, antialiasing, blur or brushwork.
+All poses face RIGHT in three-quarter side view except last two front-facing poses.
+ROW1 four idle frames: gentle breathing, hair sways subtly, blink in third, attentive stance in fourth.
+ROW2 four distinct running cycle frames: right foot forward contact, down/passing, left foot forward contact, up/passing; arms counter-swing, hair follows.
+ROW3 crouch for jump; rising jump knees bent; descending jump legs extended; forward dash leaning low.
+ROW4 reach forward with a small amber lantern; lantern extended forward in a discovery pose; front-facing warm wave; front-facing arms-up celebration.
+Genuine transparent alpha background. No scenery, ground shadows, captions, logos, or other characters.

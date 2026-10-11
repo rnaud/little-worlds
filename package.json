@@ -1,0 +1,40 @@
+{
+  "name": "little-worlds-arcade",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "build": "vite build",
+    "preview": "vite preview --host 0.0.0.0",
+    "test": "node --test tests/arcade.test.js tests/animation.test.js tests/progression.test.js tests/records.test.js && node tests/game.cjs",
+    "test:browser": "node tests/browser-smoke.cjs",
+    "format": "prettier --write src index.html sprite-lab.html vite.config.js tests/*.js tests/*.cjs README.md package.json .github/workflows/*.yml",
+    "test:pixels": "node tests/pixel-grid.cjs",
+    "test:animation": "node tests/animation-browser.cjs",
+    "prepare:art": "node tests/prepare-art.cjs",
+    "test:victory": "node tests/victory-browser.cjs",
+    "test:input": "node tests/input-browser.cjs",
+    "test:audio": "node tests/audio-browser.cjs",
+    "test:render": "node tests/render-soak.cjs",
+    "test:journey": "node tests/journey-browser.cjs",
+    "test:platform": "node tests/platform-browser.cjs",
+    "test:arcade-journey": "node tests/arcade-journey.cjs",
+    "test:cross-browser": "node tests/cross-browser.cjs",
+    "test:assets": "node tests/assets-browser.cjs",
+    "test:controller": "node tests/controller-shelf.cjs",
+    "test:campaign": "node tests/campaign-browser.cjs",
+    "test:coop": "node tests/coop-browser.cjs",
+    "test:meadow": "node tests/meadow-browser.cjs",
+    "test:discoveries": "node tests/discoveries-browser.cjs",
+    "test:deployment": "node tests/deployment-browser.cjs"
+  },
+  "dependencies": {
+    "three": "^0.180.0"
+  },
+  "devDependencies": {
+    "playwright": "^1.64.0",
+    "prettier": "^3.9.10",
+    "vite": "^7.1.7"
+  }
+}

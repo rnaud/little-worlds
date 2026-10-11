@@ -1,0 +1,11 @@
+Use case: stylized-concept
+Asset type: one production transparent character animation atlas.
+Subject: ARNAUD, a French father aged 39, warm friendly expression, short chestnut-brown hair, a navy-and-cream Breton striped shirt, muted blue trousers, brown shoes and a small ochre adventure backpack. Stylized illustrative character, adult proportions in a compact 16-bit RPG sprite. Original character.
+Exactly FOUR columns and FOUR rows, SIXTEEN individual full-body sprites in equal cells, overall aspect ratio 4:5. Each cell conceived as a 32x40 native-pixel sprite enlarged without smoothing. Consistent character size, costume and palette, feet baseline aligned on all grounded frames. Clear transparent space between sprites, no grid lines, labels, text or overlap.
+Polished SNES-era pixel-art animation, crisp 1-native-pixel plum outline, deliberate clusters, 2-3 shades per material, shirt stripes clearly pixel-aligned, warm skin with expressive tiny face, cool shadows and warm highlights. No blur, antialiasing, gradients, vector shapes or brushwork.
+All poses face RIGHT in three-quarter side view except last two front-facing victory poses.
+ROW1 four idle breathing frames: attentive stand, slight shoulder rise, blink, relaxed shoulder drop.
+ROW2 four real running cycle poses: right foot forward contact, recoil/down passing, left foot forward contact, rising passing; arms counter-swing and backpack follows through.
+ROW3 jump anticipation crouch; rising knees-bent jump; falling feet-reaching pose; forward low dash.
+ROW4 reach forward with a small brass star compass; point the compass forward enthusiastically; front-facing cheerful wave; front-facing arms-up celebration.
+Genuine transparent alpha background. No ground shadows, no scene, no other characters, no logos.

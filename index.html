@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1,viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#17162a" />
+    <meta
+      name="description"
+      content="Seven little worlds of play for Gaia and the whole family. Original games for touch, keyboard, and controller."
+    />
+    <title>Little Worlds · The family arcade</title>
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <a href="#" class="brand" aria-label="Little Worlds home"
+        ><span class="brand-mark">✳</span> little worlds<span class="brand-sub"
+          >FAMILY ARCADE</span
+        ></a
+      >
+      <div class="header-actions">
+        <span id="controller-status" class="device">⌘ Keyboard ready</span
+        ><button
+          id="sound"
+          class="icon-button"
+          aria-label="Enable sound"
+          aria-pressed="false"
+        >
+          ♪ <span>Sound off</span></button
+        ><button id="profile" class="avatar" aria-label="Edit player name">
+          G
+        </button>
+      </div>
+    </header>
+    <main id="home">
+      <section class="library" aria-labelledby="library-title">
+        <div class="shelf-title">
+          <h1 id="library-title">Pick a cartridge</h1>
+          <span id="collection-count"></span>
+        </div>
+        <div id="game-grid" class="game-grid"></div>
+      </section>
+      <nav class="shelf-toolbar" aria-label="Arcade options">
+        <button id="players" class="icon-button">Players</button>
+        <button id="album-open" class="icon-button">Bean’s album</button>
+        <label class="gentle"
+          ><input type="checkbox" id="gentle" checked /><span
+            class="toggle"
+          ></span
+          >Gentle mode</label
+        >
+        <button id="surprise" class="icon-button">Surprise me</button>
+      </nav>
+      <p class="controller-legend">
+        <span>✥ Choose</span><span>Ⓐ Play</span><span>Ⓑ Back</span
+        ><span>Start Pause</span>
+      </p>
+    </main>
+    <section id="play" hidden aria-label="Game player">
+      <div class="play-heading">
+        <button id="back" class="text-button">← Cartridges</button>
+        <div>
+          <span id="game-genre" class="eyebrow"></span>
+          <h2 id="game-title"></h2>
+        </div>
+        <div class="play-actions">
+          <button id="restart" class="icon-button">↻ Restart</button
+          ><button id="pause" class="icon-button">Ⅱ Pause</button>
+        </div>
+      </div>
+      <div class="game-hud">
+        <span id="game-objective"></span><b id="game-score"></b>
+      </div>
+      <div class="game-stage">
+        <canvas id="game-canvas" aria-label="Game area" tabindex="0"></canvas>
+        <div id="game-overlay" class="game-overlay" hidden>
+          <div class="overlay-card">
+            <span class="eyebrow" id="overlay-label"></span>
+            <h2 id="overlay-title"></h2>
+            <canvas
+              id="victory-party"
+              width="160"
+              height="48"
+              aria-label="Gaia, Bean, Nur and Arnaud celebrating together"
+              hidden
+            ></canvas>
+            <p id="overlay-copy"></p>
+            <div
+              id="overlay-results"
+              hidden
+              aria-label="Adventure results"
+            ></div>
+            <button id="overlay-action" class="primary"></button>
+            <div
+              id="level-picker"
+              class="level-picker"
+              role="group"
+              aria-label="Choose a stage"
+              hidden
+            ></div>
+            <div id="coop-settings" class="coop-settings" hidden>
+              <label
+                ><input id="coop-on" type="checkbox" /> Play together · family
+                helper</label
+              >
+              <div id="coop-details" hidden>
+                <div
+                  id="coop-partners"
+                  role="group"
+                  aria-label="Choose the family helper"
+                ></div>
+                <label
+                  ><input id="coop-touch" type="checkbox" /> Touch + one
+                  controller</label
+                >
+                <p id="coop-instructions"></p>
+              </div>
+            </div>
+            <button id="overlay-replay" class="text-button" hidden>
+              Play this stage again</button
+            ><button id="overlay-assist" class="text-button" hidden>
+              Gentle mode: on
+            </button>
+            <button id="overlay-sound" class="text-button" hidden>
+              Sound off
+            </button>
+            <button id="overlay-restart" class="text-button" hidden>
+              Restart stage
+            </button>
+            <button id="overlay-home" class="text-button">
+              Back to cartridges
+            </button>
+          </div>
+        </div>
+      </div>
+      <p id="game-hint" class="context-hint" aria-live="polite"></p>
+      <div class="game-help">
+        <p id="game-help"></p>
+        <span>Esc / Start to pause · R to restart</span>
+      </div>
+      <div class="touch-controls" aria-label="Touch game controls">
+        <div class="dpad">
+          <button data-key="up" aria-label="Move up">▲</button
+          ><button data-key="left" aria-label="Move left">◀</button
+          ><button data-key="down" aria-label="Move down">▼</button
+          ><button data-key="right" aria-label="Move right">▶</button>
+        </div>
+        <div class="touch-actions">
+          <button data-key="b" id="touch-b">B</button
+          ><button data-key="a" id="touch-a">A</button>
+        </div>
+      </div>
+    </section>
+    <dialog id="players-dialog" aria-labelledby="players-title">
+      <h2 id="players-title">Choose your player</h2>
+      <div id="family-party"></div>
+      <button class="primary" data-close-dialog>Ready</button>
+    </dialog>
+    <dialog id="album-dialog" aria-label="Bean’s keepsake album">
+      <section class="keepsake-section" aria-labelledby="keepsake-title">
+        <div class="keepsake-heading">
+          <div>
+            <span class="eyebrow">LITTLE THINGS, BIG MEMORIES</span>
+            <h2 id="keepsake-title">Bean’s keepsake album</h2>
+            <p>
+              Follow pawprints in The Lantern Woods. Ask Bean to investigate
+              with A.
+            </p>
+          </div>
+          <button id="album-explore" class="text-button">Go exploring →</button>
+        </div>
+        <div id="keepsake-album" class="keepsake-album"></div>
+      </section>
+      <button class="primary" data-close-dialog>Back to cartridges</button>
+    </dialog>
+    <dialog id="profile-dialog">
+      <form method="dialog">
+        <span class="eyebrow">YOUR LITTLE CORNER</span>
+        <h2>Who’s playing?</h2>
+        <p>A name for your adventures. Saved on this device.</p>
+        <label for="player-name">Explorer’s name</label
+        ><input
+          id="player-name"
+          maxlength="24"
+          value="Gaia"
+          autocomplete="off"
+        />
+        <div
+          id="name-keys"
+          class="name-keys"
+          aria-label="Controller name keyboard"
+        ></div>
+        <button class="primary">Done</button>
+      </form>
+    </dialog>
+    <div id="toast" role="status"></div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

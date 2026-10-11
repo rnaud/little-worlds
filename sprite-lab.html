@@ -1,0 +1,340 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Family animation studio</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        padding: 28px;
+        background: #181b2b;
+        color: #f5dfb5;
+        font: 14px/1.6 monospace;
+      }
+      h1 {
+        font-size: 25px;
+      }
+      button,
+      select,
+      a {
+        font: inherit;
+        color: inherit;
+      }
+      select,
+      button {
+        background: #34324b;
+        border: 1px solid #91819c;
+        padding: 10px;
+        margin: 5px;
+      }
+      a {
+        color: #93d3c1;
+      }
+      header {
+        max-width: 1100px;
+        margin: auto;
+      }
+      #players,
+      .extras {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(160px, 1fr));
+        gap: 20px;
+        max-width: 1100px;
+        margin: 25px auto;
+      }
+      .actor {
+        background: #25283c;
+        border: 2px solid #625872;
+        text-align: center;
+        padding: 16px;
+      }
+      .actor canvas {
+        width: 160px;
+        height: 160px;
+        image-rendering: pixelated;
+        background: repeating-conic-gradient(#30374d 0% 25%, #262b40 0% 50%)
+          0/16px 16px;
+      }
+      #frames {
+        display: grid;
+        grid-template-columns: repeat(6, 160px);
+        gap: 8px;
+        max-width: 1100px;
+        margin: auto;
+      }
+      .frame {
+        background: #2e3349;
+        text-align: center;
+      }
+      .frame canvas {
+        display: block;
+        margin: auto;
+        image-rendering: pixelated;
+      }
+      #status {
+        color: #8ed1bb;
+      }
+      small {
+        color: #bdafbc;
+      }
+      .extras h2,
+      main h2 {
+        grid-column: 1 / -1;
+        font-size: 18px;
+        margin: 20px auto 0;
+        max-width: 1100px;
+      }
+      @media (max-width: 760px) {
+        body {
+          padding: 16px;
+        }
+        .actor {
+          padding: 8px;
+        }
+        #players,
+        .extras {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 8px;
+        }
+        #frames {
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+        .frame canvas {
+          max-width: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <a href="%BASE_URL%">← Back to the arcade</a>
+      <h1>Family animation studio</h1>
+      <p>
+        Original generated character artwork, normalized into native pixel
+        frames. Watch a clip, reverse direction, and inspect every pose.
+      </p>
+      <label
+        >Animation
+        <select id="clip"></select></label
+      ><button id="flip">Face left</button><button id="pause">Pause</button
+      ><label
+        >Speed
+        <select id="speed">
+          <option value="0.5">½ speed</option>
+          <option value="1" selected>Normal</option>
+          <option value="1.5">1½ speed</option>
+        </select></label
+      >
+      <p id="status">Preparing character sheets…</p>
+      <label
+        >Inspect frames
+        <select id="character">
+          <option>gaia</option>
+          <option>bean</option>
+          <option>nur</option>
+          <option>arnaud</option>
+        </select></label
+      >
+    </header>
+    <main>
+      <div id="players"></div>
+      <div id="frames"></div>
+      <div class="extras" id="karts"><h2>The family at the wheel</h2></div>
+      <div class="extras" id="creatures">
+        <h2>Creatures and flying mounts</h2>
+      </div>
+      <div class="extras" id="objects">
+        <h2>Objects and foreground details</h2>
+      </div>
+    </main>
+    <script type="module">
+      import {
+        loadCharacterArt,
+        characterFrame,
+        characterDebugFrames,
+        characterArtStatus,
+        kartDebugFrames,
+      } from "/src/characters.js";
+      import { HUMAN_CLIPS, BEAN_CLIPS, clipFrame } from "/src/animation.js";
+      import {
+        loadCreatureArt,
+        creatureFrame,
+        CREATURE_IDS,
+      } from "/src/creatures.js";
+      import {
+        loadObjectArt,
+        OBJECT_SPECS,
+        objectFrame,
+      } from "/src/objects.js";
+      await Promise.all([
+        loadCharacterArt(),
+        loadCreatureArt(),
+        loadObjectArt(),
+      ]);
+      const clip = document.querySelector("#clip"),
+        players = document.querySelector("#players"),
+        frames = document.querySelector("#frames"),
+        character = document.querySelector("#character"),
+        speed = document.querySelector("#speed");
+      const ids = ["gaia", "bean", "nur", "arnaud"],
+        states = [
+          ...new Set([...Object.keys(HUMAN_CLIPS), ...Object.keys(BEAN_CLIPS)]),
+        ];
+      clip.innerHTML = states.map((s) => `<option>${s}</option>`).join("");
+      clip.value = "run";
+      players.innerHTML = ids
+        .map(
+          (id) =>
+            `<section class="actor"><b>${id.toUpperCase()}</b><br><canvas id="actor-${id}" width="40" height="40"></canvas><br><small id="state-${id}"></small></section>`,
+        )
+        .join("");
+      function inspect() {
+        frames.innerHTML = "";
+        characterDebugFrames(character.value).forEach((source, i) => {
+          const div = document.createElement("div");
+          div.className = "frame";
+          const c = document.createElement("canvas");
+          c.width = source.width;
+          c.height = 40;
+          const ctx = c.getContext("2d");
+          ctx.imageSmoothingEnabled = false;
+          ctx.drawImage(source, 0, 0);
+          div.append(c, document.createTextNode(String(i)));
+          frames.append(div);
+        });
+      }
+      character.onchange = () => {
+        inspect();
+        scaleCanvases();
+      };
+      inspect();
+      document.querySelector("#status").textContent = characterArtStatus.loaded
+        ? `${Object.values(characterArtStatus.characters).reduce((n, c) => n + c.frames, 0)} family poses · 16 kart poses · 16 creature frames · binary alpha`
+        : characterArtStatus.error;
+      for (const [container, entries] of [
+        ["karts", ids],
+        ["creatures", CREATURE_IDS],
+      ]) {
+        document
+          .querySelector("#" + container)
+          .insertAdjacentHTML(
+            "beforeend",
+            entries
+              .map(
+                (id) =>
+                  `<section class="actor"><b>${id.replaceAll("-", " ").toUpperCase()}</b><br><canvas id="extra-${id}-${container}" width="40" height="40"></canvas></section>`,
+              )
+              .join(""),
+          );
+      }
+      function scaleCanvases() {
+        const dpr = devicePixelRatio || 1,
+          small = innerWidth < 760;
+        const canvases = [...document.querySelectorAll("canvas")];
+        for (const c of canvases) {
+          const max = c.closest(".frame")
+            ? small
+              ? 80
+              : 160
+            : small
+              ? 120
+              : 160;
+          const zoom = Math.max(
+            1,
+            Math.floor((max * dpr) / Math.max(c.width, c.height)),
+          );
+          c.style.width = (c.width * zoom) / dpr + "px";
+          c.style.height = (c.height * zoom) / dpr + "px";
+          c.style.translate = "none";
+        }
+        for (const c of canvases) {
+          const r = c.getBoundingClientRect();
+          c.style.translate = `${Math.round(r.x * dpr) / dpr - r.x}px ${Math.round(r.y * dpr) / dpr - r.y}px`;
+        }
+      }
+      for (const [id, w, h] of OBJECT_SPECS) {
+        const section = document.createElement("section");
+        section.className = "actor";
+        const label = document.createElement("b");
+        label.textContent = id.replaceAll("-", " ").toUpperCase();
+        const canvas = document.createElement("canvas");
+        canvas.width = Math.max(40, w);
+        canvas.height = 40;
+        const ctx = canvas.getContext("2d"),
+          source = objectFrame(id);
+        ctx.imageSmoothingEnabled = false;
+        if (source)
+          ctx.drawImage(source, Math.round((canvas.width - w) / 2), 40 - h);
+        section.append(label, document.createElement("br"), canvas);
+        document.querySelector("#objects").append(section);
+      }
+      addEventListener("resize", scaleCanvases);
+      scaleCanvases();
+      let facing = 1,
+        playing = true,
+        t = 0,
+        last = performance.now();
+      document.querySelector("#flip").onclick = () => {
+        facing *= -1;
+        document.querySelector("#flip").textContent =
+          facing > 0 ? "Face left" : "Face right";
+      };
+      document.querySelector("#pause").onclick = () => {
+        playing = !playing;
+        document.querySelector("#pause").textContent = playing
+          ? "Pause"
+          : "Play";
+      };
+      clip.onchange = () => (t = 0);
+      function frame(now) {
+        if (playing) t += ((now - last) / 1000) * Number(speed.value);
+        last = now;
+        for (const id of ids) {
+          const c = document.getElementById("actor-" + id),
+            ctx = c.getContext("2d"),
+            source = characterFrame(id, clip.value, t);
+          ctx.clearRect(0, 0, 40, 40);
+          if (source) {
+            ctx.save();
+            ctx.imageSmoothingEnabled = false;
+            if (facing < 0) {
+              ctx.translate(40, 0);
+              ctx.scale(-1, 1);
+            }
+            ctx.drawImage(source, Math.round((40 - source.width) / 2), 0);
+            ctx.restore();
+          }
+          document.getElementById("state-" + id).textContent =
+            `${clip.value} · frame ${clipFrame(id, clip.value, t)}`;
+        }
+        for (const [container, entries] of [
+          ["karts", ids],
+          ["creatures", CREATURE_IDS],
+        ])
+          for (const id of entries) {
+            const canvas = document.getElementById(`extra-${id}-${container}`),
+              ctx = canvas.getContext("2d");
+            const source =
+              container === "karts"
+                ? kartDebugFrames(id)[Math.floor(t * 1.5) % 4]
+                : creatureFrame(id, t);
+            ctx.clearRect(0, 0, 40, 40);
+            ctx.imageSmoothingEnabled = false;
+            if (source)
+              ctx.drawImage(
+                source,
+                Math.round((40 - source.width) / 2),
+                Math.round((40 - source.height) / 2),
+              );
+          }
+        requestAnimationFrame(frame);
+      }
+      requestAnimationFrame(frame);
+      window.spriteStudio = { status: characterArtStatus };
+    </script>
+  </body>
+</html>
