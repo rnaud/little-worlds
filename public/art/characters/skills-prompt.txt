@@ -1,1 +1,0 @@
-The original v1 skill-sheet prompt was not retained correctly. This legacy sheet is superseded by skills-v2.png; its exact production prompt is saved in skills-photo-prompt.txt.

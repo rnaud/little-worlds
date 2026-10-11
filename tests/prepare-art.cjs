@@ -52,7 +52,7 @@ const fs = require("node:fs");
           objects.OBJECT_SPECS.map(([id]) => [id, [objects.objectFrame(id)]]),
         ),
       };
-      const manifest = { version: 4, image: "arcade-v4.png", groups: {} },
+      const manifest = { version: 5, image: "arcade-v5.png", groups: {} },
         placements = [];
       let x = 0,
         y = 0,
@@ -88,7 +88,7 @@ const fs = require("node:fs");
     });
     fs.mkdirSync("public/art/native", { recursive: true });
     fs.writeFileSync(
-      "public/art/native/arcade-v4.png",
+      "public/art/native/arcade-v5.png",
       Buffer.from(result.png, "base64"),
     );
     fs.writeFileSync(

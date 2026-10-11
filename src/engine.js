@@ -347,7 +347,7 @@ export class Painter {
   }
   creature(id, x, y, time = 0, size = 1, flip = false, alpha = 1) {
     const base = id === "winged-unicorn" ? [40, 28] : [24, 24];
-    const width = Math.round(base[0] * size),
+    let width = Math.round(base[0] * size),
       height = Math.round(base[1] * size);
     const result = creatureVariant(id, time, width, height);
     if (!result)
@@ -361,6 +361,8 @@ export class Painter {
         y,
         2 * size,
       );
+    width = result.canvas.width;
+    height = result.canvas.height;
     return this.shape(
       "rect",
       x,
@@ -405,13 +407,15 @@ export class Painter {
     );
   }
   rider(id, x, seatY, time, state = "ride", small = false, alpha = 1) {
-    const width = id === "bean" ? (small ? 24 : 30) : small ? 18 : 22,
+    let width = id === "bean" ? (small ? 24 : 30) : small ? 18 : 22,
       height = small ? 22 : 28;
     const result = characterVariant(id, state, time, width, height);
     if (!result)
       return this.person(x, seatY - 10, 0.65, time, 1, false, id, state);
-    const anchorX = id === "bean" ? 18 / 40 : 14 / 32,
-      anchorY = id === "bean" ? 35 / 40 : 30 / 40;
+    width = result.canvas.width;
+    height = result.canvas.height;
+    const anchorX = 0.5,
+      anchorY = id === "bean" ? 0.8 : 0.75;
     return this.shape(
       "rect",
       x - (anchorX - 0.5) * width * 3,
@@ -449,13 +453,15 @@ export class Painter {
             ? [24, 30]
             : [24, 32];
     const size = s >= 1.4 ? 1.35 : s < 0.72 ? 0.7 : s > 1.1 ? 1.15 : 1;
-    const width = Math.round(base[0] * size),
+    let width = Math.round(base[0] * size),
       height = Math.round(base[1] * size);
     const result = characterVariant(id, state, t, width, height);
     if (result) {
       const foot = y + 18 * s;
-      // The source baseline is y=38/40. Keep feet fixed across frames and flips.
-      const center = foot - (38 / 40 - 0.5) * height * 3;
+      width = result.canvas.width;
+      height = result.canvas.height;
+      // Native stencils have a fixed baseline two pixels above the canvas edge.
+      const center = foot - (height - 2 - height / 2) * 3;
       return this.shape(
         "rect",
         x,
@@ -847,6 +853,23 @@ export class Sound {
   }
   effect(name) {
     const motifs = {
+      bubble: [
+        [330, 0.06, 0, "sine"],
+        [620, 0.1, 0.025, "sine"],
+      ],
+      pop: [
+        [1120, 0.035, 0, "sine"],
+        [560, 0.055, 0.03, "triangle"],
+      ],
+      splash: [
+        [180, 0.08, 0, "triangle"],
+        [310, 0.075, 0.025, "sine"],
+        [460, 0.09, 0.065, "sine"],
+      ],
+      hurt: [
+        [196, 0.06, 0, "triangle"],
+        [130, 0.12, 0.04, "triangle"],
+      ],
       pickup: [
         [784, 0.07, 0],
         [1047, 0.13, 0.055],

@@ -33,7 +33,7 @@ const assert = require("node:assert/strict");
           throw new Error(id + " palette exceeds 32 colors");
         fingerprints.add([...colors].sort().join(";"));
       }
-      if (fingerprints.size !== 8)
+      if (fingerprints.size !== WORLD_ORDER.length)
         throw new Error("World palettes are not distinct");
       const parent = document.createElement("div");
       Object.assign(parent.style, {
@@ -57,6 +57,8 @@ const assert = require("node:assert/strict");
         "bricks",
         "garden",
         "space",
+        "bubbles",
+        "splash",
       ]) {
         const g = createGame(id, true);
         for (let k = 0; k < 15; k++) {
@@ -119,7 +121,7 @@ const assert = require("node:assert/strict");
           };
         });
       });
-      assert.equal(raster.length, 7);
+      assert.equal(raster.length, 9);
       for (const img of raster) {
         assert.equal(
           img.fit,
@@ -208,7 +210,7 @@ const assert = require("node:assert/strict");
   }
   await browser.close();
   console.log(
-    "PASS: all seven games use 1:1 texels and integer edges; integer display scaling at DPR 1, 1.25 and 2 across desktop, portrait and landscape",
+    "PASS: all nine games use 1:1 texels and integer edges; integer display scaling at DPR 1, 1.25 and 2 across desktop, portrait and landscape",
   );
 })().catch((e) => {
   console.error(e);

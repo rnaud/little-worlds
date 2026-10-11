@@ -52,6 +52,25 @@ export function art(kind, large = false) {
     actor("gaia", "push", 88, 109);
     draw(objectFrame("pink-pot"), 123, 126);
     actor("bean", "sniff", 151, 110);
+  } else if (kind === "bubbles") {
+    ctx.fillStyle = "#a8ded9";
+    ctx.fillRect(31, 128, 77, 4);
+    ctx.fillRect(137, 96, 85, 4);
+    actor("gaia", "action", 79, 91, 0.12);
+    actor("bean", "jump", 139, 111);
+    draw(creatureFrame("leaf-slime", 0.1), 173, 71);
+    ctx.strokeStyle = "#9de0e2";
+    ctx.lineWidth = 1;
+    ctx.strokeRect(169.5, 66.5, 28, 29);
+  } else if (kind === "splash") {
+    for (let y = 93; y < 145; y += 18)
+      for (let x = 52; x < 206; x += 18) {
+        ctx.fillStyle = (x + y) % 36 === 1 ? "#dfc995" : "#e8d5a5";
+        ctx.fillRect(x, y, 17, 17);
+      }
+    actor("gaia", "actionDown", 85, 102, 0.1);
+    actor("bean", "curious", 145, 112);
+    draw(objectFrame("pink-pot"), 120, 100);
   } else if (kind === "forest") {
     actor("gaia", "actionUp", 101, 107, 0.1);
     actor("bean", "curious", 143, 110);

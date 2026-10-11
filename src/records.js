@@ -5,7 +5,7 @@ export function readRecords(saved) {
   if (!saved || typeof saved !== "object") return records;
   for (const [key, entry] of Object.entries(saved)) {
     if (
-      !/^(summit|meadow|forest|rally|bricks|garden|space):\d+:(gentle|classic):(solo|team)$/.test(
+      !/^(summit|meadow|forest|rally|bricks|garden|space|bubbles|splash):\d+:(gentle|classic):(solo|team)$/.test(
         key,
       ) ||
       !entry ||

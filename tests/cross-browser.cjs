@@ -21,17 +21,14 @@ const assert = require("node:assert/strict");
         () => window.arcade?.snapshot().characterArtwork.loaded,
       );
       const art = await page.evaluate(() => window.arcade.snapshot());
-      for (const key of [
-        "artwork",
-        "characterArtwork",
-        "creatureArtwork",
-        "objectArtwork",
-      ])
+      for (const key of ["artwork", "objectArtwork"])
         assert.equal(
           art[key].prepared,
           true,
           `${name} ${key} uses native atlas`,
         );
+      for (const key of ["characterArtwork", "creatureArtwork"])
+        assert.equal(art[key].authored, "native-pixel-stencils");
       for (const id of [
         "summit",
         "meadow",
@@ -40,6 +37,8 @@ const assert = require("node:assert/strict");
         "bricks",
         "garden",
         "space",
+        "bubbles",
+        "splash",
       ]) {
         await page.locator(`[data-game="${id}"]`).click();
         await page.locator("#overlay-action").click();

@@ -26,12 +26,12 @@ test("touch pad supports a neutral center, cardinal motion, diagonals and leavin
   assert.deepEqual(thumbDirections(0.8, 0.8), ["right", "down"]);
   assert.deepEqual(thumbDirections(2, 0), []);
 });
-test("seven original world themes are distinct and quiet", () => {
-  assert.equal(Object.keys(THEMES).length, 7);
+test("nine original world themes are distinct and quiet", () => {
+  assert.equal(Object.keys(THEMES).length, 9);
   assert.deepEqual(themeStep("unknown", 0), []);
   assert.equal(
     new Set(Object.values(THEMES).map((t) => t.notes.join(","))).size,
-    7,
+    9,
   );
   for (const id of Object.keys(THEMES))
     for (let n = 0; n < 64; n++)

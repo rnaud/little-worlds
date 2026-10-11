@@ -1,9 +1,0 @@
-Use case: stylized-concept
-Asset type: production transparent pixel-art dog animation atlas.
-Subject: BEAN, a light-brown / fawn Italian greyhound with a very slender body, deep chest, tiny tucked waist, long delicate legs, narrow long snout, folded ears, thin curved tail and a small teal collar. He must look like an Italian greyhound, not a generic puppy or corgi.
-Exact layout: FOUR columns by FOUR rows, exactly SIXTEEN full-body sprites, equal cells and consistent right-facing side-view camera, identical dog design, size and palette. Entire image aspect ratio 4:3. Each cell represents a 40x30 native-pixel sprite enlarged with nearest-neighbor pixels. Plenty of transparent padding, no clipping, no overlap, no labels or grid lines. Pixel-art style, polished 16-bit console animation, 1-native-pixel plum-brown outer contour, intentional clusters, fawn fur with warm cream highlights and russet shadows, readable tiny dark eyes. No smoothing, blur, vector rendering or gradients.
-ROW 1: alert stand ears perked; relaxed stand tail slightly up; head turns inquisitively; ear twitch and small tail wag.
-ROW 2: FOUR distinct running/galloping poses: fully extended legs; front feet contacting ground; compressed gathering all feet under tummy; airborne with legs tucked. Keep long greyhound limbs clearly readable.
-ROW 3: nose down sniffing; sniffing with one paw forward; curious head tilted and ears lifted; play bow, front legs down and bottom up.
-ROW 4: jump takeoff with hind legs pushing; airborne leap stretching forward; landing with front legs reaching; happy sit with tail curved on the floor.
-Consistent baseline for grounded frames. Genuine transparent alpha background, no ground shadows, no scene or humans, no objects except collar, no words.

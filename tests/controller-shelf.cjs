@@ -129,6 +129,7 @@ const { chromium } = require("playwright"),
     // Walk to the toolbar using only the directional pad.
     await press(13);
     await press(13);
+    await press(13);
     assert.equal(await focused(), "players");
     await press(0);
     assert.equal(await focused(), "gaia");
@@ -199,9 +200,11 @@ const { chromium } = require("playwright"),
       "bricks",
       "garden",
       "space",
+      "bubbles",
+      "splash",
     ].entries()) {
       await press(1);
-      if (index >= 4) await press(13);
+      for (let row = 0; row < Math.floor(index / 4); row++) await press(13);
       for (let column = 0; column < index % 4; column++) await press(15);
       assert.equal(await focused(), id);
       await press(0);
@@ -235,7 +238,7 @@ const { chromium } = require("playwright"),
     }
     assert.deepEqual(errors, []);
     console.log(
-      "PASS controller-only shelf, spatial grid, stage selection, launch, pause, assist, restart, back, family, album, on-screen name keyboard, mobile scroll, seven cartridges and next-stage victory",
+      "PASS controller-only shelf, spatial grid, stage selection, launch, pause, assist, restart, back, family, album, on-screen name keyboard, mobile scroll, nine cartridges and next-stage victory",
     );
   } finally {
     await browser.close();

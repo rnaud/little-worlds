@@ -112,7 +112,7 @@ const assert = require("node:assert/strict");
   }
   assert.deepEqual(
     [...new Set(assets)].sort(),
-    ["/art/native/arcade-v4.png", "/art/native/manifest.json"],
+    ["/art/native/arcade-v5.png", "/art/native/manifest.json"],
     "runtime uses only the prepared native atlas",
   );
   await page.locator('[data-game="summit"]').click();

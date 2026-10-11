@@ -23,8 +23,8 @@ const input = (x = 0, y = 0, current = {}, pressed = {}) => ({
 const step = (g, n, i = input()) => {
   for (let k = 0; k < n; k++) g.update(dt, k ? { ...i, pressed: {} } : i);
 };
-test("seven distinct games stay finite under 10 seconds of input", () => {
-  assert.equal(games.length, 7);
+test("nine distinct games stay finite under 10 seconds of input", () => {
+  assert.equal(games.length, 9);
   for (const meta of games) {
     const g = createGame(meta.id, true);
     for (let k = 0; k < 1200; k++) {

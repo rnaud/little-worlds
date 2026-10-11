@@ -114,8 +114,8 @@
       <a href="%BASE_URL%">← Back to the arcade</a>
       <h1>Family animation studio</h1>
       <p>
-        Original generated character artwork, normalized into native pixel
-        frames. Watch a clip, reverse direction, and inspect every pose.
+        Original pixel stencils, drawn directly at their display resolution. No
+        reduced illustrations. Inspect both independently drawn sizes.
       </p>
       <label
         >Animation
@@ -129,7 +129,14 @@
           <option value="1.5">1½ speed</option>
         </select></label
       >
-      <p id="status">Preparing character sheets…</p>
+      <label
+        >Native size
+        <select id="native-size">
+          <option value="regular">Regular</option>
+          <option value="small">Small · separately drawn</option>
+        </select></label
+      >
+      <p id="status">Preparing native drawings…</p>
       <label
         >Inspect frames
         <select id="character">
@@ -155,6 +162,7 @@
       import {
         loadCharacterArt,
         characterFrame,
+        characterVariant,
         characterDebugFrames,
         characterArtStatus,
         kartDebugFrames,
@@ -192,14 +200,18 @@
             `<section class="actor"><b>${id.toUpperCase()}</b><br><canvas id="actor-${id}" width="40" height="40"></canvas><br><small id="state-${id}"></small></section>`,
         )
         .join("");
+      const nativeSize = document.querySelector("#native-size");
       function inspect() {
         frames.innerHTML = "";
-        characterDebugFrames(character.value).forEach((source, i) => {
+        characterDebugFrames(
+          character.value,
+          nativeSize.value === "small",
+        ).forEach((source, i) => {
           const div = document.createElement("div");
           div.className = "frame";
           const c = document.createElement("canvas");
           c.width = source.width;
-          c.height = 40;
+          c.height = source.height;
           const ctx = c.getContext("2d");
           ctx.imageSmoothingEnabled = false;
           ctx.drawImage(source, 0, 0);
@@ -207,13 +219,17 @@
           frames.append(div);
         });
       }
+      nativeSize.onchange = () => {
+        inspect();
+        scaleCanvases();
+      };
       character.onchange = () => {
         inspect();
         scaleCanvases();
       };
       inspect();
       document.querySelector("#status").textContent = characterArtStatus.loaded
-        ? `${Object.values(characterArtStatus.characters).reduce((n, c) => n + c.frames, 0)} family poses · 16 kart poses · 16 creature frames · binary alpha`
+        ? `${Object.values(characterArtStatus.characters).reduce((n, c) => n + c.frames, 0)} family poses × 2 native sizes · 16 kart poses · 16 creature frames · binary alpha`
         : characterArtStatus.error;
       for (const [container, entries] of [
         ["karts", ids],
@@ -296,7 +312,10 @@
         for (const id of ids) {
           const c = document.getElementById("actor-" + id),
             ctx = c.getContext("2d"),
-            source = characterFrame(id, clip.value, t);
+            source =
+              nativeSize.value === "small"
+                ? characterVariant(id, clip.value, t, 16, 24)?.canvas
+                : characterFrame(id, clip.value, t);
           ctx.clearRect(0, 0, 40, 40);
           if (source) {
             ctx.save();
@@ -305,7 +324,11 @@
               ctx.translate(40, 0);
               ctx.scale(-1, 1);
             }
-            ctx.drawImage(source, Math.round((40 - source.width) / 2), 0);
+            ctx.drawImage(
+              source,
+              Math.round((40 - source.width) / 2),
+              38 - source.height,
+            );
             ctx.restore();
           }
           document.getElementById("state-" + id).textContent =

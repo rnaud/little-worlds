@@ -72,6 +72,10 @@ const { chromium } = require("playwright"),
         "respawn",
         "spring",
         "checkpoint",
+        "bubble",
+        "pop",
+        "splash",
+        "hurt",
       ]) {
         const context = new OfflineAudioContext(1, 44100, 44100),
           sound = new Sound();
@@ -123,7 +127,9 @@ const { chromium } = require("playwright"),
       "game-canvas",
     );
     await page.waitForFunction(() => window.arcade.snapshot().audio.voices > 0);
-    await page.locator("#sound").click();
+    await page.locator("#pause").click();
+    await page.locator("#overlay-sound").click();
+    await page.locator("#overlay-action").click();
     assert.equal(
       (await page.evaluate(() => window.arcade.snapshot())).audio.voices,
       0,
@@ -137,7 +143,7 @@ const { chromium } = require("playwright"),
     );
     await page.locator('[data-game="space"]').click();
     await page.locator("#overlay-action").click();
-    await page.locator("#profile").click();
+    await page.locator("#pause").click();
     assert.equal(
       (await page.evaluate(() => window.arcade.snapshot())).mode,
       "paused",
@@ -148,7 +154,6 @@ const { chromium } = require("playwright"),
       await page.evaluate(() => window.arcade.snapshot().time),
       time,
     );
-    await page.keyboard.press("Escape");
     assert.equal(
       await page.evaluate(() => document.activeElement.id),
       "overlay-action",
@@ -184,7 +189,9 @@ const { chromium } = require("playwright"),
     await page.locator("#overlay-action").click();
     await page.waitForFunction(() => window.arcade.snapshot().audio.motor);
     await page.keyboard.press("Escape");
-    await page.waitForFunction(() => window.arcade.snapshot().mode === "paused");
+    await page.waitForFunction(
+      () => window.arcade.snapshot().mode === "paused",
+    );
     assert.equal(
       (await page.evaluate(() => window.arcade.snapshot())).audio.motor,
       false,
@@ -197,7 +204,9 @@ const { chromium } = require("playwright"),
     );
     await page.locator("#overlay-action").click();
     await page.waitForFunction(() => window.arcade.snapshot().audio.motor);
-    await page.locator("#sound").click();
+    await page.locator("#pause").click();
+    await page.locator("#overlay-sound").click();
+    await page.locator("#overlay-action").click();
     assert.equal(
       (await page.evaluate(() => window.arcade.snapshot())).audio.motor,
       false,
@@ -211,12 +220,12 @@ const { chromium } = require("playwright"),
         effects: effects.map(({ name, peak }) => ({ name, peak })),
         checks: [
           "quiet original themes",
-          "17 distinct action cues",
+          "21 distinct action cues",
           "motor stops on pause and mute",
           "immediate mute",
           "sound returns game focus",
-          "profile pauses simulation",
-          "dialog returns pause focus",
+          "menu pauses simulation",
+          "pause focuses Resume",
           "stable live hints",
         ],
       }),

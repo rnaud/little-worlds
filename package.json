@@ -7,7 +7,7 @@
     "dev": "vite --host 0.0.0.0",
     "build": "vite build",
     "preview": "vite preview --host 0.0.0.0",
-    "test": "node --test tests/arcade.test.js tests/animation.test.js tests/progression.test.js tests/records.test.js && node tests/game.cjs",
+    "test": "node --test tests/arcade.test.js tests/animation.test.js tests/progression.test.js tests/records.test.js tests/native-art.test.js tests/party-games.test.js && node tests/game.cjs",
     "test:browser": "node tests/browser-smoke.cjs",
     "format": "prettier --write src index.html sprite-lab.html vite.config.js tests/*.js tests/*.cjs README.md package.json .github/workflows/*.yml",
     "test:pixels": "node tests/pixel-grid.cjs",
@@ -29,7 +29,8 @@
     "test:discoveries": "node tests/discoveries-browser.cjs",
     "test:deployment": "node tests/deployment-browser.cjs",
     "test:summit": "node tests/summit-browser.cjs",
-    "test:fullscreen": "node tests/fullscreen-browser.cjs"
+    "test:fullscreen": "node tests/fullscreen-browser.cjs",
+    "test:party": "node tests/party-browser.cjs"
   },
   "dependencies": {
     "three": "^0.180.0"

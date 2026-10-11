@@ -20,7 +20,7 @@ const assert = require("node:assert/strict");
       await page.goto(process.env.ARCADE_URL || "http://127.0.0.1:5174");
       await page.waitForFunction(() => window.arcade);
       const art = await page.evaluate(() => window.arcade.snapshot());
-      assert.equal(art.characterArtwork.loaded, failure === "atlas");
+      assert.equal(art.characterArtwork.loaded, true);
       assert.equal(art.characterArtwork.prepared, false);
       for (const id of [
         "summit",
@@ -30,6 +30,8 @@ const assert = require("node:assert/strict");
         "bricks",
         "garden",
         "space",
+        "bubbles",
+        "splash",
       ]) {
         await page.locator(`[data-game="${id}"]`).click();
         await page.locator("#overlay-action").click();
@@ -42,9 +44,9 @@ const assert = require("node:assert/strict");
       assert.deepEqual(errors, []);
       reports.push({
         failure,
-        gamesPlayable: 7,
+        gamesPlayable: 9,
         artwork: art.characterArtwork.loaded
-          ? "local source fallback"
+          ? "native code-authored actors"
           : "code fallback",
       });
       await page.close();

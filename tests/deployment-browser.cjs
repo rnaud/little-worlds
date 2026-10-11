@@ -25,7 +25,7 @@ const { chromium } = require("playwright"),
       () => window.arcade?.snapshot().characterArtwork.loaded,
     );
     const state = await page.evaluate(() => window.arcade.snapshot());
-    assert.equal(state.characterArtwork.prepared, true);
+    assert.equal(state.characterArtwork.authored, "native-pixel-stencils");
     assert.equal(state.objectArtwork.prepared, true);
     assert.equal(
       art.length,
@@ -44,6 +44,8 @@ const { chromium } = require("playwright"),
       "bricks",
       "garden",
       "space",
+      "bubbles",
+      "splash",
     ]) {
       await page.locator(`[data-game="${id}"]`).click();
       await page.locator("#overlay-action").click();
@@ -67,7 +69,7 @@ const { chromium } = require("playwright"),
         checks: [
           "repository-prefixed production assets",
           "single native atlas",
-          "seven games launch",
+          "nine games launch",
           "sprite studio",
           "studio returns to site",
         ],

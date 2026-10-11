@@ -336,7 +336,8 @@ function overlay(label, title, copy, action) {
     currentLevel >= levelsFor(selected.id).length - 1;
   $("#level-picker").hidden =
     mode !== "intro" || !levelsFor(selected.id).length;
-  $("#coop-settings").hidden = mode !== "intro" || selected.id !== "meadow";
+  $("#coop-settings").hidden =
+    mode !== "intro" || !["meadow", "bubbles"].includes(selected.id);
   $("#overlay-sound").hidden = mode !== "paused";
   $("#overlay-sound").textContent =
     `Sound: ${sound.enabled ? "on" : "off"} · change`;
@@ -466,13 +467,17 @@ function start() {
 }
 function playHelp() {
   if (!game?.buddy) return selected?.help || "";
+  const action = selected.id === "bubbles" ? "bubbles" : "sprint";
   return coopTouch
-    ? "Lead: touch controls · Helper: controller A jump, B sprint, Y return · Shared bananas"
-    : "Lead: arrows + Space + Shift / controller 1 · Helper: WASD + F jump + G sprint, Q return / controller 2";
+    ? `Lead: touch controls · Helper: controller A jump, B ${action}, Y return`
+    : `Lead: arrows + Space + Shift / controller 1 · Helper: WASD + F jump + G ${action}, Q return / controller 2`;
 }
 function configureCoop() {
   if (coopHero === character) coopHero = character === "nur" ? "arnaud" : "nur";
-  game?.setBuddy?.(selected.id === "meadow" && coopEnabled, coopHero);
+  game?.setBuddy?.(
+    ["meadow", "bubbles"].includes(selected.id) && coopEnabled,
+    coopHero,
+  );
   input.coopTouch = coopTouch;
   $("#coop-on").checked = coopEnabled;
   $("#coop-touch").checked = coopTouch;
@@ -915,6 +920,23 @@ window.arcade = {
           animation: game.buddy.actor.state,
         }
       : null,
+    party:
+      game && ["bubbles", "splash"].includes(selected?.id)
+        ? {
+            room: game.room,
+            hearts: game.hearts,
+            cell: game.cell ? { ...game.cell } : null,
+            enemies: game.enemies?.map((e) => ({ ...e })),
+            balloons: game.balloons?.map((b) => ({ ...b })),
+            flowers: game.flowers?.map((f) => ({ ...f })),
+            walls: game.walls ? [...game.walls] : [],
+            crates: game.crates ? [...game.crates] : [],
+            exit: game.exit ? { ...game.exit } : null,
+            rescued: game.rescued,
+            flowersWatered: game.flowersWatered,
+            bestCombo: game.bestCombo,
+          }
+        : null,
     playfield: game
       ? {
           distance: game.distance,

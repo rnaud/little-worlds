@@ -1,3 +1,4 @@
+import { partyBackground } from "./party-art.js";
 import { assetPath } from "./asset-path.js";
 // World-specific raster assets. Every returned canvas uses native one-pixel art.
 import { preparedGroup } from "./prepared-art.js";
@@ -20,7 +21,7 @@ export const parallaxLayers = (id) =>
       name: layer,
     }))
     .filter((layer) => layer.canvas);
-export const WORLD_ORDER = [
+const SOURCE_WORLD_ORDER = [
   "summit",
   "meadow",
   "forest",
@@ -30,7 +31,24 @@ export const WORLD_ORDER = [
   "space",
   "rhythm",
 ];
+export const WORLD_ORDER = [
+  ...SOURCE_WORLD_ORDER.filter((id) => id !== "rhythm"),
+  "bubbles",
+  "splash",
+];
 export const WORLDS = {
+  bubbles: {
+    name: "The Moonlit Soapworks",
+    base: "#20374e",
+    accent: "#9de0e2",
+    material: "marble",
+  },
+  splash: {
+    name: "The Splash Courtyards",
+    base: "#9aa48b",
+    accent: "#eac681",
+    material: "terracotta",
+  },
   summit: {
     name: "The Aurora Observatory",
     base: "#202442",
@@ -177,11 +195,19 @@ function limitPalette(ctx, w, h) {
   ctx.putImageData(img, 0, 0);
 }
 export async function loadWorldArt({ source = false } = {}) {
+  for (const id of ["bubbles", "splash"])
+    backgrounds.set(id, partyBackground(id));
   try {
     if (!source) {
       const ready = await preparedGroup("worlds");
-      if (ready && WORLD_ORDER.every((id) => ready.get(id)?.[0])) {
-        for (const id of WORLD_ORDER) backgrounds.set(id, ready.get(id)[0]);
+      if (
+        ready &&
+        WORLD_ORDER.filter((id) => !["bubbles", "splash"].includes(id)).every(
+          (id) => ready.get(id)?.[0],
+        )
+      ) {
+        for (const id of WORLD_ORDER)
+          if (ready.get(id)?.[0]) backgrounds.set(id, ready.get(id)[0]);
         const layers = await preparedGroup("parallax");
         if (layers)
           for (const key of PARALLAX_KEYS)
@@ -197,7 +223,7 @@ export async function loadWorldArt({ source = false } = {}) {
     const image = new Image();
     image.src = assetPath("/art/eight-worlds-v1.png");
     await image.decode();
-    WORLD_ORDER.forEach((id, index) => {
+    SOURCE_WORLD_ORDER.forEach((id, index) => {
       const [c, ctx] = surface(320, 180),
         w = image.naturalWidth / 2;
       const edges = [0, 333, 665, 978, 1330],
