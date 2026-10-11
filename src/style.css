@@ -2432,3 +2432,24 @@ body.playing .touch-controls {
     opacity: 0.8;
   }
 }
+
+/* Brief checkpoint and room notices live in the reserved menu bar. */
+#game-notice {
+  display: none;
+}
+body.playing #game-notice {
+  display: block;
+  flex: 1;
+  min-width: 0;
+  max-height: 36px;
+  overflow: hidden;
+  margin: 0;
+  color: #f1dba7;
+  text-align: center;
+  font: 11px/1.5 monospace;
+}
+@media (max-width: 620px) {
+  body.playing #game-notice {
+    font-size: 9px;
+  }
+}

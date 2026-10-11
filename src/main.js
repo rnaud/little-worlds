@@ -747,11 +747,32 @@ function showResults() {
           ["Fewest moves", best.bestMoves],
           ["Time", clockLabel(game.t)],
         ]
-      : [
-          ["Time", clockLabel(game.t)],
-          ["Best time", clockLabel(best.bestTime)],
-          ["Finishes", best.finishes],
-        ];
+      : selected.id === "bubbles"
+        ? [
+            ["Score", game.score],
+            ["Best score", best.bestScore],
+            ["Longest chain", game.bestCombo],
+            ["Time", clockLabel(game.t)],
+          ]
+        : selected.id === "splash"
+          ? [
+              ["Flowers", game.flowersWatered],
+              ["Balloons used", game.balloonCount],
+              ["Time", clockLabel(game.t)],
+              ["Best time", clockLabel(best.bestTime)],
+            ]
+          : selected.id === "bricks"
+            ? [
+                ["Longest flight", `${game.bestCombo} stars`],
+                ["Best flight", `${best.bestCombo} stars`],
+                ["Time", clockLabel(game.t)],
+                ["Best time", clockLabel(best.bestTime)],
+              ]
+            : [
+                ["Time", clockLabel(game.t)],
+                ["Best time", clockLabel(best.bestTime)],
+                ["Finishes", best.finishes],
+              ];
   $("#overlay-results").innerHTML =
     `<div class="result-heading">${best.first ? "First finish!" : best.improved ? "A new personal best!" : "Another adventure together"}<small>${runGentle ? "Gentle" : "Classic"} · ${game.buddy ? "Family co-op" : "Solo"} · this device</small></div><dl>${rows.map(([label, value]) => `<div><dt>${label}</dt><dd>${value}</dd></div>`).join("")}</dl>`;
 }
@@ -824,7 +845,10 @@ function frame(now) {
     const objective = game.objective || selected.objective;
     if ($("#game-objective").textContent !== objective)
       $("#game-objective").textContent = objective;
-    const hint = game.noticeTime > 0 ? game.notice : game.hint;
+    const notice = game.noticeTime > 0 ? game.notice : "";
+    if ($("#game-notice").textContent !== notice)
+      $("#game-notice").textContent = notice;
+    const hint = notice || game.hint;
     if ($("#game-hint").textContent !== hint)
       $("#game-hint").textContent = hint;
     if (game.done) {

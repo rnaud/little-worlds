@@ -526,7 +526,7 @@ export class SplashMaze extends World {
     this.balloons = [];
     this.splashes = [];
     this.stepTimer = 0;
-    this.inv = Math.max(this.inv, 1);
+    this.inv = 0;
     this.lastDir = "";
     this.objective = `Garden ${this.room + 1}/3 · Water ${this.flowers.length} flowers, then reach the gate`;
     this.hint =

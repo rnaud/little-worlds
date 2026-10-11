@@ -1042,6 +1042,10 @@ export class Bricks extends World {
     this.ball = { x: 480, y: 450, vx: 160, vy: -250 };
     this.launched = false;
     this.lives = 5;
+    this.catchTime = 0;
+    this.catchCooldown = 0;
+    this.combo = 0;
+    this.bestCombo = 0;
     this.bricks = Array.from({ length: 24 }, (_, k) => ({
       x: 134 + (k % 8) * 99,
       y: 105 + Math.floor(k / 8) * 39,
@@ -1058,6 +1062,8 @@ export class Bricks extends World {
       50 + this.paddle.w / 2,
       910 - this.paddle.w / 2,
     );
+    this.catchTime = Math.max(0, this.catchTime - dt);
+    this.catchCooldown = Math.max(0, this.catchCooldown - dt);
     const b = this.ball;
     if (!this.launched) {
       b.x = this.paddle.x;
@@ -1067,6 +1073,11 @@ export class Bricks extends World {
         this.cue("launch");
       }
     } else {
+      if (i.pressed.a && this.catchCooldown <= 0) {
+        this.catchTime = 1.25;
+        this.catchCooldown = 2.2;
+        this.cue("shield");
+      }
       const factor = i.current.b ? 0.55 : 1;
       b.x += b.vx * dt * factor;
       b.y += b.vy * dt * factor;
@@ -1094,7 +1105,18 @@ export class Bricks extends World {
           b.vx = (Math.sign(b.vx) || Math.sign(i.x) || 1) * 65;
         b.vy = -Math.sqrt(Math.max(190 ** 2, 330 ** 2 - b.vx ** 2));
         b.y = this.paddle.y - 17;
-        this.cue("bounce", 390, 0.07);
+        this.combo = 0;
+        if (this.catchTime > 0) {
+          this.launched = false;
+          this.catchTime = 0;
+          this.catchCooldown = 0;
+          b.x = this.paddle.x;
+          b.y = 450;
+          b.vx = 160;
+          b.vy = -250;
+          this.announce("Caught! A to launch again");
+          this.cue("pickup");
+        } else this.cue("bounce", 390, 0.07);
       }
       for (const r of this.bricks)
         if (r.alive && overlap({ x: b.x, y: b.y, w: 16, h: 16 }, r)) {
@@ -1109,11 +1131,18 @@ export class Bricks extends World {
             b.vy *= -1;
           }
           this.score++;
+          this.combo++;
+          this.bestCombo = Math.max(this.bestCombo, this.combo);
+          if (this.combo > 1)
+            this.announce(`${this.combo} stars in one flight!`);
           this.burst(r.x, r.y, ["#f4df9f", "#b8dbcb", "#d3b8d7"][r.row]);
           break;
         }
       if (b.y > 540) {
         this.launched = false;
+        this.catchTime = 0;
+        this.catchCooldown = 0;
+        this.combo = 0;
         if (!this.gentle) this.lives--;
         b.vx = 160;
         b.vy = -250;
@@ -1123,8 +1152,8 @@ export class Bricks extends World {
     }
     this.hint = !this.launched
       ? "Press A to launch. Hit with the paddle’s edge to change direction."
-      : "Use the paddle’s edges to aim. Hold B to slow the ball.";
-    this.message = `${this.score} / 24 stars${this.gentle ? " · Endless tries" : ` · ${this.lives} balls`}${this.launched ? "" : " · A to launch"}`;
+      : "Tap A before a bounce to catch. Hold B to slow. Paddle edges aim.";
+    this.message = `${this.score} / 24 stars${this.gentle ? " · Endless tries" : ` · ${this.lives} balls`}${this.launched ? (this.catchTime > 0 ? " · Catch ready!" : "") : " · A to launch"}`;
   }
   draw(p) {
     p.backdrop("bricks");
@@ -1157,6 +1186,13 @@ export class Bricks extends World {
       width: Math.round(this.paddle.w / 3) + 2,
       height: 12,
     });
+    if (this.catchTime > 0) {
+      p.rect(this.paddle.x, this.paddle.y - 7, this.paddle.w, 3, "#b4e9df");
+      for (const side of [-1, 1]) {
+        const px = this.paddle.x + (side * this.paddle.w) / 2;
+        p.rect(px, this.paddle.y - 13, 3, 12, "#b4e9df");
+      }
+    }
     this.bean?.draw(p);
     if (p.hero !== "arnaud")
       p.person(

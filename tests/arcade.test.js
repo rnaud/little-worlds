@@ -452,3 +452,25 @@ test("Mode 7 actors share the collision plane throughout the closed circuit", ()
     finish = rallyPose(1800);
   assert.ok(Math.hypot(start.x - finish.x, start.y - finish.y) < 1e-8);
 });
+
+test("brick catch has a timed window, relaunches cleanly, and misses after expiry", () => {
+  const g = new Bricks(false);
+  g.update(dt, input(0, 0, {}, { a: true }));
+  assert.ok(g.launched);
+  Object.assign(g.ball, { x: g.paddle.x, y: g.paddle.y - 17, vy: 250, vx: 0 });
+  g.update(dt, input(0, 0, {}, { a: true }));
+  assert.equal(g.launched, false);
+  assert.equal(g.ball.x, g.paddle.x);
+  assert.equal(g.lives, 5);
+  assert.match(g.notice, /Caught/);
+  g.update(dt, input(0, 0, {}, { a: true }));
+  assert.equal(g.launched, true);
+  assert.ok(g.ball.vy < 0);
+  g.update(dt, input(0, 0, {}, { a: true }));
+  step(g, 151);
+  assert.equal(g.catchTime, 0);
+  Object.assign(g.ball, { x: g.paddle.x, y: g.paddle.y - 17, vy: 250, vx: 0 });
+  g.update(dt, input());
+  assert.equal(g.launched, true, "late bounce must not catch");
+  assert.ok(g.ball.vy < 0);
+});

@@ -1,8 +1,5 @@
+import { nativeScene, nativeLayers } from "./native-scenes.js";
 import { partyBackground } from "./party-art.js";
-import { assetPath } from "./asset-path.js";
-// World-specific raster assets. Every returned canvas uses native one-pixel art.
-import { preparedGroup } from "./prepared-art.js";
-import { quantize, keepMainComponent } from "./sprite-pipeline.js";
 export const PARALLAX_KEYS = [
   "summit-sky",
   "summit-far",
@@ -101,7 +98,12 @@ export const WORLDS = {
 const backgrounds = new Map(),
   props = new Map(),
   tiles = new Map();
-export const artStatus = { loaded: false, error: null };
+export const artStatus = {
+  loaded: false,
+  error: null,
+  prepared: false,
+  authored: "native-pixel-stencils",
+};
 function surface(w, h) {
   const c = document.createElement("canvas");
   c.width = w;
@@ -110,265 +112,22 @@ function surface(w, h) {
   ctx.imageSmoothingEnabled = false;
   return [c, ctx];
 }
-// Median-cut color reduction is done once on load, never during animation.
-function limitPalette(ctx, w, h) {
-  const img = ctx.getImageData(0, 0, w, h),
-    data = img.data,
-    hist = new Map();
-  for (let i = 0; i < data.length; i += 4) {
-    const key =
-      ((data[i] >> 3) << 10) | ((data[i + 1] >> 3) << 5) | (data[i + 2] >> 3);
-    hist.set(key, (hist.get(key) || 0) + 1);
-  }
-  let buckets = [
-    [...hist].map(([key, n]) => ({
-      c: [
-        ((key >> 10) & 31) * 8 + 4,
-        ((key >> 5) & 31) * 8 + 4,
-        (key & 31) * 8 + 4,
-      ],
-      n,
-    })),
-  ];
-  const range = (b) =>
-    [0, 1, 2].map(
-      (a) =>
-        Math.max(...b.map((p) => p.c[a])) - Math.min(...b.map((p) => p.c[a])),
+export async function loadWorldArt() {
+  for (const id of WORLD_ORDER)
+    backgrounds.set(
+      id,
+      ["bubbles", "splash"].includes(id)
+        ? partyBackground(id)
+        : nativeScene(id),
     );
-  while (buckets.length < 32) {
-    let index = -1,
-      best = -1,
-      axis = 0;
-    buckets.forEach((b, i) => {
-      if (b.length < 2) return;
-      const r = range(b),
-        m = Math.max(...r);
-      const score = m * Math.sqrt(b.reduce((s, p) => s + p.n, 0));
-      if (score > best) {
-        best = score;
-        index = i;
-        axis = r.indexOf(m);
-      }
-    });
-    if (index < 0) break;
-    const b = buckets.splice(index, 1)[0].sort((a, b) => a.c[axis] - b.c[axis]);
-    const half = b.reduce((s, p) => s + p.n, 0) / 2;
-    let sum = 0,
-      cut = 1;
-    for (let j = 0; j < b.length - 1; j++) {
-      sum += b[j].n;
-      cut = j + 1;
-      if (sum >= half) break;
-    }
-    buckets.push(b.slice(0, cut), b.slice(cut));
-  }
-  const palette = buckets.map((b) => {
-    const total = b.reduce((s, p) => s + p.n, 0);
-    return [0, 1, 2].map((a) =>
-      Math.round(b.reduce((s, p) => s + p.c[a] * p.n, 0) / total),
-    );
-  });
-  const nearest = new Map();
-  for (let i = 0; i < data.length; i += 4) {
-    const key =
-      ((data[i] >> 3) << 10) | ((data[i + 1] >> 3) << 5) | (data[i + 2] >> 3);
-    let color = nearest.get(key);
-    if (!color) {
-      let best = Infinity;
-      for (const p of palette) {
-        const d =
-          (p[0] - data[i]) ** 2 +
-          (p[1] - data[i + 1]) ** 2 +
-          (p[2] - data[i + 2]) ** 2;
-        if (d < best) {
-          best = d;
-          color = p;
-        }
-      }
-      nearest.set(key, color);
-    }
-    data[i] = color[0];
-    data[i + 1] = color[1];
-    data[i + 2] = color[2];
-    data[i + 3] = 255;
-  }
-  ctx.putImageData(img, 0, 0);
-}
-export async function loadWorldArt({ source = false } = {}) {
-  for (const id of ["bubbles", "splash"])
-    backgrounds.set(id, partyBackground(id));
-  try {
-    if (!source) {
-      const ready = await preparedGroup("worlds");
-      if (
-        ready &&
-        WORLD_ORDER.filter((id) => !["bubbles", "splash"].includes(id)).every(
-          (id) => ready.get(id)?.[0],
-        )
-      ) {
-        for (const id of WORLD_ORDER)
-          if (ready.get(id)?.[0]) backgrounds.set(id, ready.get(id)[0]);
-        const layers = await preparedGroup("parallax");
-        if (layers)
-          for (const key of PARALLAX_KEYS)
-            if (layers.get(key)?.[0]) parallax.set(key, layers.get(key)[0]);
-        if (!PARALLAX_KEYS.every((key) => parallax.has(key)))
-          await loadParallaxSource();
-        artStatus.loaded = true;
-        artStatus.error = null;
-        artStatus.prepared = true;
-        return;
-      }
-    }
-    const image = new Image();
-    image.src = assetPath("/art/eight-worlds-v1.png");
-    await image.decode();
-    SOURCE_WORLD_ORDER.forEach((id, index) => {
-      const [c, ctx] = surface(320, 180),
-        w = image.naturalWidth / 2;
-      const edges = [0, 333, 665, 978, 1330],
-        row = Math.floor(index / 2),
-        top = edges[row],
-        h = edges[row + 1] - top;
-      ctx.drawImage(image, (index % 2) * w, top, w, h, 0, 0, 320, 180);
-      limitPalette(ctx, 320, 180);
-      // Suppress incidental single-pixel noise; keep deliberate larger clusters.
-      const pixels = ctx.getImageData(0, 0, 320, 180),
-        before = new Uint8ClampedArray(pixels.data);
-      const same = (a, b) =>
-        before[a] === before[b] &&
-        before[a + 1] === before[b + 1] &&
-        before[a + 2] === before[b + 2];
-      for (let y = 1; y < 179; y++)
-        for (let x = 1; x < 319; x++) {
-          const at = (y * 320 + x) * 4,
-            neighbors = [at - 4, at + 4, at - 1280, at + 1280];
-          for (const n of neighbors)
-            if (neighbors.filter((k) => same(n, k)).length >= 3) {
-              pixels.data.set(before.subarray(n, n + 3), at);
-              break;
-            }
-        }
-      // Scenery stays behind the bright, interactive plane in value as well as depth.
-      const light = {
-        summit: 0.72,
-        meadow: 0.86,
-        forest: 0.82,
-        rally: 0.93,
-        bricks: 0.75,
-        garden: 0.9,
-        space: 0.76,
-        rhythm: 0.8,
-      }[id];
-      for (let k = 0; k < pixels.data.length; k += 4)
-        for (let channel = 0; channel < 3; channel++)
-          pixels.data[k + channel] = Math.round(
-            pixels.data[k + channel] * light,
-          );
-      ctx.putImageData(pixels, 0, 0);
-      backgrounds.set(id, c);
-    });
-    await loadParallaxSource();
-    artStatus.loaded = true;
-  } catch (e) {
-    artStatus.error = String(e);
-    console.warn("World artwork unavailable; using native fallback scenes.", e);
-  }
-}
-async function loadParallaxSource() {
-  try {
-    const image = new Image();
-    image.src = assetPath("/art/platform-parallax-v1.png");
-    await image.decode();
-    const palettes = {
-      summit: [
-        ["#889fb4", "#94aabd", "#a2b7c7", "#b9cbd4", "#c9d7dc"],
-        ["#70879f", "#8196ac", "#92a7b9", "#a7bac6"],
-        ["#617e94", "#6e8aa0", "#809bad", "#96adbb"],
-      ],
-      meadow: [
-        ["#b9cfc6", "#c6d8c9", "#d3dfcd", "#e0e6d3"],
-        ["#85a6a7", "#96b4b0", "#a8c1b8", "#b6ccc0"],
-        ["#648b88", "#789e95", "#8dae9e", "#a3bead"],
-      ],
-    };
-    for (const [col, id] of ["summit", "meadow"].entries()) {
-      for (const [row, layer] of ["sky", "far", "near"].entries()) {
-        const [canvas, ctx] = surface(320, 180);
-        if (row === 0) {
-          ctx.fillStyle = palettes[id][row][0];
-          ctx.fillRect(0, 0, 320, 180);
-        }
-        ctx.drawImage(
-          image,
-          (col * image.width) / 2,
-          (row * image.height) / 3,
-          image.width / 2,
-          image.height / 3,
-          0,
-          0,
-          320,
-          180,
-        );
-        if (row > 0) keepMainComponent(ctx, 320, 180);
-        quantize(
-          ctx,
-          320,
-          180,
-          palettes[id][row].map((hex) =>
-            [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16)),
-          ),
-        );
-        // Remove source-sheet stippling without introducing blended pixels.
-        // A majority vote chooses existing palette entries; alpha stays binary.
-        for (let pass = 0; pass < (row === 0 ? 3 : 1); pass++) {
-          const image = ctx.getImageData(0, 0, 320, 180),
-            data = image.data,
-            before = new Uint8ClampedArray(data);
-          for (let y = 1; y < 179; y++)
-            for (let x = 1; x < 319; x++) {
-              const counts = new Map();
-              let winner = (y * 320 + x) * 4,
-                best = 0;
-              for (let dy = -1; dy <= 1; dy++)
-                for (let dx = -1; dx <= 1; dx++) {
-                  const at = ((y + dy) * 320 + x + dx) * 4;
-                  const key =
-                    before[at] +
-                    "," +
-                    before[at + 1] +
-                    "," +
-                    before[at + 2] +
-                    "," +
-                    before[at + 3];
-                  const count = (counts.get(key) || 0) + 1;
-                  counts.set(key, count);
-                  if (count > best) {
-                    best = count;
-                    winner = at;
-                  }
-                }
-              if (best >= 5)
-                data.set(
-                  before.subarray(winner, winner + 4),
-                  (y * 320 + x) * 4,
-                );
-            }
-          ctx.putImageData(image, 0, 0);
-        }
-        parallax.set(`${id}-${layer}`, canvas);
-      }
-      const [composite, ctx] = surface(320, 180);
-      for (const layer of ["sky", "far", "near"])
-        ctx.drawImage(parallax.get(`${id}-${layer}`), 0, 0);
-      backgrounds.set(id, composite);
-    }
-  } catch (error) {
-    console.warn(
-      "Parallax source unavailable; keeping the native world background.",
-      error,
+  for (const id of ["summit", "meadow"]) {
+    const layers = nativeLayers(id);
+    ["sky", "far", "near"].forEach((name, n) =>
+      parallax.set(`${id}-${name}`, layers[n]),
     );
   }
+  artStatus.loaded = true;
+  artStatus.error = null;
 }
 export function background(id) {
   return backgrounds.get(id);

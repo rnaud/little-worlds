@@ -21,14 +21,17 @@ const assert = require("node:assert/strict");
         () => window.arcade?.snapshot().characterArtwork.loaded,
       );
       const art = await page.evaluate(() => window.arcade.snapshot());
-      for (const key of ["artwork", "objectArtwork"])
+      for (const key of [
+        "artwork",
+        "characterArtwork",
+        "creatureArtwork",
+        "objectArtwork",
+      ])
         assert.equal(
-          art[key].prepared,
-          true,
-          `${name} ${key} uses native atlas`,
+          art[key].authored,
+          "native-pixel-stencils",
+          `${name} ${key} uses native drawings`,
         );
-      for (const key of ["characterArtwork", "creatureArtwork"])
-        assert.equal(art[key].authored, "native-pixel-stencils");
       for (const id of [
         "summit",
         "meadow",
@@ -100,7 +103,7 @@ const assert = require("node:assert/strict");
       assert.deepEqual(errors, []);
       reports.push({
         engine: name,
-        games: 7,
+        games: 9,
         art: "native",
         keyboard: "passed",
         animation: "passed",

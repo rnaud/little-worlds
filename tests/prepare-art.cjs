@@ -36,6 +36,24 @@ const fs = require("node:fs");
         characters: Object.fromEntries(
           chars.CHARACTER_IDS.map((id) => [id, chars.characterDebugFrames(id)]),
         ),
+        charactersSmall: Object.fromEntries(
+          chars.CHARACTER_IDS.map((id) => [
+            id,
+            chars.characterDebugFrames(id, true),
+          ]),
+        ),
+        kartsSmall: Object.fromEntries(
+          chars.CHARACTER_IDS.map((id) => [
+            id,
+            chars.kartDebugFrames(id, true),
+          ]),
+        ),
+        creaturesSmall: Object.fromEntries(
+          creatures.CREATURE_IDS.map((id) => [
+            id,
+            creatures.creatureDebugFrames(id, true),
+          ]),
+        ),
         karts: Object.fromEntries(
           chars.CHARACTER_IDS.map((id) => [id, chars.kartDebugFrames(id)]),
         ),
@@ -52,7 +70,7 @@ const fs = require("node:fs");
           objects.OBJECT_SPECS.map(([id]) => [id, [objects.objectFrame(id)]]),
         ),
       };
-      const manifest = { version: 5, image: "arcade-v5.png", groups: {} },
+      const manifest = { version: 6, image: "arcade-v6.png", groups: {} },
         placements = [];
       let x = 0,
         y = 0,
@@ -88,7 +106,7 @@ const fs = require("node:fs");
     });
     fs.mkdirSync("public/art/native", { recursive: true });
     fs.writeFileSync(
-      "public/art/native/arcade-v5.png",
+      "public/art/native/arcade-v6.png",
       Buffer.from(result.png, "base64"),
     );
     fs.writeFileSync(

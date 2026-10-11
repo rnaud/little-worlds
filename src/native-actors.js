@@ -434,8 +434,8 @@ function human(id, frame, small = false) {
     girl = id === "gaia";
   const cx = small ? 8 : 12,
     foot = small ? 22 : 30,
-    hip = small ? 17 : 23,
-    shoulder = small ? 12 : 17;
+    hip = small ? (q.carry ? 20 : 17) : 23,
+    shoulder = small ? (q.carry ? 16 : 12) : 17;
   let bob =
     q.bob +
     (q.crouch ? 2 : 0) -
@@ -570,6 +570,19 @@ function human(id, frame, small = false) {
       [cx + 4, shoulder],
       [cx + 6, shoulder - 1],
       [cx + 6, shoulder - 4],
+    ];
+  }
+  if (q.carry && small) {
+    // Compact, raised-arm pose: hands meet the paddle while the face stays below it.
+    left = [
+      [cx - 4, shoulder],
+      [cx - 6, 10],
+      [cx - 6, 4],
+    ];
+    right = [
+      [cx + 4, shoulder],
+      [cx + 6, 10],
+      [cx + 6, 4],
     ];
   }
   if (q.wall) {
@@ -729,7 +742,7 @@ function human(id, frame, small = false) {
   d.stamp(
     head,
     cx - (small ? 5 : 7) + (q.dash ? 2 : 0),
-    small ? 3 + bob : (girl ? 3 : 2) + bob,
+    small ? (q.carry ? 7 : 3) + bob : (girl ? 3 : 2) + bob,
   );
   if (q.down) {
     const eyeY = (small ? 3 : girl ? 3 : 2) + bob + (small ? 4 : 7);
@@ -997,7 +1010,14 @@ function dog(frame, small = false) {
       1,
     );
   if ([23, 25, 26, 29, 30, 35, 36].includes(frame)) {
-    const reach = frame === 25 || frame === 36 ? 5 : frame === 30 ? 3 : 1;
+    const reach =
+      frame === 29
+        ? 7
+        : frame === 30
+          ? 6
+          : frame === 25 || frame === 36
+            ? 5
+            : 1;
     d.limb(
       [
         [front - 1, y + 3],
@@ -1069,24 +1089,32 @@ export function drawNativeKart(id, frame = 0, small = false) {
     cx - (small ? 4 : 6) + lean,
     y - 2,
   );
-  const head = small
-    ? ["..oooo..", ".ohHHho.", "ohHHHHho", "ohHHHHho", ".ojhhho.", "..oooo.."]
-    : [
-        "...oooooo...",
-        "..ohHHHHho..",
-        ".ohHHHHHHho.",
-        "ohHHHHHHHHho",
-        "ohHHHHHHHHho",
-        "ohHHHHHHHHho",
-        ".ojhhhhhhho.",
-        "..oooooooo..",
-      ];
-  d.stamp(head, cx - (small ? 4 : 6) + lean, small ? 3 : 6);
-  if (id === "gaia")
-    d.rect(cx - (small ? 3 : 5) + lean, small ? 5 : 9, small ? 6 : 10, 1, "t");
   if (id === "bean") {
-    d.line(cx - 4 + lean, small ? 5 : 9, cx - 6 + lean, small ? 3 : 6, "j");
-    d.line(cx + 3 + lean, small ? 5 : 9, cx + 5 + lean, small ? 3 : 6, "h");
+    const head = small
+      ? [
+          "oo....oo",
+          "oh....ho",
+          ".ohHHho.",
+          "ohHHHHho",
+          "ohHHHHho",
+          ".ohhhho.",
+          "..occo..",
+        ]
+      : [
+          "oo........oo",
+          "ojho....ohho",
+          ".ohho..ohho.",
+          "..ohHHHHho..",
+          ".ohHHHHHHho.",
+          ".ohHHHHHHho.",
+          "..ohhhhhho..",
+          "...occco....",
+          "....oto.....",
+        ];
+    d.stamp(head, cx - (small ? 4 : 6) + lean, small ? 2 : 6);
+  } else {
+    const head = (small ? MINI_BACK_HEADS : BACK_HEADS)[id];
+    d.stamp(head, cx - (small ? 5 : 7) + lean, small ? 1 : 3);
   }
   if (frame === 3) {
     d.stamp(

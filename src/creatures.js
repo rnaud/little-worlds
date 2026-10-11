@@ -42,10 +42,10 @@ export function creatureFrame(id, time = 0) {
 export function creatureVariant(id, time, width, height) {
   const frame = Math.floor(time * (id === "crystal-rock" ? 3 : 8)) % 4,
     canvas = (
-      width < (id === "winged-unicorn" ? 35 : 21) ? smallSheets : sheets
+      width < (id === "winged-unicorn" ? 32 : 21) ? smallSheets : sheets
     ).get(id)?.[frame];
   return canvas ? { canvas, frame } : null;
 }
-export function creatureDebugFrames(id) {
-  return sheets.get(id) || [];
+export function creatureDebugFrames(id, small = false) {
+  return (small ? smallSheets : sheets).get(id) || [];
 }

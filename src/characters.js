@@ -63,7 +63,8 @@ export function characterFrame(id, state, time) {
 }
 export function characterVariant(id, state, time, width, height) {
   const frame = clipFrame(id, state, time);
-  const canvas = (height < 26 ? mini : frames).get(id)?.[frame];
+  const compact = height < 26 || (id !== "bean" && state.startsWith("carry"));
+  const canvas = (compact ? mini : frames).get(id)?.[frame];
   return canvas ? { canvas, frame } : null;
 }
 export function kartVariant(id, frame, width, height) {
@@ -92,6 +93,6 @@ export function characterPreview(id) {
 export function characterDebugFrames(id, small = false) {
   return (small ? mini : frames).get(id) || [];
 }
-export function kartDebugFrames(id) {
-  return karts.get(id) || [];
+export function kartDebugFrames(id, small = false) {
+  return (small ? smallKarts : karts).get(id) || [];
 }

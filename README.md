@@ -24,7 +24,7 @@ Vite prints the local and LAN URLs. Open the LAN URL from a phone on the same ne
 | Banana Meadows    | Classic platformer          | Six stages: collect bananas, ride ferries, bounce on flower springs and reach the cottage       |
 | The Lantern Woods | Top-down adventure          | Find a key, unlock the gate, recover three lanterns and return to the shrine                    |
 | Rainbow Rally     | Mode 7 style racer          | Finish a 1,800 m circuit; steer, boost, brake and avoid puddles                                 |
-| Starlight Bounce  | Brick breaker               | Clear all 24 bricks; paddle, launch and slow-motion assist                                      |
+| Starlight Bounce  | Brick breaker               | Clear all 24 bricks; paddle, launch, timed catch and slow-motion assist                         |
 | Pocket Garden     | Push-block puzzle           | Eight progressively harder gardens, from one pot to four; unlimited undo and reset              |
 | Unicorns in Orbit | Space shooter               | Clear three waves; move, fire and use a rechargeable shield                                     |
 | Bubble Rescue     | Cooperative platform arcade | Rescue 18 woodland sprites across three bathhouses; jump, trap, pop and chain rescues           |
@@ -44,7 +44,7 @@ Pocket Garden has eight authored puzzles. The first takes two moves; later garde
 
 In The Lantern Woods, approach pawprints and press A to ask Bean to investigate. Bean independently travels to and sniffs out Gaia’s ribbon, Nur’s seeds and Arnaud’s compass. Playing as Bean lets you discover them yourself. Two discoveries after opening the gate reveal a physical woodland shortcut; all three appear in the keepsake album. They are optional and do not replace the main lantern quest.
 
-For Meadows co-op, enable **Play together** in the cartridge setup. Choose a human family helper. Controller 1 drives the lead and controller 2 drives the helper; both collect shared bananas. Alternatively, enable **Touch + one controller**: Gaia uses touch and a parent uses the controller. Keyboard lead: arrows/Space/Shift; helper: WASD/F/G, Q to return. Controller Y returns the helper. Falling or being left behind recalls the helper without costing the lead a retry. Bean follows the lead with his own movement.
+For Meadows or Bubble Rescue co-op, enable **Play together** in the cartridge setup. Choose a human family helper. Controller 1 drives the lead and controller 2 drives the helper; both share progress (bananas or rescued sprites). Alternatively, enable **Touch + one controller**: Gaia uses touch and a parent uses the controller. Keyboard lead: arrows/Space/Shift; helper: WASD/F/G, Q to return. Controller Y returns the helper. Falling or being left behind recalls the helper without costing the lead a retry. Bean follows the lead with his own movement.
 
 ## GitHub Pages
 
@@ -57,7 +57,7 @@ PAGES_BASE=/little-worlds/ npm run build
 PAGES_BASE=/little-worlds/ npm run preview
 ```
 
-Open the printed `/little-worlds/` URL. Original family photographs are not included. The source repo contains generated artwork and first-name family characters.
+Open the printed `/little-worlds/` URL. Original family photographs are not included. The source repo contains native pixel artwork and first-name family characters.
 
 ## Controls and access
 
@@ -72,9 +72,9 @@ Open the printed `/little-worlds/` URL. Original family photographs are not incl
 ## Structure
 
 - `src/catalog.js`: game titles, instructions and shelf metadata.
-- `src/characters.js`, `src/animation.js`: generated family sheets, named animation clips and gameplay-driven pose selection.
-- `src/creatures.js`, `src/objects.js`, `src/world-art.js`: animated creatures, interactive objects, foreground props and eight environments.
-- `src/sprite-pipeline.js`, `src/prepared-art.js`: native palette/alpha normalization and compact atlas loading.
+- `src/characters.js`, `src/animation.js`: native family pixel stencils, named animation clips and gameplay-driven pose selection.
+- `src/creatures.js`, `src/objects.js`, `src/world-art.js`: animated creatures, interactive objects, foreground props and nine environments. Native drawings live in `native-actors.js`, `native-creatures.js`, `native-objects.js` and `native-scenes.js`.
+- `src/sprite-pipeline.js`: unfiltered canvas creation for Mode 7 distance projections.
 - `src/art.js` and `src/pixels.js`: shelf covers and code-authored fallback art.
 - `src/companions.js`, `src/navigation.js`: Bean’s independent movement and safe garden routing.
 - `src/music.js`: original quiet chip themes.
@@ -85,7 +85,7 @@ Open the printed `/little-worlds/` URL. Original family photographs are not incl
 - `tests/arcade.test.js`: deterministic mechanics, level reachability and win/loss checks.
 - `public/rainbow-flight/`: preserved original game.
 
-For a new world, add a catalog entry and a world class with `update(dt, input)` and `draw(painter)`, then register it in `createGame`. Player names can be changed using the avatar; edit the catalog for additional family themes. The art preparation command below rebuilds the native atlas after source artwork changes.
+For a new world, add a catalog entry and a world class with `update(dt, input)` and `draw(painter)`, then register it in `createGame`. Player names can be changed using the avatar; edit the catalog for additional family themes. The art preparation command below rebuilds the native atlas after native artwork changes. It is an inspection/export asset, not a runtime dependency.
 
 ## Browser regression checks
 
@@ -120,7 +120,7 @@ The browser suite opens all nine games and checks pause/resume, filtering, profi
 
 ## Pixel-art rendering
 
-The Three.js framebuffer is exactly 320×180 on every device. One art pixel maps to one framebuffer pixel. Sprite size variants are rasterized to integer dimensions once and cached; at runtime every texture texel maps 1:1 onto that grid. All edges snap to integer pixels, including odd-width sprites. Curves use binary pixel masks, lines use Bresenham steps, and transparency uses binary screen-aligned dithering. There are no rotated meshes, filtered edges, or fractional texture scaling. The canvas enlarges only by whole physical-device-pixel multiples and letterboxes unused space; it never stretches to fill the stage. Shelf artwork follows integer enlargement too. DOM text and controls remain normal accessible browser UI, outside the game artwork grid. The runtime art uses integer pixel coordinates and limited 16-bit-inspired palettes. Family animation has 37 distinct poses per character, with named clips and nonuniform frame timing. Family characters, karts and creatures are now authored directly as native pixel stencils and pixel-line poses in `src/native-actors.js` and `src/native-creatures.js`. Their regular and small sizes are separately drawn; ordinary actors are never resized. Only Mode 7 kart perspective projects a native source into distance-dependent sizes. It uses original artwork, not ripped SNES assets. The archived original Rainbow Flight retains its original artwork.
+The Three.js framebuffer is exactly 320×180 on every device. One art pixel maps to one framebuffer pixel. Regular and small actors are independently authored. Variable-size props are drawn directly at their target integer dimensions; at runtime every texture texel maps 1:1 onto that grid. All edges snap to integer pixels, including odd-width sprites. Curves use binary pixel masks, lines use Bresenham steps, and transparency uses binary screen-aligned dithering. There are no rotated meshes, filtered edges, or fractional texture scaling. The canvas enlarges only by whole physical-device-pixel multiples and letterboxes unused space; it never stretches to fill the stage. Shelf artwork follows integer enlargement too. DOM text and controls remain normal accessible browser UI, outside the game artwork grid. The runtime art uses integer pixel coordinates and limited 16-bit-inspired palettes. Family animation has 37 distinct poses per character, with named clips and nonuniform frame timing. Family characters, karts and creatures are now authored directly as native pixel stencils and pixel-line poses in `src/native-actors.js` and `src/native-creatures.js`. Their regular and small sizes are separately drawn; ordinary actors are never resized. Only Mode 7 kart perspective projects a native source into distance-dependent sizes. It uses original artwork, not ripped SNES assets. The archived original Rainbow Flight retains its original artwork.
 
 ## Gameplay audit and improvements (October 2026)
 
@@ -144,21 +144,23 @@ Shared improvements include contextual hints, larger small-screen text, Gentle m
 
 The original scene kit repeated the same mountain, tree and star shapes across unrelated genres. Each game now has an individual environment, palette, foreground material and decorative vocabulary:
 
-| Game              | Environment                                          | Foreground identity                                               |
-| ----------------- | ---------------------------------------------------- | ----------------------------------------------------------------- |
-| Cloudberry Climb  | Quiet blue alpine peaks and layered cloud banks      | Bright ice edges, dark rock, clear stars and dash crossings       |
-| Banana Meadows    | Pale tropical sky, distant islands and lagoon        | Bright grass-topped earth, open landing areas                     |
-| The Lantern Woods | Petrol-blue ancient woodland, roots and amber lights | Moss walls, subdued paths, warm lanterns                          |
-| Rainbow Rally     | Sea-green coastal horizon and a projected road       | Striped curbs, slate road, roadside trees and rear-view karts     |
-| Starlight Bounce  | Navy and brass celestial clockwork observatory       | Jewel-colored bricks, brass rails and gears                       |
-| Pocket Garden     | Warm Italian greenhouse                              | Terracotta borders, cream soil squares, succulents                |
-| Unicorns in Orbit | Magenta nebula and peach ringed planet               | Cool flight corridor, sparse moving dust, contrasting projectiles |
+| Game              | Environment                                          | Foreground identity                                                  |
+| ----------------- | ---------------------------------------------------- | -------------------------------------------------------------------- |
+| Cloudberry Climb  | Quiet blue alpine peaks and layered cloud banks      | Bright ice edges, dark rock, clear stars and dash crossings          |
+| Banana Meadows    | Pale tropical sky, distant islands and lagoon        | Bright grass-topped earth, open landing areas                        |
+| The Lantern Woods | Petrol-blue ancient woodland, roots and amber lights | Moss walls, subdued paths, warm lanterns                             |
+| Rainbow Rally     | Sea-green coastal horizon and a projected road       | Striped curbs, slate road, roadside trees and rear-view karts        |
+| Starlight Bounce  | Navy and brass celestial clockwork observatory       | Jewel-colored bricks, brass rails and gears                          |
+| Pocket Garden     | Warm Italian greenhouse                              | Terracotta borders, cream soil squares, succulents                   |
+| Unicorns in Orbit | Indigo nebula and peach ringed planet                | Cool flight corridor, sparse moving dust, contrasting projectiles    |
+| Bubble Rescue     | Moonlit bathhouse                                    | Cyan tile lips, tall windows and bright soap bubbles                 |
+| Splash Garden     | Walled courtyard                                     | Cream paths, dark stone, removable green hedges and colorful flowers |
 
 Research: [SLYNYRD’s side-view tiles](https://www.slynyrd.com/blog/2020/5/21/pixelblog-28-side-view-tiles) informed foreground/background separation, small tile vocabularies, restrained palettes and material variants. His [texture tutorial](https://www.slynyrd.com/blog/2018/2/15/pixelblog-2-texture) informed clustered detail, empty areas and suppression of incidental single-pixel noise. [Saint11’s anti-aliasing and banding article](https://saint11.art/pixel_art_articles/article5/) informed the distinction between intentional pixel clusters and accidental filtering. These are design references, not copied artwork.
 
-The background atlas was created using the **imagegen skill and built-in image generation tool**. Its exact prompt is saved in `public/art/prompt.txt`; the generated original is `public/art/eight-worlds-v1.png`. The preparation pipeline crops the eight panels using their inspected boundaries, converts each to 320×180 native pixels and a maximum of 32 colors, suppresses small isolated artifacts, and reduces background brightness to preserve playability. The game normally loads the prepared native atlas; original sheets provide a local fallback. This is generated artwork processed for the pixel pipeline, not a claim that every background pixel was individually hand placed. Foreground plants, crystals, lanterns and gears come from `public/art/flora-v1.png`; collision surfaces and repeating materials are code-authored in `src/world-art.js`. All consumed assets live in this repository; no remote image service is needed to play.
+All active environments and props are now authored on the native pixel grid in `src/native-scenes.js`, `src/native-objects.js`, `src/party-art.js` and `src/rally-art.js`. The old generated backgrounds, props and character sheets have been removed from public assets. No generated image is shrunk into the game, and no image download is required during play. Simple, deliberate clusters and subdued play areas keep characters, threats and objectives legible.
 
-Platformer backgrounds now have three independently scrolling layers, using a maximum of five colors per layer. They are prepared from `public/art/platform-parallax-v1.png` (exact prompt: `public/art/platform-parallax-prompt.txt`). Palette-preserving majority cleanup removes source stippling. Platforms have a bright continuous top edge and a sparse dark body so landings read at a glance. Banana Bay has broad, short-gap beach islands and optional elevated bananas; thin Meadows ledges allow jumping up through them or dropping with Down + A. Cloudberry Climb has deliberate jump practice, two dash gaps, recovery terrain and three checkpoints.
+Platformer backgrounds have three independently scrolling native layers, using a maximum of five colors per layer. Platforms have a bright continuous top edge and a sparse dark body so landings read at a glance. Banana Bay has broad, short-gap beach islands and optional elevated bananas; thin Meadows ledges allow jumping up through them or dropping with Down + A. Cloudberry Climb has deliberate jump practice, two dash gaps, recovery terrain and three checkpoints.
 
 Rainbow Rally samples a 512×512 island circuit into a 320×180 ground plane using nearest-neighbor inverse perspective. The camera follows the oval track, with a checkered start/finish line, depth-sorted roadside trees and obstacles, and rear-view family karts. Two family pacers provide someone to overtake, with finishing position shown alongside the lap time; Bean stays an independent companion. The shared projection keeps pickups and puddles on the same collision plane as the driver. All perspective size variants are rasterized before drawing at 1:1, keeping a single pixel grid. [Kulor’s Mode 7 perspective guide](https://forums.nesdev.org/viewtopic.php?t=24053) informed the per-scanline perspective approach; this is an original browser implementation, not an SNES emulator.
 
@@ -174,11 +176,11 @@ Karts have four rear-view poses for each family member, drawn at 24×32 and sepa
 
 Bean still follows independently, explores and returns. The water-balloon maze uses a grid route that avoids stone, hedges and balloons. He never blocks the player, pushes puzzle pieces or takes damage. Selecting Bean as the hero hides the companion copy.
 
-The old generated character sheets and obsolete atlases have been removed from the published assets; they remain recoverable in Git history. No original family photographs are included. Generated environment and prop sources remain in use as described above; the character redraw is not a claim that those separate assets have also been redrawn.
+The old generated sheets and obsolete atlases have been removed from the published assets; they remain recoverable in Git history. No original family photographs are included. Environment and prop artwork has also been redrawn directly on the native grid.
 
 Open `/sprite-lab.html` to inspect the actual pixel artwork, play named animation clips, reverse direction, slow playback, and compare the two native sizes. `npm run test:animation` verifies all 148 regular family poses, kart/creature poses, palette limits, binary transparency, action transitions and paused animations. Native-art unit tests also inspect the separately authored small sets.
 
-The current scenery/prop atlas is `public/art/native/arcade-v5.png`, indexed by `manifest.json`. It contains 227 frames: the regular family/kart/creature artwork for inspection and export, 32 objects, nine backgrounds and six parallax layers. Runtime character and creature canvases are drawn directly from code, so an image load failure cannot bring back the old reduced sprites. Normal play still requests only one atlas and its manifest for scenery and props. Rebuild the atlas after changing native artwork or environment sources:
+The optional export atlas is `public/art/native/arcade-v6.png`, indexed by `manifest.json`. It contains 407 frames: both family/kart/creature size sets, 32 objects, nine backgrounds and six parallax layers. Runtime artwork is drawn directly from code, so missing image files cannot bring back the old reduced sprites. Normal play requests **zero artwork images**. Rebuild the inspection atlas after changing native artwork:
 
 ```sh
 npm run prepare:art
@@ -197,3 +199,5 @@ npm run build
 Cartridges use a viewport-filling player and request browser fullscreen when user activation allows it. Start/Escape opens the menu with Resume, Restart, Sound, Gentle mode and Exit to cartridges. Touch has a Menu button. Native pixels enlarge only by integer physical-pixel multiples, with letterboxing where necessary. A fullscreen regression test covers desktop and both phone orientations.
 
 Automated completion establishes that games can be completed, not whether every family member finds them fun. Physical controller ergonomics and a family playtest remain useful checks.
+
+Starlight Bounce adds a timed catch: press A while the ball is flying to arm the paddle for 1.25 seconds. Catch the next rebound and press A to relaunch; a missed attempt recharges after 2.2 seconds. A luminous paddle rim shows the active window. Consecutive bricks before returning to the paddle form a flight record. Brief checkpoint, room and combo announcements now appear in the reserved fullscreen menu bar without covering the game.

@@ -161,7 +161,7 @@ const { chromium } = require("playwright"),
     await page.locator("#overlay-home").click();
     await page.locator('[data-game="garden"]').click();
     await page.locator("#overlay-action").click();
-    await page.waitForTimeout(200);
+    await page.waitForFunction(() => window.arcade.snapshot().time > 1);
     const mutations = await page.evaluate(
       () =>
         new Promise((resolve) => {

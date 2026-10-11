@@ -80,8 +80,8 @@ export const games = [
     description:
       "Arnaud charts the stars. Gaia supplies the bounce. Clear a sky full of sparkling blocks.",
     objective: "Clear all 24 starlight bricks",
-    help: "← → move paddle · Space / A launch · X / B slow the ball",
-    a: "Launch",
+    help: "← → move paddle · Space / A launch or timed catch · X / B slow the ball",
+    a: "Launch / Catch",
     b: "Slow",
   },
   {

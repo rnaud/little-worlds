@@ -38,6 +38,8 @@ const assert = require("node:assert/strict");
         "bricks",
         "garden",
         "space",
+        "bubbles",
+        "splash",
       ];
       for (let pass = 0; pass < 3; pass++) {
         for (const hero of ["gaia", "bean", "nur", "arnaud"])
@@ -81,7 +83,7 @@ const assert = require("node:assert/strict");
       p.dispose();
       stage.remove();
       document.body.innerHTML =
-        '<h1>Four family heroes · seven worlds</h1><p>Native scene captures after simulated gameplay. Each picture uses the actual Three.js renderer.</p><main id="contact"></main>';
+        '<h1>Four family heroes · nine worlds</h1><p>Native scene captures after simulated gameplay. Each picture uses the actual Three.js renderer.</p><main id="contact"></main>';
       const contact = document.querySelector("#contact");
       contact.style.cssText =
         "display:grid;grid-template-columns:repeat(4,320px);gap:12px";
@@ -118,7 +120,7 @@ const assert = require("node:assert/strict");
       JSON.stringify({
         result: "PASS",
         checks: [
-          "four heroes in all seven worlds",
+          "four heroes in all nine worlds",
           "three repeated tours",
           "stable texture and mesh caches",
         ],

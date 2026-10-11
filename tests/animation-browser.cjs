@@ -112,8 +112,8 @@ const assert = require("node:assert/strict");
   }
   assert.deepEqual(
     [...new Set(assets)].sort(),
-    ["/art/native/arcade-v5.png", "/art/native/manifest.json"],
-    "runtime uses only the prepared native atlas",
+    [],
+    "runtime draws native art without image requests",
   );
   await page.locator('[data-game="summit"]').click();
   await page.locator("#overlay-action").click();
@@ -193,7 +193,7 @@ const assert = require("node:assert/strict");
       checks: [
         "148 family poses plus karts, creatures and props",
         "binary alpha and limited palettes",
-        "one prepared native atlas request",
+        "no artwork image requests",
         "distinct poses",
         "idle/run/jump/dash respond to gameplay",
         "pause freezes animation",
