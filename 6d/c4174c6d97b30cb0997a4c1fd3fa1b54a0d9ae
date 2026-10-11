@@ -1,0 +1,201 @@
+.gitignore
+  s_74ed6129120f6d::t_ba989333b74568 1-5
+README.md
+  s_74ed6129120f6d::t_977cab6aaf2f47 1-201
+index.html
+  s_74ed6129120f6d::t_dab1736ca10ac8 1-202
+package-lock.json
+  s_74ed6129120f6d::t_63b07395d33c65 1-1178
+package.json
+  s_74ed6129120f6d::t_72b974d3290d52 1-40
+public/art/characters/actions-photo-prompt.txt
+  s_74ed6129120f6d::t_5b1d5b557fc635 1-9
+public/art/characters/actions-prompt.txt
+  s_9ca76055a220ed::t_49611dc26525b6 1-12
+public/art/characters/arnaud-photo-prompt.txt
+  s_74ed6129120f6d::t_773bdfcb403bfd 1-7
+public/art/characters/arnaud-prompt.txt
+  s_9ca76055a220ed::t_13ce8478d482a7 1-11
+public/art/characters/bean-photo-prompt.txt
+  s_74ed6129120f6d::t_77f1d22cd15bab 1-7
+public/art/characters/bean-prompt.txt
+  s_9ca76055a220ed::t_a829d52af6299c 1-9
+public/art/characters/creatures-prompt.txt
+  s_74ed6129120f6d::t_8c94839dc90a4b 1-8
+public/art/characters/directions-photo-prompt.txt
+  s_74ed6129120f6d::t_475186fbea7fcb 1-9
+public/art/characters/directions-prompt.txt
+  s_9ca76055a220ed::t_095bd4e8f2f72d 1-17
+public/art/characters/gaia-photo-prompt.txt
+  s_74ed6129120f6d::t_6d68d69f49f100 1-7
+public/art/characters/gaia-prompt.txt
+  s_9ca76055a220ed::t_b6c5a3eb3ffa0c 1-10
+public/art/characters/karts-photo-prompt.txt
+  s_74ed6129120f6d::t_5d3a64b43dbaab 1-9
+public/art/characters/karts-prompt.txt
+  s_9ca76055a220ed::t_052226fe6d2ba1 1-14
+public/art/characters/karts-rear-v3-prompt.txt
+  s_74ed6129120f6d::t_df7bc5a9d8eff6 1
+public/art/characters/nur-photo-prompt.txt
+  s_74ed6129120f6d::t_ffa26c7778422c 1-7
+public/art/characters/nur-prompt.txt
+  s_9ca76055a220ed::t_0c0517796892de 1-11
+public/art/characters/riders-photo-prompt.txt
+  s_74ed6129120f6d::t_11576df2ebcf26 1-9
+public/art/characters/riders-prompt.txt
+  s_9ca76055a220ed::t_0e5b5969f46548 1-16
+public/art/characters/skills-photo-prompt.txt
+  s_74ed6129120f6d::t_f7f6593e94f12a 1-9
+public/art/characters/skills-prompt.txt
+  s_74ed6129120f6d::t_330608de218658 1
+public/art/expansion-prompt.txt
+  s_9ca76055a220ed::t_1a5c32cc82e551 1-6
+public/art/flora-prompt.txt
+  s_9ca76055a220ed::t_4fa835a47df645 1-14
+public/art/native/manifest.json
+  s_74ed6129120f6d::t_9f0e568c090898 1-1493
+public/art/objects-prompt.txt
+  s_9ca76055a220ed::t_3f3b29d5936d58 1-9
+public/art/platform-parallax-prompt.txt
+  s_9ca76055a220ed::t_b67eb8e9b160db 1-12
+public/art/prompt.txt
+  s_9ca76055a220ed::t_299021cc37bebc 1-13
+public/rainbow-flight/game.js
+  s_74ed6129120f6d::t_6eab716e1ff05d 1-58
+public/rainbow-flight/index.html
+  s_74ed6129120f6d::t_8fa6b59bd229f5 1-10
+public/rainbow-flight/style.css
+  s_74ed6129120f6d::t_bf87227b0019c2 1-2
+sprite-lab.html
+  s_74ed6129120f6d::t_df2612c336b3e6 1-340
+src/animation.js
+  s_74ed6129120f6d::t_9eddc3c3a32737 1-134
+src/art.js
+  s_74ed6129120f6d::t_5138a1069c3c5b 1-69
+src/asset-path.js
+  s_74ed6129120f6d::t_48b9d2c3689b39 1-3
+src/catalog.js
+  s_74ed6129120f6d::t_5979681116ce1d 1-121
+src/characters.js
+  s_74ed6129120f6d::t_a74fe2a83c14e3 1-434
+src/companions.js
+  s_74ed6129120f6d::t_ff8af637a39462 1-330
+src/creatures.js
+  s_74ed6129120f6d::t_2020b11ab71637 1-135
+src/engine.js
+  s_74ed6129120f6d::t_997e43a987b316 1-935
+src/games.js
+  s_74ed6129120f6d::t_6bf42f26255570 1-1843
+src/input-math.js
+  s_74ed6129120f6d::t_c6d5093559d847 1-10
+src/levels.js
+  s_74ed6129120f6d::t_24afc2500891f9 1-387
+src/main.js
+  s_74ed6129120f6d::t_3dc58cce4eed32 1-940
+src/music.js
+  s_74ed6129120f6d::t_3f472ebc3e8ef9 1-300
+src/navigation.js
+  s_74ed6129120f6d::t_7b322f37df7bd0 1-42
+src/objects.js
+  s_74ed6129120f6d::t_7131cb11aa8a91 1-241
+src/pixels.js
+  s_74ed6129120f6d::t_d6487a51ec7ae3 1-531
+src/platform-motion.js
+  s_74ed6129120f6d::t_e95eb9c4210174 1-121
+src/prepared-art.js
+  s_74ed6129120f6d::t_33e56755e6e965 1-35
+src/records.js
+  s_74ed6129120f6d::t_fbb63ef644d6a5 1-52
+src/sprite-pipeline.js
+  s_74ed6129120f6d::t_fd8e7eecbe77e3 1-86
+src/style.css
+  s_74ed6129120f6d::t_2af8ccd798983b 1-2329
+src/world-art.js
+  s_74ed6129120f6d::t_99d4a88fd7366a 1-533
+tests/animation-browser.cjs
+  s_74ed6129120f6d::t_245b129f8b355b 1-209
+tests/animation.test.js
+  s_74ed6129120f6d::t_bb013074e4fc7b 1-176
+tests/arcade-journey.cjs
+  s_74ed6129120f6d::t_fdc771483d973c 1-118
+tests/arcade.test.js
+  s_74ed6129120f6d::t_6934ec543b544b 1-426
+tests/art-review.cjs
+  s_74ed6129120f6d::t_56126b3d64cc73 1-27
+tests/assets-browser.cjs
+  s_74ed6129120f6d::t_f12ad223b0cfa2 1-59
+tests/audio-browser.cjs
+  s_74ed6129120f6d::t_ea26ec04b45535 1-141
+tests/browser-harness.js
+  s_74ed6129120f6d::t_4f671605b5852c 1-26
+tests/browser-smoke.cjs
+  s_74ed6129120f6d::t_b034fc6dc83ee1 1-244
+tests/campaign-art.cjs
+  s_74ed6129120f6d::t_47d4397f7744d7 1-78
+tests/campaign-browser.cjs
+  s_74ed6129120f6d::t_df4bddf1d6abfd 1-109
+tests/controller-shelf.cjs
+  s_74ed6129120f6d::t_f4f6fb8565ef7f 1-242
+tests/coop-browser.cjs
+  s_74ed6129120f6d::t_14ccd3aba1e150 1-163
+tests/cross-browser.cjs
+  s_74ed6129120f6d::t_2b8a9f463bcd24 1-117
+tests/deployment-browser.cjs
+  s_74ed6129120f6d::t_015e25ee7dd76a 1-83
+tests/discoveries-browser.cjs
+  s_74ed6129120f6d::t_3acfffdc6e6cfa 1-125
+tests/game.cjs
+  s_74ed6129120f6d::t_efa182f21bd2f5 1-67
+tests/input-browser.cjs
+  s_74ed6129120f6d::t_de4698d2154ba8 1-213
+tests/journey-browser.cjs
+  s_74ed6129120f6d::t_e37f4df1c9f0ac 1-198
+tests/level-solvers.js
+  s_74ed6129120f6d::t_d5925905ead8ea 1-67
+tests/meadow-browser.cjs
+  s_74ed6129120f6d::t_d5dae930c12b32 1-100
+tests/meadow-driver.js
+  s_74ed6129120f6d::t_14592bb505db2b 1-131
+tests/pixel-grid.cjs
+  s_74ed6129120f6d::t_62e43d85eade73 1-184
+tests/platform-browser.cjs
+  s_74ed6129120f6d::t_9e96433453175e 1-109
+tests/prepare-art.cjs
+  s_74ed6129120f6d::t_6a4b7a87454e71 1-112
+tests/progression.test.js
+  s_74ed6129120f6d::t_9f26fa6155efd8 1-160
+tests/records.test.js
+  s_74ed6129120f6d::t_cefa8d0b57efe0 1-61
+tests/render-soak.cjs
+  s_74ed6129120f6d::t_968912cdd8277b 1-134
+tests/summit-driver.js
+  s_74ed6129120f6d::t_2b9441a174fcf8 1-77
+tests/victory-browser.cjs
+  s_74ed6129120f6d::t_37aecc0f5a2490 1-120
+vite.config.js
+  s_74ed6129120f6d::t_e1b475147a263d 1-11
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "6dc4174c6d97b30cb0997a4c1fd3fa1b54a0d9ae",
+  "prompts": {},
+  "sessions": {
+    "s_74ed6129120f6d": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a12b36-7519-7462-9cc9-a30336c7a79d",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Arnaud Ferreri <rnaud@users.noreply.github.com>"
+    },
+    "s_9ca76055a220ed": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "ad390326-b580-46fb-9177-587902db9ecb",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Arnaud Ferreri <rnaud@users.noreply.github.com>"
+    }
+  }
+}
