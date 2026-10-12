@@ -48,7 +48,7 @@ For Meadows or Bubble Rescue co-op, enable **Play together** in the cartridge se
 
 Disconnecting an assigned controller pauses play. Controller roles remain fixed across pause, resume and reconnection, so the parent's controller cannot silently take over the lead character. The remaining controller can still navigate the pause menu.
 
-The public deployment checks exercise both co-op cartridges, including disconnection and reconnection, against the production build before publishing.
+The public deployment checks exercise both co-op cartridges, including disconnection and reconnection, and complete all three Bubble Rescue and Splash Garden rooms in Classic against the production build before publishing.
 
 ## GitHub Pages
 

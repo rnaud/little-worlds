@@ -13,6 +13,13 @@ const { chromium } = require("playwright"),
     reports = [];
   page.on("pageerror", (e) => errors.push(e.message));
   try {
+    const { bubblePilot } = await import("./bubble-pilot.js"),
+      { splashPlan } = await import("./party-driver.js");
+    // Keep the input-only pilots in the test runner so release builds need not
+    // expose development modules, and the same check can exercise Pages.
+    await page.addInitScript({
+      content: `window.partyPilot = { bubblePilot: ${bubblePilot.toString()}, splashPlan: ${splashPlan.toString()} };`,
+    });
     await page.goto(process.env.ARCADE_URL || "http://127.0.0.1:5174");
     await page.waitForFunction(
       () => window.arcade?.snapshot().characterArtwork.loaded,
@@ -24,8 +31,7 @@ const { chromium } = require("playwright"),
       await page.waitForFunction(() => window.arcade.snapshot().time > 0.15);
       await page.screenshot({ path: `tests/artifacts/${id}-native.png` });
       const result = await page.evaluate(async (id) => {
-        const { bubblePilot } = await import("/tests/bubble-pilot.js"),
-          { splashPlan } = await import("/tests/party-driver.js");
+        const { bubblePilot, splashPlan } = window.partyPilot;
         const canvas = document.querySelector("#game-canvas"),
           held = new Set();
         let plan = [],
