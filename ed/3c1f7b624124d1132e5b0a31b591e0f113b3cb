@@ -1,0 +1,33 @@
+README.md
+  s_74ed6129120f6d::t_ab9174b4e4c1f1 169,177,216-221
+src/engine.js
+  s_74ed6129120f6d::t_0a54fd89caa051 1,118,140,156
+src/games.js
+  s_74ed6129120f6d::t_499f1c9db668ea 318,677,1168,1369,1607
+src/native-scenes.js
+  s_74ed6129120f6d::t_4a564365140676 1,159,293-294
+src/party-art.js
+  s_74ed6129120f6d::t_1c159d75038e8c 1,65
+src/party-games.js
+  s_74ed6129120f6d::t_afe8668df6af2d 327,755
+src/rally-art.js
+  s_74ed6129120f6d::t_77098414f49920 1,127
+src/world-details.js
+  s_74ed6129120f6d::t_4f97a98c1043e3 1-374
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "ed3c1f7b624124d1132e5b0a31b591e0f113b3cb",
+  "prompts": {},
+  "sessions": {
+    "s_74ed6129120f6d": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a12b36-7519-7462-9cc9-a30336c7a79d",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Arnaud Ferreri <rnaud@users.noreply.github.com>"
+    }
+  }
+}
