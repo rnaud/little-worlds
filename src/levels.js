@@ -453,8 +453,47 @@ export const GARDEN_LEVELS = [
   ),
 ];
 
+export const BRICK_LEVELS = [
+  {
+    title: "Star Chart",
+    lesson:
+      "Paddle edges steer the ball. Tap A just before a bounce to catch it; B slows the flight.",
+    bricks: Array.from({ length: 24 }, (_, k) => [
+      134 + (k % 8) * 99,
+      105 + Math.floor(k / 8) * 39,
+      86,
+      25,
+    ]),
+  },
+  {
+    title: "Twin Telescopes",
+    lesson:
+      "Two towers leave an open middle lane. Send the ball up a side, then catch it to choose a new launch.",
+    bricks: Array.from({ length: 24 }, (_, k) => [
+      [215, 314, 646, 745][k % 4] + (Math.floor(k / 4) % 2 ? 12 : -12),
+      99 + Math.floor(k / 4) * 39,
+      84,
+      25,
+    ]),
+  },
+  {
+    title: "The Crystal Constellation",
+    lesson:
+      "A diamond of stars rewards angled rebounds. Keep a flight going to beat your longest chain.",
+    bricks: [2, 4, 6, 6, 4, 2].flatMap((count, row) =>
+      Array.from({ length: count }, (_, col) => [
+        480 + (col - (count - 1) / 2) * 108,
+        96 + row * 39,
+        87,
+        25,
+      ]),
+    ),
+  },
+];
+
 export function levelsFor(id) {
   if (id === "summit") return SUMMIT_LEVELS;
+  if (id === "bricks") return BRICK_LEVELS;
   return id === "meadow" ? MEADOW_LEVELS : id === "garden" ? GARDEN_LEVELS : [];
 }
 

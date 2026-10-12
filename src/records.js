@@ -43,7 +43,12 @@ export function finishRecord(records, run) {
     old.finishes > 0 &&
     (run.id === "garden"
       ? entry.bestMoves < old.bestMoves
-      : entry.bestTime < old.bestTime - 0.05);
+      : run.id === "bubbles"
+        ? entry.bestScore > old.bestScore || entry.bestCombo > old.bestCombo
+        : run.id === "bricks"
+          ? entry.bestCombo > old.bestCombo ||
+            entry.bestTime < old.bestTime - 0.05
+          : entry.bestTime < old.bestTime - 0.05);
   return { ...entry, first: !old.finishes, improved };
 }
 export function clockLabel(seconds) {

@@ -44,9 +44,9 @@ export function art(kind, large = false) {
     draw(creatureVariant("winged-unicorn", 0.4, 28, 20)?.canvas, 163, 132);
     draw(characterVariant("bean", "ride", 0.1, 24, 24)?.canvas, 165, 119);
   } else if (kind === "bricks") {
-    actor("gaia", "carry", 103, 112);
+    draw(characterVariant("gaia", "carryIdle", 0, 16, 24)?.canvas, 113, 125);
     actor("bean", "play", 149, 112);
-    draw(objectFrame("brass-paddle"), 95, 109);
+    draw(objectFrame("brass-paddle"), 97, 118);
     draw(objectFrame("clockwork-gem"), 119, 81);
   } else if (kind === "garden") {
     actor("gaia", "push", 88, 109);

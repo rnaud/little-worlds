@@ -59,3 +59,18 @@ test("record storage tolerates malformed values and JSON nulls; clocks round acr
   assert.equal(clockLabel(59.99), "1:00.0");
   assert.equal(clockLabel(9.43), "0:09.4");
 });
+
+test("bubble records reward rescue chains and score rather than only speed", () => {
+  const records = {};
+  finishRecord(records, { id: "bubbles", time: 20, score: 1000, combo: 3 });
+  assert.equal(
+    finishRecord(records, { id: "bubbles", time: 25, score: 1500, combo: 4 })
+      .improved,
+    true,
+  );
+  assert.equal(
+    finishRecord(records, { id: "bubbles", time: 18, score: 800, combo: 2 })
+      .improved,
+    false,
+  );
+});

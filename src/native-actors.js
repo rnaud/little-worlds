@@ -434,8 +434,8 @@ function human(id, frame, small = false) {
     girl = id === "gaia";
   const cx = small ? 8 : 12,
     foot = small ? 22 : 30,
-    hip = small ? (q.carry ? 20 : 17) : 23,
-    shoulder = small ? (q.carry ? 16 : 12) : 17;
+    hip = small ? (q.carry ? 20 : girl ? 18 : 17) : girl ? 25 : 23,
+    shoulder = small ? (q.carry ? 16 : girl ? 14 : 12) : girl ? 20 : 17;
   let bob =
     q.bob +
     (q.crouch ? 2 : 0) -
@@ -521,6 +521,20 @@ function human(id, frame, small = false) {
         [cx + 5, hip + 3],
       ],
     ];
+  if (q.carry && small) {
+    legs = [
+      [
+        [cx - 2, hip],
+        [cx - 2 - step, foot - 1],
+        [cx - 2 - step, foot],
+      ],
+      [
+        [cx + 2, hip],
+        [cx + 2 + step, foot - 1],
+        [cx + 2 + step, foot],
+      ],
+    ];
+  }
   for (const [n, points] of legs.entries()) {
     d.limb(points, girl ? (n ? "s" : "S") : "p", small ? 1 : 2);
     const [x, y] = points.at(-1);
@@ -739,18 +753,17 @@ function human(id, frame, small = false) {
   let head = heads[id].map((r) => (q.down ? r.replaceAll("e", "s") : r));
   if (frame === 2) head = head.map((r) => r.replaceAll("e", "S"));
   // A single side bang and a two-color headband retain Gaia's identity at 1×.
-  d.stamp(
-    head,
-    cx - (small ? 5 : 7) + (q.dash ? 2 : 0),
-    small ? (q.carry ? 7 : 3) + bob : (girl ? 3 : 2) + bob,
-  );
+  const headY = (small ? (q.carry ? 7 : girl ? 5 : 3) : girl ? 7 : 2) + bob;
+  d.stamp(head, cx - (small ? 5 : 7) + (q.dash ? 2 : 0), headY);
   if (q.down) {
-    const eyeY = (small ? 3 : girl ? 3 : 2) + bob + (small ? 4 : 7);
+    const eyeY = headY + (small ? 4 : 7);
     d.dot(cx - 2, eyeY, "e");
     d.dot(cx + 2, eyeY, "e");
   }
-  if (frame === 1 && !q.up) d.dot(cx + (small ? 3 : 4), small ? 9 : 12, "w");
-  if (frame === 3 && !q.up) d.dot(cx + (small ? 2 : 3), small ? 10 : 13, "t");
+  if (frame === 1 && !q.up)
+    d.dot(cx + (small ? 3 : 4), headY + (small ? 6 : 9), "w");
+  if (frame === 3 && !q.up)
+    d.dot(cx + (small ? 2 : 3), headY + (small ? 7 : 10), "t");
   if (q.cast && !q.push) {
     const [hx, hy] = right.at(-1),
       reach = small ? 2 : 3;
@@ -761,7 +774,88 @@ function human(id, frame, small = false) {
   }
   return d;
 }
+function seatedDog(frame, small) {
+  const d = new PixelDrawing(
+      small ? 24 : 32,
+      small ? 18 : 24,
+      ACTOR_PALETTES.bean,
+    ),
+    nod = frame === 24 ? 1 : 0,
+    hx = small ? 11 : 13,
+    hy = (small || frame === 15 ? 0 : 1) + nod;
+  // Upright chest, folded hind legs and fine front paws, drawn from Bean's sitting reference.
+  d.line(small ? 9 : 11, small ? 12 : 17, small ? 5 : 7, small ? 14 : 20, "j");
+  d.line(
+    small ? 5 : 7,
+    small ? 14 : 20,
+    small ? 4 : 5,
+    (small ? 16 : 22) - (frame === 15 ? 1 : 0),
+    "h",
+  );
+  d.stamp(
+    small
+      ? [
+          "..ohho...",
+          ".ohsHho..",
+          ".ohssHo..",
+          "ohHssHho.",
+          "ohHssHho.",
+          "ohHssHho.",
+          ".ohssho..",
+          "..ohoo...",
+          ".ooo.ooo.",
+          ".oso.osso",
+        ]
+      : [
+          "....ohho....",
+          "...ohHhho...",
+          "..ohHsHho...",
+          "..ohHssHho..",
+          ".ohHsssHho..",
+          ".ohHsssHho..",
+          "ohHHsssHHho.",
+          "ohHHsssHHho.",
+          "ohHHsssHHho.",
+          ".ohHsssHho..",
+          "..ohooohoo..",
+          "...o...o....",
+          ".oooo.oooo..",
+          ".osssoossso.",
+        ],
+    small ? 8 : 10,
+    (small ? 7 : 9) + nod,
+  );
+  d.stamp(
+    small
+      ? ["ohho....", "ojHhoo..", ".oHHHho.", ".oHeHsoo", "..ohssse", "...oooo."]
+      : [
+          "ohho.......",
+          "ojHhoo.....",
+          ".ohHHHhoo..",
+          "..ohHeHssso",
+          "...ohssssse",
+          "....oooooo.",
+        ],
+    hx,
+    hy,
+  );
+  d.rect(hx + (small ? 2 : 3), hy + 6, small ? 4 : 6, 2, "c");
+  d.dot(hx + (small ? 4 : 6), hy + 7, "t");
+  if (frame === 23) d.dot(hx + (small ? 3 : 5), hy + 3, "h");
+  if (frame === 25)
+    d.limb(
+      [
+        [small ? 15 : 20, small ? 11 : 15],
+        [small ? 18 : 24, small ? 8 : 11],
+      ],
+      "s",
+      1,
+    );
+  return d;
+}
 function dog(frame, small = false) {
+  if (frame === 15 || (frame >= 22 && frame <= 25))
+    return seatedDog(frame, small);
   const d = new PixelDrawing(
       small ? 24 : 32,
       small ? 18 : 24,

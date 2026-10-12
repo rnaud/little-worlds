@@ -5,6 +5,7 @@ export const CREATURE_IDS = [
   "fern-spirit",
   "winged-unicorn",
   "crystal-rock",
+  "moon-keeper",
 ];
 export const creatureArtStatus = {
   loaded: false,
@@ -30,7 +31,7 @@ export async function loadCreatureArt() {
     );
   }
   creatureArtStatus.loaded = true;
-  creatureArtStatus.frames = 16;
+  creatureArtStatus.frames = CREATURE_IDS.length * 4;
   creatureArtStatus.error = null;
 }
 export function creatureFrame(id, time = 0) {
@@ -42,7 +43,9 @@ export function creatureFrame(id, time = 0) {
 export function creatureVariant(id, time, width, height) {
   const frame = Math.floor(time * (id === "crystal-rock" ? 3 : 8)) % 4,
     canvas = (
-      width < (id === "winged-unicorn" ? 32 : 21) ? smallSheets : sheets
+      width < (id === "moon-keeper" ? 36 : id === "winged-unicorn" ? 32 : 21)
+        ? smallSheets
+        : sheets
     ).get(id)?.[frame];
   return canvas ? { canvas, frame } : null;
 }

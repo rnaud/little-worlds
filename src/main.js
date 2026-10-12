@@ -46,7 +46,7 @@ const keepsakes = new Set(
   ),
 );
 const levelRecords = {};
-for (const id of ["summit", "meadow", "garden"]) {
+for (const id of ["summit", "meadow", "garden", "bricks"]) {
   levelRecords[id] = {};
   for (const [key, record] of Object.entries(saved.levelRecords?.[id] || {})) {
     if (
@@ -415,6 +415,7 @@ function launch(id, level) {
   game.hero = character;
   configureCoop();
   $("#game-hint").textContent = "";
+  $("#game-notice").textContent = "";
   $("#game-title").textContent = game.levelInfo
     ? `${currentLevel + 1}. ${game.levelInfo.title}`
     : selected.title;
@@ -754,25 +755,31 @@ function showResults() {
             ["Longest chain", game.bestCombo],
             ["Time", clockLabel(game.t)],
           ]
-        : selected.id === "splash"
+        : selected.id === "space"
           ? [
-              ["Flowers", game.flowersWatered],
-              ["Balloons used", game.balloonCount],
               ["Time", clockLabel(game.t)],
+              ["Returned stars", game.reflected],
               ["Best time", clockLabel(best.bestTime)],
             ]
-          : selected.id === "bricks"
+          : selected.id === "splash"
             ? [
-                ["Longest flight", `${game.bestCombo} stars`],
-                ["Best flight", `${best.bestCombo} stars`],
+                ["Flowers", game.flowersWatered],
+                ["Balloons used", game.balloonCount],
                 ["Time", clockLabel(game.t)],
                 ["Best time", clockLabel(best.bestTime)],
               ]
-            : [
-                ["Time", clockLabel(game.t)],
-                ["Best time", clockLabel(best.bestTime)],
-                ["Finishes", best.finishes],
-              ];
+            : selected.id === "bricks"
+              ? [
+                  ["Longest flight", `${game.bestCombo} stars`],
+                  ["Best flight", `${best.bestCombo} stars`],
+                  ["Time", clockLabel(game.t)],
+                  ["Best time", clockLabel(best.bestTime)],
+                ]
+              : [
+                  ["Time", clockLabel(game.t)],
+                  ["Best time", clockLabel(best.bestTime)],
+                  ["Finishes", best.finishes],
+                ];
   $("#overlay-results").innerHTML =
     `<div class="result-heading">${best.first ? "First finish!" : best.improved ? "A new personal best!" : "Another adventure together"}<small>${runGentle ? "Gentle" : "Classic"} · ${game.buddy ? "Family co-op" : "Solo"} · this device</small></div><dl>${rows.map(([label, value]) => `<div><dt>${label}</dt><dd>${value}</dd></div>`).join("")}</dl>`;
 }
@@ -874,10 +881,12 @@ function frame(now) {
         "A LITTLE VICTORY",
         `You did it, ${name}!`,
         levels.length
-          ? `${game.levelInfo.title} complete! ${Object.keys(levelRecords[selected.id]).length} of ${levels.length} stages finished.${selected.id === "garden" ? ` ${game.moves} moves.` : ` ${game.score} ${selected.id === "summit" ? "stars" : "bananas"} brought home.`}`
+          ? `${game.levelInfo.title} complete! ${Object.keys(levelRecords[selected.id]).length} of ${levels.length} stages finished.${selected.id === "garden" ? ` ${game.moves} moves.` : ` ${game.score} ${["summit", "bricks"].includes(selected.id) ? "stars" : "bananas"} brought home.`}`
           : selected.id === "rally"
             ? `${["", "First", "Second", "Third"][game.place]} across the line! ${game.score} bananas collected. Race again to try a faster lap.`
-            : `${selected.title} complete. Another little memory for the collection.`,
+            : selected.id === "space"
+              ? "Three waves cleared, and the Moon Keeper is calm. The stars are shining again!"
+              : `${selected.title} complete. Another little memory for the collection.`,
         currentLevel < levels.length - 1 ? "Next stage →" : "Play again ↗",
       );
     } else if (game.failed) {
@@ -936,6 +945,7 @@ window.arcade = {
         }
       : null,
     message: game?.message,
+    notice: game?.noticeTime > 0 ? game.notice : "",
     player: game?.player ? { ...game.player } : null,
     buddy: game?.buddy
       ? {
@@ -968,6 +978,11 @@ window.arcade = {
           ball: game.ball ? { ...game.ball } : null,
           paddle: game.paddle ? { ...game.paddle } : null,
           launched: game.launched,
+          bullets: game.bullets?.map((b) => ({ ...b })),
+          shield: game.shield,
+          reflected: game.reflected,
+          finale: game.finale,
+          health: game.health,
           targets: (game.bricks || game.enemies || [])
             .filter((e) => e.alive !== false)
             .map((e) => ({ x: e.x, y: e.y })),

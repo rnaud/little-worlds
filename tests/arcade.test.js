@@ -126,6 +126,26 @@ test("rally reaches finish with normal driving", () => {
   assert.ok(g.done);
   assert.ok(g.distance >= 1800);
 });
+test("an exhausted boost recharges without pulsing and braking never spends boost", () => {
+  const g = new Rally(false);
+  g.countdown = 0;
+  g.fuel = 0.001;
+  g.update(dt, input(0, 0, { a: true }));
+  assert.equal(g.boostLocked, true);
+  for (let k = 0; k < 240; k++) {
+    g.update(dt, input(0, 0, { a: true }));
+    assert.equal(g.boosting, false, "holding an empty boost must not stutter");
+  }
+  assert.ok(g.fuel >= 0.2);
+  g.update(dt, input());
+  assert.equal(g.boostLocked, false);
+  g.update(dt, input(0, 0, { a: true }));
+  assert.equal(g.boosting, true);
+  const beforeBrake = g.fuel;
+  g.update(dt, input(0, 0, { a: true, b: true }));
+  assert.equal(g.boosting, false);
+  assert.ok(g.fuel >= beforeBrake);
+});
 test("brick impacts remove one brick and launch/paddle bounce work", () => {
   const g = new Bricks(false);
   g.update(dt, input(0, 0, {}, { a: true }));
@@ -143,35 +163,36 @@ test("brick impacts remove one brick and launch/paddle bounce work", () => {
   assert.equal(g.lives, 4);
   assert.equal(g.launched, false);
 });
-test("brick breaker can clear the board with paddle aiming in both modes", () => {
-  for (const gentle of [false, true]) {
-    const g = new Bricks(gentle);
-    for (let n = 0; n < 120 * 90 && !g.done && !g.failed; n++) {
-      const b = g.ball,
-        target = g.bricks
-          .filter((r) => r.alive)
-          .sort((a, c) => Math.abs(a.x - b.x) - Math.abs(c.x - b.x))[0];
-      const offset = target
-        ? Math.max(
-            -g.paddle.w * 0.32,
-            Math.min(g.paddle.w * 0.32, (target.x - b.x) * -0.15),
-          )
-        : 0;
-      const delta = b.x + offset - g.paddle.x;
-      g.update(
-        dt,
-        input(
-          Math.abs(delta) < 3 ? 0 : Math.sign(delta),
-          0,
-          {},
-          { a: !g.launched },
-        ),
-      );
+test("all three brick boards can be cleared with paddle aiming in both modes", () => {
+  for (const gentle of [false, true])
+    for (let level = 0; level < 3; level++) {
+      const g = new Bricks(gentle, undefined, level);
+      for (let n = 0; n < 120 * 90 && !g.done && !g.failed; n++) {
+        const b = g.ball,
+          target = g.bricks
+            .filter((r) => r.alive)
+            .sort((a, c) => Math.abs(a.x - b.x) - Math.abs(c.x - b.x))[0];
+        const offset = target
+          ? Math.max(
+              -g.paddle.w * 0.32,
+              Math.min(g.paddle.w * 0.32, (target.x - b.x) * -0.15),
+            )
+          : 0;
+        const delta = b.x + offset - g.paddle.x;
+        g.update(
+          dt,
+          input(
+            Math.abs(delta) < 3 ? 0 : Math.sign(delta),
+            0,
+            {},
+            { a: !g.launched },
+          ),
+        );
+      }
+      assert.equal(g.score, 24);
+      assert.ok(g.done);
+      assert.equal(g.lives, 5);
     }
-    assert.equal(g.score, 24);
-    assert.ok(g.done);
-    assert.equal(g.lives, 5);
-  }
 });
 test("garden puzzle has a complete solution through legal pushes", () => {
   const g = new Garden(true, undefined, 4);
@@ -243,7 +264,8 @@ test("space shooter can clear all waves by aiming and firing", () => {
   }
   assert.ok(g.done);
   assert.equal(g.wave, 3);
-  assert.equal(g.score, 18);
+  assert.equal(g.score, 19);
+  assert.equal(g.finale, true);
 });
 
 test("Bean follows landings, explores ahead and returns independently", () => {
@@ -473,4 +495,41 @@ test("brick catch has a timed window, relaunches cleanly, and misses after expir
   g.update(dt, input());
   assert.equal(g.launched, true, "late bounce must not catch");
   assert.ok(g.ball.vy < 0);
+});
+
+test("space shield returns a hostile star and the Keeper finale is reachable in Classic", () => {
+  const g = new Space(false);
+  g.bullets.push({
+    x: g.player.x + 40,
+    y: g.player.y,
+    vx: -200,
+    vy: 10,
+    friend: false,
+  });
+  g.update(dt, input(0, 0, { b: true }));
+  assert.equal(g.reflected, 1);
+  assert.ok(
+    g.bullets.some((b) => b.reflected && b.friend && b.vx > 0 && b.vy === 0),
+  );
+  for (let n = 0; n < 120 * 120 && !g.done && !g.failed; n++) {
+    const delta = (g.enemies[0]?.y || g.player.y) - g.player.y;
+    const threat = g.bullets.some(
+      (b) =>
+        !b.friend &&
+        b.x > g.player.x &&
+        b.x < g.player.x + 230 &&
+        Math.abs(b.y - g.player.y) < 75,
+    );
+    g.update(
+      dt,
+      input(0, Math.abs(delta) < 3 ? 0 : Math.sign(delta), {
+        a: true,
+        b: threat,
+      }),
+    );
+  }
+  assert.equal(g.done, true);
+  assert.equal(g.finale, true);
+  assert.equal(g.score, 19);
+  assert.ok(g.health > 0);
 });

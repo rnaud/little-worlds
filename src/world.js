@@ -114,7 +114,8 @@ export class World {
                   : "ride",
           }
         : {}),
-      ...(this.companionMode === "garden" && this.actionTime > 0
+      ...((this.companionMode === "garden" || this.kind === "splash") &&
+      this.actionTime > 0
         ? { state: "push" }
         : {}),
       ...(this.companionMode === "bricks"

@@ -42,6 +42,7 @@ test("each kart and creature has four distinct pixel-authored silhouettes or pos
       "fern-spirit",
       "winged-unicorn",
       "crystal-rock",
+      "moon-keeper",
     ])
       assert.equal(
         new Set(

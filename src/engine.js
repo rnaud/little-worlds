@@ -3,6 +3,8 @@ import { sprite, tile } from "./pixels.js";
 import { characterVariant, kartVariant } from "./characters.js";
 import { creatureVariant } from "./creatures.js";
 import { objectVariant, objectFrame } from "./objects.js";
+import { drawNativeStar } from "./native-effects.js";
+import { drawingCanvas } from "./native-actors.js";
 import { thumbDirections } from "./input-math.js";
 import { THEMES, themeStep } from "./music.js";
 import {
@@ -246,7 +248,21 @@ export class Painter {
     return this.shape("circle", x, y, r * 2, r * 2, c, 0, a);
   }
   star(x, y, r, c = "#fff1b8") {
-    this.sprite("star", x, y, Math.max(0.25, r / 6), 0, false, 1, c);
+    const size = r < 5 ? 3 : r < 8 ? 5 : r < 12 ? 7 : 13;
+    const key = `star:${size}:${c}`;
+    if (!this.textures.has(key))
+      this.texture(key, drawingCanvas(drawNativeStar(r, c)));
+    return this.shape(
+      "rect",
+      x,
+      y,
+      size * 3,
+      size * 3,
+      "#ffffff",
+      0,
+      1,
+      this.textures.get(key),
+    );
   }
   marker(x, y, color = "#ffe4a4") {
     this.rect(x, y - 5, 4, 12, color);
@@ -346,7 +362,12 @@ export class Painter {
     );
   }
   creature(id, x, y, time = 0, size = 1, flip = false, alpha = 1) {
-    const base = id === "winged-unicorn" ? [40, 28] : [24, 24];
+    const base =
+      id === "moon-keeper"
+        ? [48, 40]
+        : id === "winged-unicorn"
+          ? [40, 28]
+          : [24, 24];
     let width = Math.round(base[0] * size),
       height = Math.round(base[1] * size);
     const result = creatureVariant(id, time, width, height);

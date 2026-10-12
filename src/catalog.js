@@ -78,7 +78,7 @@ export const games = [
     icon: "bricks",
     time: "2–4 min",
     description:
-      "Arnaud charts the stars. Gaia supplies the bounce. Clear a sky full of sparkling blocks.",
+      "Arnaud charts the stars. Gaia supplies the bounce. Clear three constellations of sparkling blocks.",
     objective: "Clear all 24 starlight bricks",
     help: "← → move paddle · Space / A launch or timed catch · X / B slow the ball",
     a: "Launch / Catch",
@@ -113,8 +113,8 @@ export const games = [
     time: "1–3 min",
     description:
       "Gaia’s unicorn is cleared for takeoff. Bring your favorite family hero along for the ride.",
-    objective: "Clear 3 waves of grumpy moon rocks",
-    help: "Arrows / stick fly · Hold Space / A for starlight · X / B shield",
+    objective: "Clear 3 waves, then calm the Moon Keeper",
+    help: "Arrows / stick fly · Hold Space / A for starlight · X / B reflect shield",
     a: "Fire",
     b: "Shield",
   },

@@ -13,6 +13,7 @@ import {
   SUMMIT_LEVELS,
   MEADOW_LEVELS,
   GARDEN_LEVELS,
+  BRICK_LEVELS,
   KEEPSAKES,
 } from "./levels.js";
 import { platformMotion } from "./platform-motion.js";
@@ -370,7 +371,7 @@ export class Platformer extends World {
         p.object(
           "beacon",
           point.x - c,
-          point.y - 20,
+          point.y + 2,
           0.65,
           this.checkpoint.x >= point.x ? 1 : 0.65,
         );
@@ -803,6 +804,7 @@ export class Rally extends World {
     this.inv = 0;
     this.bump = 0;
     this.fuel = 1;
+    this.boostLocked = false;
     this.countdown = 1.5;
     this.nextMilestone = 600;
     this.rivals = [
@@ -824,11 +826,14 @@ export class Rally extends World {
     }
     this.inv -= dt;
     this.bump -= dt;
-    const boost = i.current.a && this.fuel > 0,
-      brake = i.current.b || i.current.down;
+    const brake = i.current.b || i.current.down;
+    if (!i.current.a && this.fuel >= 0.2) this.boostLocked = false;
+    const boost = i.current.a && !brake && !this.boostLocked && this.fuel > 0;
+    if (boost && !this.boosting) this.cue("dash");
     this.steer = i.x;
     this.boosting = boost;
     this.fuel = clamp(this.fuel + (boost ? -0.27 : 0.13) * dt, 0, 1);
+    if (boost && this.fuel === 0) this.boostLocked = true;
     const target = this.bump > 0 ? 70 : brake ? 100 : boost ? 370 : 240;
     this.speed += (target - this.speed) * dt * 3;
     this.distance += this.speed * dt * 0.35;
@@ -885,7 +890,9 @@ export class Rally extends World {
         ? "Splash! You’ll be back up to speed in a moment."
         : Math.abs(this.player.x - center) > 160
           ? "Off road! Steer back between the white lines."
-          : "Bananas refill boost. Keep a clear lane around the puddles.";
+          : this.boostLocked
+            ? "Boost empty. Release A to recharge before your next burst."
+            : "Bananas refill boost. Keep a clear lane around the puddles.";
     if (this.distance >= 1800) this.win();
     this.message = `${this.place === 1 ? "1st" : this.place === 2 ? "2nd" : "3rd"} · ${Math.min(1800, Math.floor(this.distance))} / 1,800 m · Boost ${Math.round(this.fuel * 100)}%`;
   }
@@ -1035,8 +1042,10 @@ export class Rally extends World {
   }
 }
 export class Bricks extends World {
-  constructor(g, s) {
+  constructor(g, s, level = 0) {
     super(g, s);
+    this.level = clamp(Math.floor(level) || 0, 0, BRICK_LEVELS.length - 1);
+    this.levelInfo = BRICK_LEVELS[this.level];
     this.companionMode = "bricks";
     this.paddle = { x: 480, y: 474, w: g ? 160 : 118, h: 15 };
     this.ball = { x: 480, y: 450, vx: 160, vy: -250 };
@@ -1046,13 +1055,13 @@ export class Bricks extends World {
     this.catchCooldown = 0;
     this.combo = 0;
     this.bestCombo = 0;
-    this.bricks = Array.from({ length: 24 }, (_, k) => ({
-      x: 134 + (k % 8) * 99,
-      y: 105 + Math.floor(k / 8) * 39,
-      w: 86,
-      h: 25,
+    this.bricks = this.levelInfo.bricks.map(([x, y, w, h], k) => ({
+      x,
+      y,
+      w,
+      h,
       alive: true,
-      row: Math.floor(k / 8),
+      row: Math.floor(k / (this.level ? 4 : 8)) % 3,
     }));
   }
   update(dt, i) {
@@ -1428,6 +1437,8 @@ export class Space extends World {
     this.shieldActive = false;
     this.shieldLocked = false;
     this.intermission = 0;
+    this.finale = false;
+    this.reflected = 0;
     this.spawnWave();
   }
   spawnWave() {
@@ -1436,6 +1447,8 @@ export class Space extends World {
     this.announce(`Wave ${this.wave} of 3`);
     this.enemies = Array.from({ length: 4 + this.wave }, (_, k) => ({
       x: 650 + (k % 3) * 95,
+      homeX: 650 + (k % 3) * 95,
+      phase: k * 0.8,
       y: 120 + Math.floor(k / 3) * 125,
       base: 120 + Math.floor(k / 3) * 125,
       w: 43,
@@ -1444,6 +1457,25 @@ export class Space extends World {
       shot: 1 + k * 0.35,
     }));
   }
+  spawnKeeper() {
+    this.enemies = [
+      {
+        x: 770,
+        y: 270,
+        base: 270,
+        homeX: 770,
+        phase: 0,
+        guardian: true,
+        hp: 16,
+        maxHp: 16,
+        w: 100,
+        h: 100,
+        shot: 1.5,
+      },
+    ];
+    this.shield = Math.max(this.shield, 0.65);
+    this.announce("The Moon Keeper! B returns its red stars.");
+  }
   update(dt, i) {
     this.tick(dt);
     this.inv -= dt;
@@ -1451,7 +1483,10 @@ export class Space extends World {
     if (this.intermission > 0) {
       this.intermission -= dt;
       this.hint = "Wave clear! Next wave incoming…";
-      if (this.intermission <= 0) this.spawnWave();
+      if (this.intermission <= 0) {
+        if (this.finale) this.spawnKeeper();
+        else this.spawnWave();
+      }
       return;
     }
     const norm = Math.hypot(i.x, i.y) || 1;
@@ -1478,23 +1513,44 @@ export class Space extends World {
     }
     this.firing = !!i.current.a;
     for (const e of this.enemies) {
-      e.y = e.base + Math.sin(this.t * 1.8 + e.x) * 40;
+      e.y = e.guardian
+        ? 270 + Math.sin(this.t * 0.8) * 115
+        : e.base + Math.sin(this.t * 1.8 + e.homeX) * 40;
+      e.x =
+        e.homeX +
+        (e.guardian
+          ? Math.sin(this.t * 0.6) * 24
+          : this.wave > 1
+            ? Math.sin(this.t * 0.9 + e.phase) * 25
+            : 0);
       e.shot -= dt;
       if (e.shot <= 0) {
-        e.shot = this.gentle ? 2.8 : 1.7;
-        this.bullets.push({
-          x: e.x - 25,
-          y: e.y,
-          vx: this.gentle ? -165 : -245,
-          friend: false,
-        });
+        e.shot = e.guardian
+          ? this.gentle
+            ? 2.5
+            : 1.8
+          : this.gentle
+            ? 2.8
+            : 1.7;
+        const spread = e.guardian
+          ? [-65, 0, 65]
+          : [this.wave === 2 ? Math.sin(e.phase) * 35 : 0];
+        for (const vy of spread)
+          this.bullets.push({
+            x: e.x - (e.guardian ? 60 : 25),
+            y: e.y,
+            vx: this.gentle ? -165 : -245,
+            vy,
+            friend: false,
+          });
       }
     }
     for (const b of this.bullets) {
       b.x += b.vx * dt;
+      b.y += (b.vy || 0) * dt;
       if (b.friend) {
         for (const e of this.enemies)
-          if (e.hp > 0 && near(b, e, 28)) {
+          if (e.hp > 0 && near(b, e, e.guardian ? 52 : 28)) {
             e.hp--;
             b.dead = true;
             if (e.hp <= 0) {
@@ -1506,6 +1562,12 @@ export class Space extends World {
       } else if (near(b, this.player, shield ? 54 : 26)) {
         b.dead = true;
         if (shield) {
+          b.dead = false;
+          b.friend = true;
+          b.reflected = true;
+          b.vx = 540;
+          b.vy = 0;
+          this.reflected++;
           this.burst(b.x, b.y, "#c2e9e2", "bounce");
         } else if (this.inv <= 0) {
           this.inv = 1;
@@ -1516,22 +1578,30 @@ export class Space extends World {
       }
     }
     this.bullets = this.bullets.filter(
-      (b) => !b.dead && b.x > -30 && b.x < 1000,
+      (b) => !b.dead && b.x > -30 && b.x < 1000 && b.y > 30 && b.y < 550,
     );
     this.enemies = this.enemies.filter((e) => e.hp > 0);
     if (!this.enemies.length) {
-      if (this.wave === 3) this.win();
+      if (this.finale) this.win();
       else {
-        this.intermission = 1;
+        this.finale = this.wave === 3;
+        this.intermission = this.finale ? 1.8 : 1;
         this.bullets = [];
         this.shieldActive = false;
-        this.announce("Wave clear! Take a breath.");
+        this.announce(
+          this.finale
+            ? "A great crystal is waking…"
+            : "Wave clear! Take a breath.",
+        );
       }
     }
     this.hint = this.shieldLocked
       ? "Shield recharging. Dodge until it reaches 25%."
       : "Hold A to fire. Red orbs are dangerous; glowing rocks are about to shoot.";
-    this.message = `Wave ${this.wave} / 3 · ${this.score} moon rocks · Shield ${Math.round(this.shield * 100)}%${this.gentle ? "" : ` · ${this.health} hearts`}`;
+    this.objective = this.finale
+      ? "Calm the Moon Keeper · B reflects its stars"
+      : `Clear wave ${this.wave} of 3`;
+    this.message = `${this.finale ? (this.done ? "Moon Keeper calmed!" : this.intermission > 0 ? "Moon Keeper approaching…" : `Moon Keeper · ${Math.max(0, this.enemies[0]?.hp || 0)}/16`) : `Wave ${this.wave} / 3 · ${this.score} moon rocks`} · Shield ${Math.round(this.shield * 100)}%${this.gentle ? "" : ` · ${this.health} hearts`}`;
   }
   draw(p) {
     p.backdrop("space");
@@ -1540,15 +1610,32 @@ export class Space extends World {
       p.rect(x, 80 + ((n * 97) % 420), 6, 3, "#8c77aa");
     }
     for (const e of this.enemies) {
-      p.creature("crystal-rock", e.x, e.y, this.t + e.x, 0.8);
-      if (e.hp > 1) p.star(e.x + 21, e.y - 21, 6, "#b7f2e1");
-      if (e.shot < 0.4) {
-        p.marker(e.x, e.y - 37, "#f48a8e");
+      p.creature(
+        e.guardian ? "moon-keeper" : "crystal-rock",
+        e.x,
+        e.y,
+        this.t + e.x,
+        e.guardian ? 1 : 0.8,
+      );
+      if (e.guardian) {
+        p.rect(e.x, e.y + 72, 108, 12, "#24263d");
+        for (let n = 0; n < e.hp; n++)
+          p.rect(e.x - 45 + n * 6, e.y + 72, 3, 6, "#e59bb8");
+      }
+      if (e.hp > 1 && !e.guardian) p.star(e.x + 21, e.y - 21, 6, "#b7f2e1");
+      if (e.shot < (e.guardian ? 0.7 : 0.4)) {
+        p.marker(e.x, e.y - (e.guardian ? 70 : 37), "#f48a8e");
         p.circle(e.x - 29, e.y, 6, "#ff8a78");
       }
     }
     for (const b of this.bullets) {
-      if (b.friend) p.star(b.x, b.y, 8);
+      if (b.friend)
+        p.star(
+          b.x,
+          b.y,
+          b.reflected ? 11 : 8,
+          b.reflected ? "#b4eee0" : "#fff0a3",
+        );
       else {
         p.circle(b.x, b.y, 8, "#522d58");
         p.circle(b.x, b.y, 5, "#ff796f");
@@ -1609,7 +1696,7 @@ export function createGame(id, gentle, sound, options = {}) {
     case "rally":
       return new Rally(gentle, sound);
     case "bricks":
-      return new Bricks(gentle, sound);
+      return new Bricks(gentle, sound, options.level);
     case "garden":
       return new Garden(gentle, sound, options.level);
     case "space":

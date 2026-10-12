@@ -766,12 +766,12 @@ export class SplashMaze extends World {
     }
     for (const b of this.balloons) {
       const at = center(b.x, b.y);
-      if (b.fuse < 1.2)
-        for (const c of this.splashCells(b)) {
-          const q = center(c.x, c.y);
-          p.rect(q.x, q.y, 12, 3, "#78b9c7");
-          p.rect(q.x, q.y, 3, 12, "#78b9c7");
-        }
+      for (const c of this.splashCells(b)) {
+        const q = center(c.x, c.y),
+          color = b.fuse < 1.2 ? "#3b879f" : "#91adab";
+        p.rect(q.x, q.y, 12, 3, color);
+        p.rect(q.x, q.y, 3, 12, color);
+      }
       p.circle(
         at.x,
         at.y - 3,
@@ -781,6 +781,15 @@ export class SplashMaze extends World {
       p.circle(at.x - 3, at.y - 6, 9, "#94d7e0");
       p.rect(at.x - 6, at.y - 9, 6, 6, "#fff0d0");
       p.rect(at.x, at.y + 15, 6, 3, "#346b98");
+      const ticks = Math.ceil((b.fuse / (this.gentle ? 2.8 : 2.2)) * 3);
+      for (let n = 0; n < 3; n++)
+        p.rect(
+          at.x - 9 + n * 9,
+          at.y + 21,
+          6,
+          3,
+          n < ticks ? "#fff0c8" : "#497786",
+        );
     }
     for (const s of this.splashes)
       for (const c of s.cells) {

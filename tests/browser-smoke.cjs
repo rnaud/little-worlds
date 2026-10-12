@@ -10,7 +10,23 @@ require("node:fs").mkdirSync("tests/artifacts", { recursive: true });
   const page = await browser.newPage({
     viewport: { width: 1440, height: 1100 },
     deviceScaleFactor: 1,
+    hasTouch: true,
   });
+  // Desktop Chromium cannot resize an OS fullscreen window. Leave it through
+  // the browser API, then test the responsive viewport fallback and resume.
+  const resizeViewport = async (size) => {
+    await page.evaluate(async () => {
+      if (document.fullscreenElement) await document.exitFullscreen();
+      await new Promise((resolve) =>
+        requestAnimationFrame(() => requestAnimationFrame(resolve)),
+      );
+    });
+    await page.setViewportSize(size);
+    if (
+      (await page.evaluate(() => window.arcade?.snapshot().mode)) === "paused"
+    )
+      await page.locator("#overlay-action").click();
+  };
   const errors = [];
   page.on("pageerror", (e) => errors.push(e.message));
   await page.addInitScript(() => {
@@ -19,15 +35,15 @@ require("node:fs").mkdirSync("tests/artifacts", { recursive: true });
       value: () => [window.fakePad],
     });
   });
-  await page.goto(process.env.ARCADE_URL || "http://127.0.0.1:5173");
+  await page.goto(process.env.ARCADE_URL || "http://127.0.0.1:5174");
   await page.waitForFunction(
     () => window.arcade?.snapshot().characterArtwork.loaded,
   );
-  assert.equal(await page.locator(".game-card").count(), 7);
+  assert.equal(await page.locator(".game-card").count(), 9);
   assert.equal(
     (await page.evaluate(() => window.arcade.snapshot())).artwork.loaded,
     true,
-    "generated world art loaded",
+    "native world art loaded",
   );
   await page.screenshot({
     path: "tests/artifacts/desktop.png",
@@ -41,6 +57,8 @@ require("node:fs").mkdirSync("tests/artifacts", { recursive: true });
     "bricks",
     "garden",
     "space",
+    "bubbles",
+    "splash",
   ]) {
     console.log("Checking", id);
     await page.locator(`[data-game="${id}"]`).click();
@@ -74,7 +92,7 @@ require("node:fs").mkdirSync("tests/artifacts", { recursive: true });
     await page.locator("#back").click();
   }
   assert.equal(await page.locator("[data-character]").count(), 4);
-  assert.equal(await page.locator(".pixel-cover").count(), 7);
+  assert.equal(await page.locator(".pixel-cover").count(), 9);
   for (const character of ["gaia", "bean", "nur", "arnaud"]) {
     await page.locator("#players").click();
     await page.locator('[data-character="' + character + '"]').click();
@@ -116,7 +134,7 @@ require("node:fs").mkdirSync("tests/artifacts", { recursive: true });
   assert.equal(await page.locator("#profile").textContent(), "F");
   assert.equal(
     await page.locator("#collection-count").textContent(),
-    "7 / 7 played",
+    "9 / 9 played",
   );
   await page.locator('[data-game="summit"]').click();
   await page.locator("#overlay-action").click();
@@ -178,8 +196,9 @@ require("node:fs").mkdirSync("tests/artifacts", { recursive: true });
   );
   await pad(9, false);
   await page.evaluate(() => (window.fakePad = null));
-  await page.locator("#back").click();
-  await page.setViewportSize({ width: 390, height: 844 });
+  await page.waitForFunction(() => window.arcade.snapshot().mode === "paused");
+  await page.locator("#overlay-home").click();
+  await resizeViewport({ width: 390, height: 844 });
   await page.screenshot({ path: "tests/artifacts/mobile.png", fullPage: true });
   assert.ok(
     await page.evaluate(
@@ -214,14 +233,14 @@ require("node:fs").mkdirSync("tests/artifacts", { recursive: true });
     touchPoints: [],
   });
   await page.screenshot({ path: "tests/artifacts/mobile-game.png" });
-  await page.setViewportSize({ width: 844, height: 390 });
+  await resizeViewport({ width: 844, height: 390 });
   await page.screenshot({ path: "tests/artifacts/landscape.png" });
   assert.equal(errors.length, 0, errors.join("\n"));
   console.log(
     JSON.stringify({
       result: "PASS",
       checks: [
-        "7 rendered games",
+        "9 rendered games",
         "four family characters persist across reload",
         "320x180 pixel framebuffer and nearest-neighbor display",
         "pause and resume",

@@ -6,6 +6,7 @@ const { chromium } = require("playwright"),
     executablePath: process.env.BROWSER_EXECUTABLE,
     args: ["--use-gl=angle", "--use-angle=swiftshader", "--enable-webgl"],
   });
+  const gameId = process.env.COOP_GAME || "meadow";
   const page = await browser.newPage({
       viewport: { width: 1440, height: 1100 },
       hasTouch: true,
@@ -23,12 +24,15 @@ const { chromium } = require("playwright"),
     await page.waitForFunction(
       () => window.arcade?.snapshot().characterArtwork.loaded,
     );
-    await page.locator('[data-game="meadow"]').click();
-    assert.equal(await page.locator("[data-level]").count(), 6);
+    await page.locator(`[data-game="${gameId}"]`).click();
+    assert.equal(
+      await page.locator("[data-level]").count(),
+      gameId === "meadow" ? 6 : 0,
+    );
     await page.locator("#coop-on").check();
     await page.locator('[data-helper="nur"]').click();
     await page.screenshot({
-      path: "tests/artifacts/coop-intro.png",
+      path: `tests/artifacts/${gameId}-coop-intro.png`,
       fullPage: true,
     });
     await page.locator("#overlay-action").click();
@@ -60,7 +64,9 @@ const { chromium } = require("playwright"),
         window.arcade.snapshot().player.ground &&
         window.arcade.snapshot().buddy.player.ground,
     );
-    await page.screenshot({ path: "tests/artifacts/family-coop.png" });
+    await page.screenshot({
+      path: `tests/artifacts/${gameId}-family-coop.png`,
+    });
     await page.evaluate(() => {
       window.testPads = [0, 1].map((index) => ({
         index,
@@ -89,10 +95,10 @@ const { chromium } = require("playwright"),
     );
     await page.locator("#overlay-home").click();
     await page.setViewportSize({ width: 844, height: 390 });
-    await page.locator('[data-game="meadow"]').click();
+    await page.locator(`[data-game="${gameId}"]`).click();
     await page.locator("#coop-touch").check();
     await page.screenshot({
-      path: "tests/artifacts/coop-landscape-intro.png",
+      path: `tests/artifacts/${gameId}-coop-landscape-intro.png`,
       fullPage: true,
     });
     await page.locator("#overlay-action").click();
@@ -147,7 +153,7 @@ const { chromium } = require("playwright"),
     });
     await page.evaluate(() => (window.testPads = []));
     await page.screenshot({
-      path: "tests/artifacts/coop-touch.png",
+      path: `tests/artifacts/${gameId}-coop-touch.png`,
       fullPage: true,
     });
     assert.deepEqual(errors, []);

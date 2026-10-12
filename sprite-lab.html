@@ -170,6 +170,7 @@
       import { HUMAN_CLIPS, BEAN_CLIPS, clipFrame } from "/src/animation.js";
       import {
         loadCreatureArt,
+        creatureArtStatus,
         creatureFrame,
         CREATURE_IDS,
       } from "/src/creatures.js";
@@ -229,7 +230,7 @@
       };
       inspect();
       document.querySelector("#status").textContent = characterArtStatus.loaded
-        ? `${Object.values(characterArtStatus.characters).reduce((n, c) => n + c.frames, 0)} family poses × 2 native sizes · 16 kart poses · 16 creature frames · binary alpha`
+        ? `${Object.values(characterArtStatus.characters).reduce((n, c) => n + c.frames, 0)} family poses × 2 native sizes · 16 kart poses · ${creatureArtStatus.frames} creature frames · binary alpha`
         : characterArtStatus.error;
       for (const [container, entries] of [
         ["karts", ids],

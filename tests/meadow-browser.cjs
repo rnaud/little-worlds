@@ -75,7 +75,11 @@ const { chromium } = require("playwright"),
           requestAnimationFrame(frame);
         });
       }, level);
-      assert.match(result.message, /0 retries/);
+      assert.match(
+        result.message,
+        /0 retries/,
+        `Stage ${level + 1}: ${JSON.stringify(result)}`,
+      );
       reports.push(result);
       await page.screenshot({
         path: `tests/artifacts/meadow-stage-${level + 1}.png`,

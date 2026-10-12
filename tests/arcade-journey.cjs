@@ -18,6 +18,7 @@ const assert = require("node:assert/strict");
     );
     const reports = [];
     for (const id of ["rally", "bricks", "space"]) {
+      if (id === "space") await page.locator("#gentle").uncheck();
       await page.locator(`[data-game="${id}"]`).click();
       await page.locator("#overlay-action").click();
       await page.evaluate((id) => {
@@ -53,6 +54,9 @@ const assert = require("node:assert/strict");
               time: s.time,
               score: s.score,
               message: s.message,
+              reflected: f.reflected,
+              finale: f.finale,
+              health: f.health,
             };
             return;
           }
@@ -63,6 +67,16 @@ const assert = require("node:assert/strict");
           if (id === "space") {
             dy = (f.targets[0]?.y || s.player.y) - s.player.y;
             next.add("Space");
+            if (
+              f.bullets.some(
+                (b) =>
+                  !b.friend &&
+                  b.x > s.player.x &&
+                  b.x < s.player.x + 230 &&
+                  Math.abs(b.y - s.player.y) < 75,
+              )
+            )
+              next.add("ShiftLeft");
           }
           if (id === "bricks") {
             const target = [...f.targets].sort(
@@ -86,11 +100,24 @@ const assert = require("node:assert/strict");
       }, id);
       await page.waitForFunction(() => window.arcade.snapshot().time > 4);
       await page.screenshot({ path: `tests/artifacts/${id}-in-play.png` });
+      if (id === "space") {
+        await page.waitForFunction(
+          () =>
+            window.arcade.snapshot().playfield.finale &&
+            window.arcade.snapshot().playfield.targets.length > 0,
+        );
+        await page.screenshot({ path: "tests/artifacts/moon-keeper.png" });
+      }
       await page.waitForFunction(() => window.arcadeDriver, null, {
         timeout: 160000,
       });
       const report = await page.evaluate(() => window.arcadeDriver);
       assert.ok(report.won, JSON.stringify(report));
+      if (id === "space") {
+        assert.equal(report.score, 19);
+        assert.ok(report.reflected > 0);
+        assert.ok(report.health > 0);
+      }
       reports.push(report);
       await page.screenshot({ path: `tests/artifacts/${id}-complete.png` });
       await page.locator("#overlay-home").click();
@@ -102,7 +129,7 @@ const assert = require("node:assert/strict");
         checks: [
           "rally finish through steering",
           "all 24 bricks through paddle aiming",
-          "three space waves through flight and firing",
+          "three space waves and Moon Keeper with shield reflection",
           "normal keyboard events only",
           "victory and replay navigation",
         ],

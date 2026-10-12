@@ -67,6 +67,17 @@ export function bubblePilot(g) {
           Math.min(next.x + next.w / 2 - 30, p.x),
         ) - p.x;
   } else if (target.trapped && target.y < p.y - 50 && p.ground) jump = true;
+  // Face an untrapped sprite and give the bubble room to reach it. Charging
+  // directly into a sprite while the shot is cooling down is not safe play.
+  if (
+    target.floor === floor &&
+    !target.trapped &&
+    p.ground &&
+    Math.abs(target.y - p.y) < 35 &&
+    Math.abs(dx) < 125 &&
+    p.face === Math.sign(dx)
+  )
+    dx = 0;
   if (Math.abs(dx) < 12) dx = 0;
   return {
     x: Math.sign(dx),

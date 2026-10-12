@@ -1,3 +1,4 @@
+import { drawMoonKeeper } from "./native-guardian.js";
 import { PixelDrawing } from "./native-actors.js";
 const palette = {
   o: "#24263d",
@@ -17,6 +18,7 @@ const palette = {
   w: "#fff1da",
 };
 export function drawNativeCreature(id, frame = 0, small = false) {
+  if (id === "moon-keeper") return drawMoonKeeper(frame, small);
   if (id === "winged-unicorn") return unicorn(frame, small);
   const d = new PixelDrawing(small ? 16 : 24, small ? 16 : 24, palette),
     cx = small ? 8 : 12,

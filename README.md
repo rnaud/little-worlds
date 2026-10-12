@@ -14,7 +14,7 @@ npm run build
 npm run preview
 ```
 
-Vite prints the local and LAN URLs. Open the LAN URL from a phone on the same network for touch play. Serve the `build/` output with any static HTTP host. The production build bundles Three.js locally; all graphics and fonts use local code and system resources; no external asset requests are needed.
+Vite prints the local and LAN URLs. Open the LAN URL from a phone on the same network for touch play. Browser checks run in background test contexts with native OS fullscreen declined, so they exercise the full-viewport layout without taking over the developer’s screen. Normal game launches retain fullscreen on the published site. Serve the `build/` output with any static HTTP host. The production build bundles Three.js locally; all graphics and fonts use local code and system resources; no external asset requests are needed.
 
 ## Games
 
@@ -24,9 +24,9 @@ Vite prints the local and LAN URLs. Open the LAN URL from a phone on the same ne
 | Banana Meadows    | Classic platformer          | Six stages: collect bananas, ride ferries, bounce on flower springs and reach the cottage       |
 | The Lantern Woods | Top-down adventure          | Find a key, unlock the gate, recover three lanterns and return to the shrine                    |
 | Rainbow Rally     | Mode 7 style racer          | Finish a 1,800 m circuit; steer, boost, brake and avoid puddles                                 |
-| Starlight Bounce  | Brick breaker               | Clear all 24 bricks; paddle, launch, timed catch and slow-motion assist                         |
+| Starlight Bounce  | Brick breaker               | Three boards of 24 bricks; paddle, launch, timed catch and slow-motion assist                   |
 | Pocket Garden     | Push-block puzzle           | Eight progressively harder gardens, from one pot to four; unlimited undo and reset              |
-| Unicorns in Orbit | Space shooter               | Clear three waves; move, fire and use a rechargeable shield                                     |
+| Unicorns in Orbit | Space shooter               | Clear three waves and the Moon Keeper; move, fire and reflect shots with a rechargeable shield  |
 | Bubble Rescue     | Cooperative platform arcade | Rescue 18 woodland sprites across three bathhouses; jump, trap, pop and chain rescues           |
 | Splash Garden     | Water-balloon maze          | Clear hedges, water ten flowers across three courtyards, and reach each gate                    |
 
@@ -110,6 +110,8 @@ npm run test:meadow
 npm run test:summit
 npm run test:coop
 npm run test:discoveries
+npm run test:party
+npm run test:bricks
 # Optional, with Playwright WebKit and Firefox installed:
 npm run test:cross-browser
 ```
@@ -162,7 +164,7 @@ All active environments and props are now authored on the native pixel grid in `
 
 Platformer backgrounds have three independently scrolling native layers, using a maximum of five colors per layer. Platforms have a bright continuous top edge and a sparse dark body so landings read at a glance. Banana Bay has broad, short-gap beach islands and optional elevated bananas; thin Meadows ledges allow jumping up through them or dropping with Down + A. Cloudberry Climb has deliberate jump practice, two dash gaps, recovery terrain and three checkpoints.
 
-Rainbow Rally samples a 512×512 island circuit into a 320×180 ground plane using nearest-neighbor inverse perspective. The camera follows the oval track, with a checkered start/finish line, depth-sorted roadside trees and obstacles, and rear-view family karts. Two family pacers provide someone to overtake, with finishing position shown alongside the lap time; Bean stays an independent companion. The shared projection keeps pickups and puddles on the same collision plane as the driver. All perspective size variants are rasterized before drawing at 1:1, keeping a single pixel grid. [Kulor’s Mode 7 perspective guide](https://forums.nesdev.org/viewtopic.php?t=24053) informed the per-scanline perspective approach; this is an original browser implementation, not an SNES emulator.
+Rainbow Rally samples a 512×512 island circuit into a 320×180 ground plane using nearest-neighbor inverse perspective. The camera follows the oval track, with a checkered start/finish line, depth-sorted roadside trees and obstacles, and rear-view family karts. Two family pacers provide someone to overtake, with finishing position shown alongside the lap time; Bean stays an independent companion. An exhausted boost recharges until A is released; braking does not spend boost fuel. The shared projection keeps pickups and puddles on the same collision plane as the driver. All perspective size variants are rasterized before drawing at 1:1, keeping a single pixel grid. [Kulor’s Mode 7 perspective guide](https://forums.nesdev.org/viewtopic.php?t=24053) informed the per-scanline perspective approach; this is an original browser implementation, not an SNES emulator.
 
 The shelf uses the same environments and role-specific poses as the playable games: climbing, running, casting, driving, carrying a paddle, pushing a pot, riding and celebrating. The family cast remains shared so Gaia, Bean, Nur and Arnaud are recognizable across genres. Art does not drive collision geometry. Authored platform routes and puzzle rules remain independently tested as animation and controls evolve. The browser suite checks that artwork actually loaded; the pixel suite checks all nine distinct palettes, opaque background pixels, native texture mapping and integer enlargement at three screen densities.
 
@@ -172,7 +174,7 @@ The generated-and-reduced family sheets have been replaced. The active source of
 
 Every family member has 37 distinct poses in **two independently authored sizes** (296 family drawings): idle expressions, running, jumping, falling, dashing, landing, side/front/back wand actions, celebration, front/back walking, riding, pushing, carrying and wall clinging. Human canvases are 24×32 and 16×24; Bean uses 32×24 and 24×18. Named clips use explicit durations. Side-facing actions have profile heads, and rear views have their own hair clusters. Families use at most 15 colors per sprite and strictly binary transparency. Normal gameplay draws these canvases directly at one texel per framebuffer pixel; the artist does not rely on runtime shrinking to clean up detail.
 
-Karts have four rear-view poses for each family member, drawn at 24×32 and separately at 16×20. Mode 7 perspective selects the appropriate native detail level and uses nearest-neighbor projection. Four creatures (leaf slimes, fern spirits, winged unicorns and moon rocks) also have two native size sets and four distinct poses. All nine games, shelf covers, player portraits and victory parties share this artwork. Collision geometry remains independent of sprite shape.
+Karts have four rear-view poses for each family member, drawn at 24×32 and separately at 16×20. Mode 7 perspective selects the appropriate native detail level and uses nearest-neighbor projection. Five creatures (leaf slimes, fern spirits, winged unicorns, moon rocks and the Moon Keeper) also have two native size sets and four distinct poses. All nine games, shelf covers, player portraits and victory parties share this artwork. Collision geometry remains independent of sprite shape. Stars and small projectiles also have separate 3, 5, 7 and 13 pixel stencils, keeping their silhouettes intact without shrinking a larger icon.
 
 Bean still follows independently, explores and returns. The water-balloon maze uses a grid route that avoids stone, hedges and balloons. He never blocks the player, pushes puzzle pieces or takes damage. Selecting Bean as the hero hides the companion copy.
 
@@ -180,7 +182,7 @@ The old generated sheets and obsolete atlases have been removed from the publish
 
 Open `/sprite-lab.html` to inspect the actual pixel artwork, play named animation clips, reverse direction, slow playback, and compare the two native sizes. `npm run test:animation` verifies all 148 regular family poses, kart/creature poses, palette limits, binary transparency, action transitions and paused animations. Native-art unit tests also inspect the separately authored small sets.
 
-The optional export atlas is `public/art/native/arcade-v6.png`, indexed by `manifest.json`. It contains 407 frames: both family/kart/creature size sets, 32 objects, nine backgrounds and six parallax layers. Runtime artwork is drawn directly from code, so missing image files cannot bring back the old reduced sprites. Normal play requests **zero artwork images**. Rebuild the inspection atlas after changing native artwork:
+The optional export atlas is `public/art/native/arcade-v6.png`, indexed by `manifest.json`. It contains 415 frames: both family/kart/creature size sets, 32 objects, nine backgrounds and six parallax layers. Runtime artwork is drawn directly from code, so missing image files cannot bring back the old reduced sprites. Normal play requests **zero artwork images**. Rebuild the inspection atlas after changing native artwork:
 
 ```sh
 npm run prepare:art
@@ -201,3 +203,9 @@ Cartridges use a viewport-filling player and request browser fullscreen when use
 Automated completion establishes that games can be completed, not whether every family member finds them fun. Physical controller ergonomics and a family playtest remain useful checks.
 
 Starlight Bounce adds a timed catch: press A while the ball is flying to arm the paddle for 1.25 seconds. Catch the next rebound and press A to relaunch; a missed attempt recharges after 2.2 seconds. A luminous paddle rim shows the active window. Consecutive bricks before returning to the paddle form a flight record. Brief checkpoint, room and combo announcements now appear in the reserved fullscreen menu bar without covering the game.
+
+The three Starlight Bounce boards are Star Chart, Twin Telescopes and The Crystal Constellation. All are open from the cartridge setup, have their own records, and use the same Next stage flow as the platformers. Their rows, central passage and diamond formations create different rebound routes. Both difficulties have verified clears through ordinary paddle controls. Bubble Rescue co-op is exercised with `COOP_GAME=bubbles npm run test:coop`.
+
+Unicorns in Orbit now ends with the Moon Keeper, a larger crystal guardian drawn at 48×40 pixels with a separately authored 32×28 version. Its fan shots are signaled before firing, and its remaining starlights appear beneath it. B reflects hostile stars forward while the shield lasts. The second wave also drifts horizontally and uses shallow diagonal shots; the finale replenishes some shield energy. Gentle mode remains forgiving, and Classic completion with shielding is tested.
+
+Gaia has shorter body proportions than the adults in both native size sets. Splash Garden marks a balloon's splash cells immediately and shows three fuse ticks; it no longer waits until the final second to reveal the affected cells.

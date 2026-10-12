@@ -10,6 +10,21 @@ const { chromium } = require("playwright"),
     viewport: { width: 390, height: 844 },
     hasTouch: true,
   });
+  // Desktop Chromium cannot resize an OS fullscreen window. Leave it through
+  // the browser API, then test the responsive viewport fallback and resume.
+  const resizeViewport = async (size) => {
+    await page.evaluate(async () => {
+      if (document.fullscreenElement) await document.exitFullscreen();
+      await new Promise((resolve) =>
+        requestAnimationFrame(() => requestAnimationFrame(resolve)),
+      );
+    });
+    await page.setViewportSize(size);
+    if (
+      (await page.evaluate(() => window.arcade?.snapshot().mode)) === "paused"
+    )
+      await page.locator("#overlay-action").click();
+  };
   try {
     await page.addInitScript(() => {
       window.testPads = [];
@@ -113,7 +128,7 @@ const { chromium } = require("playwright"),
     );
     await page.locator("#overlay-action").click();
     // Landscape overlays let the thumb start in an empty diagonal pad corner.
-    await page.setViewportSize({ width: 844, height: 390 });
+    await resizeViewport({ width: 844, height: 390 });
     const landscape = await page.locator(".dpad").boundingBox();
     const beforeDiagonal = await page.evaluate(
       () => window.arcade.snapshot().player,
@@ -132,7 +147,9 @@ const { chromium } = require("playwright"),
     await send("touchEnd", []);
     await page.screenshot({ path: "tests/artifacts/landscape-thumb.png" });
     // A controller must not resume the game behind the profile dialog.
-    await page.setViewportSize({ width: 390, height: 844 });
+    await resizeViewport({ width: 390, height: 844 });
+    await page.keyboard.press("Escape");
+    await page.locator("#overlay-home").click();
     await page.locator("#profile").click();
     await page.evaluate(() => {
       window.testPads = [
@@ -156,13 +173,14 @@ const { chromium } = require("playwright"),
     );
     assert.equal(
       (await page.evaluate(() => window.arcade.snapshot())).mode,
-      "paused",
+      "home",
     );
     await page.evaluate(() => {
       window.testPads = [];
     });
     await page.keyboard.press("Escape");
-    await page.setViewportSize({ width: 320, height: 568 });
+    await resizeViewport({ width: 320, height: 568 });
+    await page.locator('[data-game="forest"]').click();
     await page.locator("#overlay-action").click();
     assert.ok(
       await page.evaluate(
