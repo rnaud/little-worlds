@@ -6,8 +6,22 @@ import {
   drawNativeKart,
 } from "../src/native-actors.js";
 import { drawNativeCreature } from "../src/native-creatures.js";
-import { hudStatus } from "../src/native-hud.js";
+import { hudStatus, rallyMapPoint } from "../src/native-hud.js";
 const ids = Object.keys(ACTOR_PALETTES);
+test("rally map follows the projected circuit and closes at the finish", () => {
+  assert.deepEqual(rallyMapPoint(0), { x: 17, y: 0 });
+  assert.deepEqual(rallyMapPoint(450), { x: 0, y: 11 });
+  assert.deepEqual(rallyMapPoint(900), { x: -17, y: 0 });
+  assert.equal(Math.abs(rallyMapPoint(1350).x), 0);
+  assert.equal(rallyMapPoint(1350).y, -11);
+  assert.equal(rallyMapPoint(1800).x, 17);
+  assert.equal(Math.abs(rallyMapPoint(1800).y), 0);
+  for (let distance = 0; distance <= 1800; distance++) {
+    const { x, y } = rallyMapPoint(distance);
+    assert.ok(Number.isInteger(x) && Number.isInteger(y));
+    assert.ok(Math.abs(x) <= 17 && Math.abs(y) <= 11);
+  }
+});
 test("visual counters cap bonus pickups, hide finite hearts in Gentle and distinguish recharge from ready", () => {
   const meadow = hudStatus("meadow", { need: 5, score: 8, gentle: true });
   assert.equal(meadow.left.length, 5);

@@ -37,6 +37,8 @@ jobs:
           npm run test:deployment
           npm run test:controller
           npm run test:fullscreen
+          npm run test:coop
+          COOP_GAME=bubbles npm run test:coop
       - uses: actions/upload-pages-artifact@v4
         if: github.event_name != 'pull_request'
         with:

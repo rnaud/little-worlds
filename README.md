@@ -48,6 +48,8 @@ For Meadows or Bubble Rescue co-op, enable **Play together** in the cartridge se
 
 Disconnecting an assigned controller pauses play. Controller roles remain fixed across pause, resume and reconnection, so the parent's controller cannot silently take over the lead character. The remaining controller can still navigate the pause menu.
 
+The public deployment checks exercise both co-op cartridges, including disconnection and reconnection, against the production build before publishing.
+
 ## GitHub Pages
 
 The deployment workflow in `.github/workflows/pages.yml` tests and builds every push or pull request to `main`, then publishes successful main-branch builds with GitHub Pages. Repository settings must use **GitHub Actions** as the Pages source. It follows the [GitHub Pages custom workflow documentation](https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages).
@@ -169,6 +171,8 @@ Platformer backgrounds have three independently scrolling native layers, using a
 Rainbow Rally samples a 512×512 island circuit into a 320×180 ground plane using nearest-neighbor inverse perspective. The camera follows the oval track, with a checkered start/finish line, depth-sorted roadside trees and obstacles, and rear-view family karts. Two family pacers provide someone to overtake, with finishing position shown alongside the lap time; Bean stays an independent companion. An exhausted boost recharges until A is released; braking does not spend boost fuel. The shared projection keeps pickups and puddles on the same collision plane as the driver. All perspective size variants are rasterized before drawing at 1:1, keeping a single pixel grid. [Kulor’s Mode 7 perspective guide](https://forums.nesdev.org/viewtopic.php?t=24053) informed the per-scanline perspective approach; this is an original browser implementation, not an SNES emulator.
 
 The shelf uses the same environments and role-specific poses as the playable games: climbing, running, casting, driving, carrying a paddle, pushing a pot, riding and celebrating. The family cast remains shared so Gaia, Bean, Nur and Arnaud are recognizable across genres. Art does not drive collision geometry. Authored platform routes and puzzle rules remain independently tested as animation and controls evolve. The browser suite checks that artwork actually loaded; the pixel suite checks all nine distinct palettes, opaque background pixels, native texture mapping and integer enlargement at three screen densities.
+
+Rainbow Rally also has a native-pixel circuit map: the gold marker is the player, pink and cyan markers are the family racers, and a checkered line marks the finish. Marker positions follow the same circuit coordinates as the projected road. The map uses integer pixel runs rather than a resized track image.
 
 ## Native character artwork (October 2026 redraw)
 

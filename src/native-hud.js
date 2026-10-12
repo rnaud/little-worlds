@@ -1,4 +1,53 @@
 import { PixelDrawing } from "./native-actors.js";
+import { rallyPose } from "./rally-art.js";
+
+// A tiny native-grid circuit, drawn independently from the projected road.
+// Store horizontal pixel runs so the map uses a bounded number of primitives.
+const rallyMapRuns = [];
+for (let y = -12; y <= 12; y++) {
+  let start = null;
+  for (let x = -19; x <= 20; x++) {
+    const radius = (x / 17) ** 2 + (y / 11) ** 2;
+    const road = x < 20 && radius >= 0.8 && radius <= 1.15;
+    if (road && start === null) start = x;
+    if (!road && start !== null) {
+      rallyMapRuns.push({ x: start, y, width: x - start });
+      start = null;
+    }
+  }
+}
+
+export function rallyMapPoint(distance) {
+  const pose = rallyPose(distance);
+  return {
+    x: Math.round(((pose.x - 1500) / 950) * 17),
+    y: Math.round(((pose.y - 1500) / 650) * 11),
+  };
+}
+
+function drawRallyMap(p, g) {
+  const x = 294,
+    y = 18;
+  p.rect(x * 3, y * 3, 43 * 3, 31 * 3, "#253049");
+  for (const run of rallyMapRuns)
+    p.rect(
+      (x + run.x + (run.width - 1) / 2) * 3,
+      (y + run.y) * 3,
+      run.width * 3,
+      3,
+      "#8795a8",
+    );
+  // Checkered start/finish is on the same east side as the Mode 7 circuit.
+  for (let dy = -2; dy <= 2; dy++)
+    p.rect((x + 17) * 3, (y + dy) * 3, 9, 3, dy % 2 ? "#151e32" : "#fff2d0");
+  for (const [n, rival] of g.rivals.entries()) {
+    const dot = rallyMapPoint(rival.distance);
+    p.rect((x + dot.x) * 3, (y + dot.y) * 3, 3, 3, n ? "#94e5e1" : "#e998b3");
+  }
+  const dot = rallyMapPoint(g.distance);
+  p.rect((x + dot.x) * 3, (y + dot.y) * 3, 9, 9, "#151e32");
+  p.rect((x + dot.x) * 3, (y + dot.y) * 3, 3, 3, "#ffda87");
+}
 
 const ICONS = {
   heart: [
@@ -196,6 +245,7 @@ export function hudStatus(id, g) {
 }
 
 export function drawHud(p, id, g) {
+  if (id === "rally") drawRallyMap(p, g);
   const status = hudStatus(id, g);
   const row = (entries, x) => {
     if (!entries.length) return;
