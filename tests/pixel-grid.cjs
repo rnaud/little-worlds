@@ -60,10 +60,11 @@ const assert = require("node:assert/strict");
         "bubbles",
         "splash",
       ]) {
-        const g = createGame(id, true);
+        const g = createGame(id, false);
         for (let k = 0; k < 15; k++) {
           g.update(1 / 60, { x: 1, y: 1, current: {}, pressed: {} });
           g.draw(p);
+          harness.hud.drawHud(p, id, g);
           p.finish();
           if (!p.textures.has(id === "rally" ? "rally:mode7" : "world:" + id))
             throw new Error(id + " missing rendered background");

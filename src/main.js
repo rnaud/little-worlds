@@ -8,6 +8,7 @@ import { art } from "./art.js";
 import { FAMILY, portrait } from "./pixels.js";
 import { Painter, Input, Sound } from "./engine.js";
 import { createGame } from "./games.js";
+import { drawHud } from "./native-hud.js";
 import { loadWorldArt, artStatus, WORLDS } from "./world-art.js";
 import {
   loadCharacterArt,
@@ -452,6 +453,7 @@ function launch(id, level) {
     `Let’s play, ${name} ↗`,
   );
   game.draw(painter);
+  drawHud(painter, selected.id, game);
   painter.finish();
 }
 function start() {
@@ -905,6 +907,7 @@ function frame(now) {
   }
   if (mode !== "home" && game && painter) {
     game.draw(painter);
+    drawHud(painter, selected.id, game);
     painter.finish();
   }
   requestAnimationFrame(frame);

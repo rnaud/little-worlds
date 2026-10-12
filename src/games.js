@@ -1189,9 +1189,9 @@ export class Bricks extends World {
       );
       p.marker(this.ball.x + 30, this.ball.y - 75);
     }
-    p.star(this.ball.x, this.ball.y, 12);
-    this.drawHero(p, this.paddle.x, 520, 0.85, 1);
-    p.object("brass-paddle", this.paddle.x, this.paddle.y + 9, {
+    p.star(this.ball.x, this.ball.y, 9);
+    this.drawHero(p, this.paddle.x, 517, 0.85, 1);
+    p.object("brass-paddle", this.paddle.x, this.paddle.y - 6, {
       width: Math.round(this.paddle.w / 3) + 2,
       height: 12,
     });

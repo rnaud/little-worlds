@@ -6,7 +6,30 @@ import {
   drawNativeKart,
 } from "../src/native-actors.js";
 import { drawNativeCreature } from "../src/native-creatures.js";
+import { hudStatus } from "../src/native-hud.js";
 const ids = Object.keys(ACTOR_PALETTES);
+test("visual counters cap bonus pickups, hide finite hearts in Gentle and distinguish recharge from ready", () => {
+  const meadow = hudStatus("meadow", { need: 5, score: 8, gentle: true });
+  assert.equal(meadow.left.length, 5);
+  assert.ok(meadow.left.every((i) => i.active));
+  const classic = hudStatus("space", {
+    wave: 2,
+    finale: false,
+    done: false,
+    health: 3,
+    shield: 0.2,
+    shieldLocked: true,
+    gentle: false,
+  });
+  assert.equal(classic.left.filter((i) => i.active).length, 1);
+  assert.equal(classic.right.filter((i) => i.active).length, 3);
+  assert.equal(classic.meter.active, false);
+  assert.equal(
+    hudStatus("space", { wave: 3, health: 5, shield: 1, gentle: true }).right
+      .length,
+    0,
+  );
+});
 test("every native actor size has 37 authored poses, at most 15 colors, and binary alpha", () => {
   for (const small of [false, true])
     for (const id of ids) {

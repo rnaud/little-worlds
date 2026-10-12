@@ -62,10 +62,12 @@ const assert = require("node:assert/strict");
               });
               if (k % 30 === 0) {
                 g.draw(p);
+                harness.hud.drawHud(p, id, g);
                 p.finish();
               }
             }
             g.draw(p);
+            harness.hud.drawHud(p, id, g);
             p.finish();
             if (!p.textures.has(id === "rally" ? "rally:mode7" : "world:" + id))
               throw new Error(id + " background absent from renderer");
@@ -91,6 +93,7 @@ const assert = require("node:assert/strict");
         for (const c of captures.filter((c) => c.id === id)) {
           const figure = document.createElement("figure");
           figure.style.cssText = "margin:0;background:#25283c;padding:0";
+          figure.dataset.hero = c.hero;
           const img = document.createElement("img");
           img.src = c.image;
           img.width = 320;
@@ -116,6 +119,18 @@ const assert = require("node:assert/strict");
       path: "tests/artifacts/family-worlds.png",
       fullPage: true,
     });
+    await page.evaluate(() => {
+      document
+        .querySelectorAll('figure:not([data-hero="gaia"])')
+        .forEach((el) => el.remove());
+      document.querySelector("#contact").style.gridTemplateColumns =
+        "repeat(3,320px)";
+      document.querySelector("#contact").style.width = "max-content";
+      document.querySelector("h1").textContent = "Nine native-pixel adventures";
+    });
+    await page
+      .locator("#contact")
+      .screenshot({ path: "tests/artifacts/native-nine-games.png" });
     console.log(
       JSON.stringify({
         result: "PASS",

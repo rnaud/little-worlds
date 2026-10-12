@@ -121,6 +121,28 @@ test("bubble rooms have Classic-reachable terrace spacing and independent Bean m
   assert.notEqual(g.bean.x, x);
   assert.ok(g.bean.actor);
 });
+test("Bean leaves an imminent water cross for a dry reachable cell without changing the puzzle", () => {
+  const g = new SplashMaze(false);
+  g.crates.clear();
+  g.cell = { x: 3, y: 3 };
+  Object.assign(g.player, { x: 318, y: 216 });
+  Object.assign(g.bean, { x: 372, y: 216 });
+  g.balloons = [{ x: 3, y: 3, fuse: 0.8 }];
+  const danger = new Set(
+    g.splashCells(g.balloons[0]).map((c) => `${c.x},${c.y}`),
+  );
+  const walls = [...g.walls].map((k) => {
+    const [x, y] = k.split(",").map(Number);
+    return { x: 156 + x * 54, y: 54 + y * 54, w: 51, h: 51 };
+  });
+  walls.push({ x: 318, y: 216, w: 51, h: 51 });
+  for (let n = 0; n < 90; n++) g.stepBean(1 / 60, walls);
+  const cell = `${Math.round((g.bean.x - 156) / 54)},${Math.round((g.bean.y - 54) / 54)}`;
+  assert.ok(!danger.has(cell), `Bean reaches a dry cell, got ${cell}`);
+  assert.equal(g.hearts, 3);
+  assert.equal(g.score, 0);
+  assert.equal(g.balloons.length, 1);
+});
 test("bubble traps can be rescued, expire safely, and reward a quick rescue chain", () => {
   const g = new BubbleRescue(false);
   tick(g, 30);

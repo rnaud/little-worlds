@@ -4,6 +4,7 @@ import { characterVariant, kartVariant } from "./characters.js";
 import { creatureVariant } from "./creatures.js";
 import { objectVariant, objectFrame } from "./objects.js";
 import { drawNativeStar } from "./native-effects.js";
+import { drawHudIcon } from "./native-hud.js";
 import { drawingCanvas } from "./native-actors.js";
 import { thumbDirections } from "./input-math.js";
 import { THEMES, themeStep } from "./music.js";
@@ -258,6 +259,22 @@ export class Painter {
       y,
       size * 3,
       size * 3,
+      "#ffffff",
+      0,
+      1,
+      this.textures.get(key),
+    );
+  }
+  hudIcon(id, x, y, active, color) {
+    const key = `hud:${id}:${active}:${color}`;
+    if (!this.textures.has(key))
+      this.texture(key, drawingCanvas(drawHudIcon(id, active, color)));
+    return this.shape(
+      "rect",
+      x,
+      y,
+      21,
+      21,
       "#ffffff",
       0,
       1,

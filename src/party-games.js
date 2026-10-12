@@ -686,11 +686,23 @@ export class SplashMaze extends World {
       ...this.crates,
       ...this.balloons.map((b) => cellKey(b.x, b.y)),
     ]);
+    const danger = new Set(
+      [
+        ...this.splashes.filter((s) => s.life > 0).flatMap((s) => s.cells),
+        ...this.balloons
+          .filter((b) => b.fuse < 1)
+          .flatMap((b) => this.splashCells(b)),
+      ].map((c) => cellKey(c.x, c.y)),
+    );
     const start = {
       x: Math.round((b.x - OX - CELL / 2) / CELL),
       y: Math.round((b.y - OY - CELL / 2) / CELL),
     };
     occupied.delete(cellKey(start.x, start.y));
+    // Bean can leave a marked cell, but chooses a dry destination. Danger is a
+    // routing preference, never a collision wall that could trap him in place.
+    const safeRoute = new Set([...occupied, ...danger]);
+    safeRoute.delete(cellKey(start.x, start.y));
     const desired = {
       x: this.cell.x + (exploring ? 2 : -1) * this.player.face,
       y: this.cell.y + (exploring ? 0 : 1),
@@ -699,7 +711,12 @@ export class SplashMaze extends World {
     for (let y = 1; y < ROWS - 1; y++)
       for (let x = 1; x < COLS - 1; x++) {
         const distance = Math.abs(x - this.cell.x) + Math.abs(y - this.cell.y);
-        if (distance >= 1 && distance <= 3 && !occupied.has(cellKey(x, y)))
+        if (
+          distance >= 1 &&
+          distance <= 3 &&
+          !occupied.has(cellKey(x, y)) &&
+          !danger.has(cellKey(x, y))
+        )
           choices.push({ x, y });
       }
     choices.sort(
@@ -709,9 +726,16 @@ export class SplashMaze extends World {
     );
     let path;
     for (const target of choices) {
-      path = gridRoute(start, target, occupied, COLS, ROWS);
+      path = gridRoute(start, target, safeRoute, COLS, ROWS);
       if (path) break;
     }
+    // If a whole cross surrounds him, take the shortest open route to a dry
+    // cell. He remains a harmless companion and never changes the puzzle.
+    if (!path && danger.has(cellKey(start.x, start.y)))
+      for (const target of choices) {
+        const escape = gridRoute(start, target, occupied, COLS, ROWS);
+        if (escape && (!path || escape.length < path.length)) path = escape;
+      }
     const next = path?.[1] || path?.[0];
     if (next)
       b.moveToward(

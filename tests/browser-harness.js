@@ -7,7 +7,8 @@ import * as worlds from "../src/world-art.js";
 import * as characters from "../src/characters.js";
 import * as creatures from "../src/creatures.js";
 import * as objects from "../src/objects.js";
-export { engine, games, worlds, characters, creatures, objects };
+import * as hud from "../src/native-hud.js";
+export { engine, games, worlds, characters, creatures, objects, hud };
 export async function loadArt() {
   await Promise.all([
     worlds.loadWorldArt(),
