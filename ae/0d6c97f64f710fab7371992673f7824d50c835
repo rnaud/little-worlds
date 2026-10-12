@@ -1,0 +1,23 @@
+README.md
+  s_74ed6129120f6d::t_0f3fa352e3d307 17,201
+src/main.js
+  s_74ed6129120f6d::t_a309404560c541 518
+tests/fullscreen-browser.cjs
+  s_74ed6129120f6d::t_a194f0e291a5bb 25-41,78-82,87
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "ae0d6c97f64f710fab7371992673f7824d50c835",
+  "prompts": {},
+  "sessions": {
+    "s_74ed6129120f6d": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a12b36-7519-7462-9cc9-a30336c7a79d",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Arnaud Ferreri <rnaud@users.noreply.github.com>"
+    }
+  }
+}
