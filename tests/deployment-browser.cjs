@@ -30,11 +30,11 @@ const { chromium } = require("playwright"),
       "image-generated-sprite-sheets",
     );
     assert.equal(state.objectArtwork.authored, "native-pixel-stencils");
-    assert.equal(state.artwork.authored, "native-pixel-stencils");
+    assert.equal(state.artwork.authored, "image-generated-pixel-worlds");
     assert.equal(
       art.length,
-      2,
-      "normal game boot loads the family manifest and compact atlas",
+      4,
+      "normal game boot loads the family and world atlases",
     );
     assert.ok(
       art.every((p) => p.startsWith(new URL(url).pathname + "art/")),
@@ -72,7 +72,7 @@ const { chromium } = require("playwright"),
         url,
         checks: [
           "repository-prefixed production assets",
-          "generated family atlas and native environments",
+          "generated family and world atlases",
           "nine games launch",
           "sprite studio",
           "studio returns to site",

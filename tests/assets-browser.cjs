@@ -9,19 +9,24 @@ const assert = require("node:assert/strict");
   });
   const reports = [];
   try {
-    for (const failure of ["atlas", "all-art"]) {
+    for (const failure of ["atlas", "worlds", "all-art"]) {
       const page = await browser.newPage(),
         errors = [];
       page.on("pageerror", (error) => errors.push(error.message));
       await page.route(
-        failure === "atlas" ? "**/art/generated-family/**" : "**/art/**",
+        failure === "atlas"
+          ? "**/art/generated-family/**"
+          : failure === "worlds"
+            ? "**/art/generated-worlds/**"
+            : "**/art/**",
         (route) => route.abort(),
       );
       await page.goto(process.env.ARCADE_URL || "http://127.0.0.1:5174");
       await page.waitForFunction(() => window.arcade);
       const art = await page.evaluate(() => window.arcade.snapshot());
       assert.equal(art.characterArtwork.loaded, true);
-      assert.equal(art.characterArtwork.prepared, false);
+      assert.equal(art.characterArtwork.prepared, failure === "worlds");
+      assert.equal(art.artwork.prepared, failure === "atlas");
       for (const id of [
         "summit",
         "meadow",
@@ -45,9 +50,9 @@ const assert = require("node:assert/strict");
       reports.push({
         failure,
         gamesPlayable: 9,
-        artwork: art.characterArtwork.loaded
-          ? "native emergency fallback"
-          : "code fallback",
+        artwork: art.characterArtwork.prepared
+          ? "generated family; native world fallback"
+          : "native character fallback",
       });
       await page.close();
     }

@@ -11,6 +11,7 @@ import { thumbDirections } from "./input-math.js";
 import { THEMES, themeStep } from "./music.js";
 import {
   background,
+  artStatus,
   prop,
   worldTile,
   WORLDS,
@@ -137,7 +138,7 @@ export class Painter {
             this.texture(`parallax:${id}:${layer.name}`, layer.canvas),
           );
       }
-      drawWorldLife(this, id, time, camera);
+      drawWorldLife(this, id, time, camera, artStatus.prepared);
       return;
     }
 
@@ -153,7 +154,7 @@ export class Painter {
         1,
         this.texture("world:" + id, canvas),
       );
-    drawWorldLife(this, id, time, camera);
+    drawWorldLife(this, id, time, camera, artStatus.prepared);
   }
   prop(id, x, y) {
     const canvas = objectFrame("flora-" + id) || prop(id);

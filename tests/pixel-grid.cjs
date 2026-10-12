@@ -18,6 +18,33 @@ const assert = require("node:assert/strict");
         { createGame } = harness.games;
       const { background, WORLD_ORDER } = harness.worlds;
       await harness.loadArt();
+      if (!harness.worlds.artStatus.prepared)
+        throw new Error("Generated world atlas failed to load");
+      for (const id of ["summit", "meadow"]) {
+        const layers = harness.worlds.parallaxLayers(id);
+        if (
+          layers.length !== 3 ||
+          new Set(layers.map((l) => l.speed)).size !== 3
+        )
+          throw new Error(id + " requires three distinct parallax speeds");
+        for (const [n, layer] of layers.entries()) {
+          const data = layer.canvas
+            .getContext("2d")
+            .getImageData(0, 0, 320, 180).data;
+          let clear = 0,
+            solid = 0;
+          for (let k = 3; k < data.length; k += 4) {
+            if (data[k] === 0) clear++;
+            else if (data[k] === 255) solid++;
+            else throw new Error(id + " has filtered parallax edges");
+          }
+          if (n === 0 && clear) throw new Error(id + " sky has holes");
+          if (n > 0 && (clear < 10000 || solid < 1000))
+            throw new Error(
+              id + " scenery must have a usable transparent silhouette",
+            );
+        }
+      }
       const fingerprints = new Set();
       for (const id of WORLD_ORDER) {
         const c = background(id);

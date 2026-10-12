@@ -31,7 +31,8 @@
     "test:summit": "node --require ./tests/background-browser.cjs tests/summit-browser.cjs",
     "test:fullscreen": "node --require ./tests/background-browser.cjs tests/fullscreen-browser.cjs",
     "test:party": "node --require ./tests/background-browser.cjs tests/party-browser.cjs",
-    "test:bricks": "node --require ./tests/background-browser.cjs tests/bricks-browser.cjs"
+    "test:bricks": "node --require ./tests/background-browser.cjs tests/bricks-browser.cjs",
+    "prepare:worlds": "node --require ./tests/background-browser.cjs tests/prepare-generated-worlds.cjs"
   },
   "dependencies": {
     "three": "^0.180.0"

@@ -1,3 +1,4 @@
+import { background, artStatus } from "./world-art.js";
 import { paintRivieraVillage } from "./world-details.js";
 // A nearest-neighbour map sampled once per native pixel, like a Mode 7 floor.
 export const rallyRoad = (distance, y) =>
@@ -124,7 +125,14 @@ export function paintRallyRoad(ctx, distance = 0, lane = 0) {
       );
     rect(x, 58 - hill, 1, hill, "#89aaa3");
   }
-  paintRivieraVillage(ctx, distance);
+  if (artStatus.prepared && background("rally")) {
+    const sky = background("rally"),
+      offset = Math.round(distance * 0.025) % 320;
+    ctx.imageSmoothingEnabled = false;
+    // The lower native rows contain the distant town. Crop, never stretch.
+    for (let tile = -1; tile <= 2; tile++)
+      ctx.drawImage(sky, 0, 112, 320, 58, tile * 320 - offset, 0, 320, 58);
+  } else paintRivieraVillage(ctx, distance);
   let frame = frames.get(ctx);
   if (!frame) {
     frame = ctx.createImageData(320, 122);

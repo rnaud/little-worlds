@@ -1,3 +1,4 @@
+import { assetPath } from "./asset-path.js";
 import { nativeScene, nativeLayers } from "./native-scenes.js";
 import { partyBackground } from "./party-art.js";
 export const PARALLAX_KEYS = [
@@ -128,6 +129,49 @@ export async function loadWorldArt() {
   }
   artStatus.loaded = true;
   artStatus.error = null;
+  artStatus.authored = "native-pixel-stencils";
+  artStatus.prepared = false;
+  try {
+    const response = await fetch(
+      assetPath("art/generated-worlds/manifest.json"),
+    );
+    if (!response.ok) throw new Error("World atlas manifest unavailable");
+    const manifest = await response.json();
+    const image = new Image();
+    image.src = assetPath("art/generated-worlds/" + manifest.image);
+    await image.decode();
+    const decoded = { worlds: new Map(), parallax: new Map() };
+    for (const [group, ids] of Object.entries(manifest.groups)) {
+      for (const [id, cells] of Object.entries(ids)) {
+        const cell = cells[0],
+          [c, ctx] = surface(cell.w, cell.h);
+        ctx.drawImage(
+          image,
+          cell.x,
+          cell.y,
+          cell.w,
+          cell.h,
+          0,
+          0,
+          cell.w,
+          cell.h,
+        );
+        decoded[group].set(id, c);
+      }
+    }
+    if (
+      !WORLD_ORDER.every((id) => decoded.worlds.has(id)) ||
+      !PARALLAX_KEYS.every((id) => decoded.parallax.has(id))
+    )
+      throw new Error("Incomplete generated world atlas");
+    for (const [id, c] of decoded.worlds) backgrounds.set(id, c);
+    for (const [id, c] of decoded.parallax) parallax.set(id, c);
+    artStatus.authored = "image-generated-pixel-worlds";
+    artStatus.prepared = true;
+  } catch (error) {
+    // Keep the complete code-drawn environments when an asset is unavailable.
+    artStatus.error = String(error);
+  }
 }
 export function background(id) {
   return backgrounds.get(id);

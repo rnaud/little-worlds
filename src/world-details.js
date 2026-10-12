@@ -315,7 +315,7 @@ export function paintRivieraVillage(ctx, distance = 0) {
   }
 }
 // Ambient details use the game clock, so pausing freezes them with the world.
-export function drawWorldLife(p, id, time = 0, camera = 0) {
+export function drawWorldLife(p, id, time = 0, camera = 0, generated = false) {
   const dot = (x, y, w, h, c) =>
     p.rect(
       Math.round(x) * 3 + w * 1.5,
@@ -335,7 +335,7 @@ export function drawWorldLife(p, id, time = 0, camera = 0) {
       dot(x - 2, y - flap, 2, 1, color);
       dot(x + 1, y - flap, 2, 1, color);
     }
-    if (id === "summit") {
+    if (id === "summit" && !generated) {
       // Cable car traverses the distant line independently of the player.
       const x = ((((time * 2 - (camera * 0.14) / 3) % 110) + 110) % 110) + 16;
       const y = 104 - (x * 16) / 138;
@@ -360,11 +360,11 @@ export function drawWorldLife(p, id, time = 0, camera = 0) {
       dot(x + 3, y + 1, 1, 2, "#67848b");
       dot(x, y + 3, 3, 1, "#496272");
     }
-  } else if (id === "bricks") {
+  } else if (id === "bricks" && !generated) {
     const x = 53 + Math.round(Math.sin(time) * 5);
     p.line(53 * 3, 83 * 3, x * 3, 137 * 3, 3, "#485061");
     dot(x - 3, 137, 7, 4, "#6a6068");
-  } else if (id === "space") {
+  } else if (id === "space" && !generated) {
     const x = ((((time * 2) % 360) + 360) % 360) - 20;
     dot(x, 14, 5, 2, "#63708b");
     dot(x + 1, 12, 3, 2, "#555b79");

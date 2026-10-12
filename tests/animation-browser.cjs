@@ -115,6 +115,8 @@ const assert = require("node:assert/strict");
     [
       "/art/generated-family/atlas-v1.png",
       "/art/generated-family/manifest.json",
+      "/art/generated-worlds/atlas-v1.png",
+      "/art/generated-worlds/manifest.json",
     ],
     "runtime loads the restored family atlas",
   );
