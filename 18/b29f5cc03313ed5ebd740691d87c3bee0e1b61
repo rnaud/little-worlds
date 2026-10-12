@@ -1,0 +1,35 @@
+src/engine.js
+  s_74ed6129120f6d::t_7dbddc803d9556 657-658,757,771-778,794-808,810-812
+src/main.js
+  s_9ca76055a220ed::t_f57893a440deaf 485,795-798
+tests/coop-browser.cjs
+  s_74ed6129120f6d::t_e40245a21b9e1c 92-129,199
+tests/progression.test.js
+  s_74ed6129120f6d::t_7ffef96340ef91 150-175,179-202
+tests/summit-driver.js
+  s_74ed6129120f6d::t_2351cf3c0b8920 45-46,84-87
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "18b29f5cc03313ed5ebd740691d87c3bee0e1b61",
+  "prompts": {},
+  "sessions": {
+    "s_74ed6129120f6d": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a12b36-7519-7462-9cc9-a30336c7a79d",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Arnaud Ferreri <rnaud@users.noreply.github.com>"
+    },
+    "s_9ca76055a220ed": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "ad390326-b580-46fb-9177-587902db9ecb",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Arnaud Ferreri <rnaud@users.noreply.github.com>"
+    }
+  }
+}
