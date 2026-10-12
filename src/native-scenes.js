@@ -1,3 +1,4 @@
+import { paintWorldDetails, paintRivieraVillage } from "./world-details.js";
 // Native scenery. Every primitive writes integer pixel cells; no image sampling.
 const surface = () => {
   const c = document.createElement("canvas");
@@ -155,6 +156,7 @@ export function nativeLayers(id) {
         }
       }
     }
+    paintWorldDetails(ctx, id, layer);
     out.push(c);
   }
   return out;
@@ -288,5 +290,7 @@ export function nativeScene(id) {
     r(0, 85, 320, 95, "#7fa595");
     r(0, 111, 320, 69, "#85bec5");
   }
+  paintWorldDetails(ctx, id);
+  if (id === "rally") paintRivieraVillage(ctx);
   return c;
 }

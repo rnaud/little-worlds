@@ -166,7 +166,7 @@ Research: [SLYNYRD’s side-view tiles](https://www.slynyrd.com/blog/2020/5/21/p
 
 All active environments and props are now authored on the native pixel grid in `src/native-scenes.js`, `src/native-objects.js`, `src/party-art.js` and `src/rally-art.js`. The family and kart sprites use a compact generated atlas; environments and props remain code-drawn. Simple, deliberate clusters and subdued play areas keep characters, threats and objectives legible.
 
-Platformer backgrounds have three independently scrolling native layers, using a maximum of five colors per layer. Platforms have a bright continuous top edge and a sparse dark body so landings read at a glance. Banana Bay has broad, short-gap beach islands and optional elevated bananas; thin Meadows ledges allow jumping up through them or dropping with Down + A. Cloudberry Climb has deliberate jump practice, two dash gaps, recovery terrain and three checkpoints.
+Platformer backgrounds have three independently scrolling native layers, with restrained palettes and contrasting playable surfaces. Platforms have a bright continuous top edge and a sparse dark body so landings read at a glance. Banana Bay has broad, short-gap beach islands and optional elevated bananas; thin Meadows ledges allow jumping up through them or dropping with Down + A. Cloudberry Climb has deliberate jump practice, two dash gaps, recovery terrain and three checkpoints.
 
 Rainbow Rally samples a 512×512 island circuit into a 320×180 ground plane using nearest-neighbor inverse perspective. The camera follows the oval track, with a checkered start/finish line, depth-sorted roadside trees and obstacles, and rear-view family karts. Two family pacers provide someone to overtake, with finishing position shown alongside the lap time; Bean stays an independent companion. An exhausted boost recharges until A is released; braking does not spend boost fuel. The shared projection keeps pickups and puddles on the same collision plane as the driver. All perspective size variants are rasterized before drawing at 1:1, keeping a single pixel grid. [Kulor’s Mode 7 perspective guide](https://forums.nesdev.org/viewtopic.php?t=24053) informed the per-scanline perspective approach; this is an original browser implementation, not an SNES emulator.
 
@@ -174,7 +174,7 @@ The shelf uses the same environments and role-specific poses as the playable gam
 
 Rainbow Rally also has a native-pixel circuit map: the gold marker is the player, pink and cyan markers are the family racers, and a checkered line marks the finish. Marker positions follow the same circuit coordinates as the projected road. The map uses integer pixel runs rather than a resized track image.
 
-## Native character artwork (October 2026 redraw)
+## Generated family artwork
 
 The family uses the restored **image-generated designs** from release `3b27527`. Gaia, Bean, Nur and Arnaud each have 37 prepared animation frames and four rear-view kart frames. The runtime source is `public/art/generated-family/atlas-v1.png`, with its companion manifest. Regular actors retain the prepared source pixels; compact variants and kart perspective use nearest-neighbor rasterization. These are generated illustrations prepared for a low-resolution game, not hand-drawn native pixel stencils.
 
@@ -213,3 +213,9 @@ Splash Garden marks a balloon's splash cells immediately and shows three fuse ti
 Small native-pixel goal counters and charge meters supplement the accessible text HUD: collectible slots, lanterns, flowers, bubbles, hearts, remaining balls, boost, shield and timed catch. Gentle mode omits finite-life hearts. Bean routes away from imminent balloon crosses and active splashes, without affecting the player’s collision or scoring. The brick paddle’s visible top matches its bounce surface and leaves the carrier’s face visible.
 
 Platform route checks cover all four family heroes in both difficulties at 30, 60 and 120 input frames per second (216 complete routes), using the same 120 Hz physics substeps as the browser loop. The driver uses elapsed game time for dash timing instead of counting rendered frames.
+
+## Lived-in worlds
+
+Scenery details in `src/world-details.js` give each cartridge its own inhabited setting: an observatory and cable railway, a coastal village with boats and a market, woodland treehouses, a Riviera town, a clockmaker’s workshop, a working greenhouse, an orbital station, a soapworks and a balcony-lined courtyard. Most decorative objects sit in the distant layers or around the playfield edges; none change collision geometry.
+
+Birds, a traveling cable car, fireflies, rising soap bubbles, a pendulum and a distant shuttle use the simulation clock, so they stop when gameplay pauses. The platform scenes retain three camera-driven parallax layers, and the rally village moves slowly behind the Mode 7 circuit. Every decoration is drawn on the native integer grid; the complete scene palettes remain within 32 colors. The pixel and rendering checks cover all nine games and all four family heroes.

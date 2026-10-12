@@ -324,7 +324,7 @@ export class BubbleRescue extends World {
     }
   }
   draw(p) {
-    p.backdrop("bubbles");
+    p.backdrop("bubbles", 0, this.t);
     for (const b of this.platforms) {
       p.rect(b.x, b.y, b.w, b.h, "#335d79");
       p.rect(b.x, b.y - b.h / 2 + 3, b.w, 6, "#b3ebdf");
@@ -752,7 +752,7 @@ export class SplashMaze extends World {
     }
   }
   draw(p) {
-    p.backdrop("splash");
+    p.backdrop("splash", 0, this.t);
     const ready = this.flowers.every((f) => f.wet);
     for (let y = 0; y < ROWS; y++)
       for (let x = 0; x < COLS; x++) {

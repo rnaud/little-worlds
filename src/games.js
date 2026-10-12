@@ -315,7 +315,7 @@ export class Platformer extends World {
   }
   draw(p) {
     const c = this.camera;
-    p.backdrop(this.kind, c);
+    p.backdrop(this.kind, c, this.t);
     for (const b of this.platforms) {
       if (b.hidden > 0) {
         if (b.hidden < 0.6)
@@ -674,7 +674,7 @@ export class Forest extends World {
     this.message = `${this.score} / 3 lanterns · ${this.discoveries.filter((s) => s.found).length} / 3 keepsakes${this.gentle ? "" : ` · ${this.health} hearts`}`;
   }
   draw(p) {
-    p.backdrop("forest");
+    p.backdrop("forest", 0, this.t);
     p.terrain(475, 306, 800, 44, "moss");
     p.terrain(115, 286, 44, 347, "moss");
     p.terrain(819, 283, 44, 345, "moss");
@@ -1165,7 +1165,7 @@ export class Bricks extends World {
     this.message = `${this.score} / 24 stars${this.gentle ? " · Endless tries" : ` · ${this.lives} balls`}${this.launched ? (this.catchTime > 0 ? " · Catch ready!" : "") : " · A to launch"}`;
   }
   draw(p) {
-    p.backdrop("bricks");
+    p.backdrop("bricks", 0, this.t);
     p.rect(42, 290, 4, 470, "#d7aa65");
     p.rect(918, 290, 4, 470, "#d7aa65");
     p.prop("gear", 60, 480);
@@ -1366,7 +1366,7 @@ export class Garden extends World {
     this.message = `${this.score} / ${this.targets.length} flowers at home · ${this.moves} moves`;
   }
   draw(p) {
-    p.backdrop("garden");
+    p.backdrop("garden", 0, this.t);
     const size = 54,
       ox = 264,
       oy = 80;
@@ -1604,7 +1604,7 @@ export class Space extends World {
     this.message = `${this.finale ? (this.done ? "Moon Keeper calmed!" : this.intermission > 0 ? "Moon Keeper approaching…" : `Moon Keeper · ${Math.max(0, this.enemies[0]?.hp || 0)}/16`) : `Wave ${this.wave} / 3 · ${this.score} moon rocks`} · Shield ${Math.round(this.shield * 100)}%${this.gentle ? "" : ` · ${this.health} hearts`}`;
   }
   draw(p) {
-    p.backdrop("space");
+    p.backdrop("space", 0, this.t);
     for (let n = 0; n < 14; n++) {
       const x = (((n * 173 - this.t * 24) % 960) + 960) % 960;
       p.rect(x, 80 + ((n * 97) % 420), 6, 3, "#8c77aa");

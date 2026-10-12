@@ -1,3 +1,4 @@
+import { drawWorldLife } from "./world-details.js";
 import * as THREE from "three";
 import { sprite, tile } from "./pixels.js";
 import { characterVariant, kartVariant } from "./characters.js";
@@ -114,7 +115,7 @@ export class Painter {
     this.camera.bottom = H;
     this.camera.updateProjectionMatrix();
   }
-  backdrop(id, camera = 0) {
+  backdrop(id, camera = 0, time = 0) {
     this.begin(WORLDS[id].base);
     const canvas = background(id);
     const layers = parallaxLayers(id);
@@ -136,6 +137,7 @@ export class Painter {
             this.texture(`parallax:${id}:${layer.name}`, layer.canvas),
           );
       }
+      drawWorldLife(this, id, time, camera);
       return;
     }
 
@@ -151,6 +153,7 @@ export class Painter {
         1,
         this.texture("world:" + id, canvas),
       );
+    drawWorldLife(this, id, time, camera);
   }
   prop(id, x, y) {
     const canvas = objectFrame("flora-" + id) || prop(id);

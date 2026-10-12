@@ -1,3 +1,4 @@
+import { paintWorldDetails } from "./world-details.js";
 // Native 320×180 scenery: quiet play areas framed by small, deliberate clusters.
 export function partyBackground(id) {
   const c = document.createElement("canvas");
@@ -61,5 +62,6 @@ export function partyBackground(id) {
       r(x - 2, y + 2, 3, 3, "#c0a65f");
     }
   }
+  paintWorldDetails(ctx, id);
   return c;
 }

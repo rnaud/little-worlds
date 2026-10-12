@@ -1,3 +1,4 @@
+import { paintRivieraVillage } from "./world-details.js";
 // A nearest-neighbour map sampled once per native pixel, like a Mode 7 floor.
 export const rallyRoad = (distance, y) =>
   480 + Math.sin(distance / 360 + y / 220) * 85;
@@ -123,6 +124,7 @@ export function paintRallyRoad(ctx, distance = 0, lane = 0) {
       );
     rect(x, 58 - hill, 1, hill, "#89aaa3");
   }
+  paintRivieraVillage(ctx, distance);
   let frame = frames.get(ctx);
   if (!frame) {
     frame = ctx.createImageData(320, 122);
