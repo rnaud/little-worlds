@@ -8,6 +8,45 @@ import {
 import { drawNativeCreature } from "../src/native-creatures.js";
 import { hudStatus, rallyMapPoint } from "../src/native-hud.js";
 const ids = Object.keys(ACTOR_PALETTES);
+test("Bean's seated head stays connected to his chest in both native sizes", () => {
+  for (const small of [false, true])
+    for (const frame of [15, 22, 23, 24, 25]) {
+      const d = drawNativeActor("bean", frame, small),
+        start = d.pixels.findIndex((pixel) => pixel !== "."),
+        queue = [start],
+        seen = new Set(queue);
+      for (let at = 0; at < queue.length; at++) {
+        const index = queue[at],
+          x = index % d.width,
+          y = Math.floor(index / d.width);
+        for (const [dx, dy] of [
+          [1, 0],
+          [-1, 0],
+          [0, 1],
+          [0, -1],
+        ]) {
+          const xx = x + dx,
+            yy = y + dy,
+            next = yy * d.width + xx;
+          if (
+            xx >= 0 &&
+            xx < d.width &&
+            yy >= 0 &&
+            yy < d.height &&
+            d.pixels[next] !== "." &&
+            !seen.has(next)
+          ) {
+            seen.add(next);
+            queue.push(next);
+          }
+        }
+      }
+      assert.ok(
+        seen.has((small ? 11 : 15) * d.width + (small ? 12 : 16)),
+        `Bean frame ${frame}, small=${small}: continuous head/neck/chest silhouette`,
+      );
+    }
+});
 test("rally map follows the projected circuit and closes at the finish", () => {
   assert.deepEqual(rallyMapPoint(0), { x: 17, y: 0 });
   assert.deepEqual(rallyMapPoint(450), { x: 0, y: 11 });

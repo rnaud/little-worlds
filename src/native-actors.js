@@ -733,6 +733,9 @@ function human(id, frame, small = false) {
           ];
   d.stamp(torso, cx - (small ? 4 : 5), shoulder - 2 + bob);
   arm(right);
+  // A short neck keeps profile chins and bobbed hair connected to the collar.
+  d.rect(cx - 1, shoulder - 4 + bob, 3, 3, "S");
+  d.rect(cx - 1, shoulder - 3 + bob, 2, 2, "s");
   const side =
     q.run >= 0 ||
     q.air ||
@@ -824,6 +827,15 @@ function seatedDog(frame, small) {
         ],
     small ? 8 : 10,
     (small ? 7 : 9) + nod,
+  );
+  // Join the muzzle and collar to the upright chest even in the lifted-head
+  // celebration pose. The neck has its own fawn/white pixels below the collar.
+  d.stamp(
+    small
+      ? [".ohho", "ohsHo", "ohsHo", "ohsHo", ".osso"]
+      : ["..ohho", ".ohsHo", ".ohsHo", "ohssHo", "ohssho", ".osso."],
+    hx + (small ? 1 : 2),
+    hy + 4,
   );
   d.stamp(
     small

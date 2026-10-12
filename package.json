@@ -12,7 +12,7 @@
     "format": "prettier --write src index.html sprite-lab.html vite.config.js tests/*.js tests/*.cjs README.md package.json .github/workflows/*.yml",
     "test:pixels": "node --require ./tests/background-browser.cjs tests/pixel-grid.cjs",
     "test:animation": "node --require ./tests/background-browser.cjs tests/animation-browser.cjs",
-    "prepare:art": "node tests/prepare-art.cjs",
+    "prepare:art": "node --require ./tests/background-browser.cjs tests/prepare-art.cjs",
     "test:victory": "node --require ./tests/background-browser.cjs tests/victory-browser.cjs",
     "test:input": "node --require ./tests/background-browser.cjs tests/input-browser.cjs",
     "test:audio": "node --require ./tests/background-browser.cjs tests/audio-browser.cjs",
