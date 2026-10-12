@@ -1,0 +1,22 @@
+README.md
+  s_dd8605935a9696::t_987ee2bac0a379 3,5,9,11,13,15-17,19,21,23,26-28,32
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "b48d2d27e19e5c76c147e77640c15c698a40ca2d",
+  "prompts": {},
+  "sessions": {
+    "s_dd8605935a9696": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "5c74b897-c99c-4e2c-af33-296af02e6169",
+        "model": "unknown"
+      },
+      "human_author": "Arnaud Ferreri <rnaud@users.noreply.github.com>",
+      "custom_attributes": {
+        "runtime": "local"
+      }
+    }
+  }
+}
