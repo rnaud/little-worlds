@@ -14,7 +14,7 @@ npm run build
 npm run preview
 ```
 
-Vite prints the local and LAN URLs. Open the LAN URL from a phone on the same network for touch play. Browser checks run in background test contexts with native OS fullscreen declined, so they exercise the full-viewport layout without taking over the developer’s screen. Normal game launches retain fullscreen on the published site. Serve the `build/` output with any static HTTP host. The production build bundles Three.js locally; graphics use bundled local assets and code, and fonts use system resources; no external asset requests are needed.
+Vite prints the local and LAN URLs. Open the LAN URL from a phone on the same network for touch play. Browser checks run in background test contexts with native OS fullscreen declined, so they exercise the full-viewport layout without taking over the developer’s screen. Games fill the browser viewport without entering native fullscreen or hiding browser controls. Serve the `build/` output with any static HTTP host. The production build bundles Three.js locally; graphics use bundled local assets and code, and fonts use system resources; no external asset requests are needed.
 
 ## Games
 
@@ -198,7 +198,7 @@ npm run build
 
 `npm run test:party` completes both new cartridges in Classic through browser keyboard input. Tests verify safe routes, hedge occlusion, balloon chains, trap expiry, helper input, victory and saved records. `npm run test:pixels` covers all nine games at multiple display densities. Controller tests navigate all nine cartridges, menus and dialogs without a pointer. Source inspection suites use the development server; deployment and controller tests also run against the production preview.
 
-Cartridges use a viewport-filling player and request browser fullscreen when user activation allows it. Start/Escape opens the menu with Resume, Restart, Sound, Gentle mode and Exit to cartridges. Touch has a Menu button. Native pixels enlarge only by integer physical-pixel multiples, with letterboxing where necessary. A fullscreen regression test covers desktop and both phone orientations.
+Cartridges use a viewport-filling player without requesting or exiting native browser fullscreen. Start/Escape opens the menu with Resume, Restart, Sound, Gentle mode and Exit to cartridges. Touch has a Menu button. Native pixels enlarge only by integer physical-pixel multiples, with letterboxing where necessary. A viewport regression test covers desktop and both phone orientations and verifies zero native fullscreen API calls.
 
 Automated completion establishes that games can be completed, not whether every family member finds them fun. Physical controller ergonomics and a family playtest remain useful checks.
 

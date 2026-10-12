@@ -22,6 +22,23 @@ const assert = require("node:assert/strict");
       },
     ]) {
       const page = await browser.newPage(config);
+      await page.addInitScript(() => {
+        window.fullscreenCalls = [];
+        for (const [target, method] of [
+          [Element.prototype, "requestFullscreen"],
+          [Document.prototype, "exitFullscreen"],
+        ]) {
+          Object.defineProperty(target, method, {
+            configurable: true,
+            value: () => {
+              window.fullscreenCalls.push(method);
+              return Promise.reject(
+                new Error("Native fullscreen is forbidden"),
+              );
+            },
+          });
+        }
+      });
       await page.goto(process.env.ARCADE_URL || "http://127.0.0.1:5174");
       await page.locator('[data-game="meadow"]').click();
       await page.locator("#overlay-action").click();
@@ -58,11 +75,16 @@ const assert = require("node:assert/strict");
           window.arcade.snapshot().mode === "home" &&
           !document.fullscreenElement,
       );
+      assert.deepEqual(
+        await page.evaluate(() => window.fullscreenCalls),
+        [],
+        "launch and exit must never change native fullscreen mode",
+      );
       assert.ok(await page.locator('[data-game="meadow"]').isVisible());
       await page.close();
     }
     console.log(
-      "Fullscreen viewport, pause menu and exit passed on desktop and both phone orientations.",
+      "Browser viewport, zero native fullscreen calls, pause menu and exit passed on desktop and both phone orientations.",
     );
   } finally {
     await browser.close();

@@ -397,7 +397,6 @@ function launch(id, level) {
   $("#home").hidden = true;
   $("#play").hidden = false;
   document.body.classList.add("playing");
-  enterGameFullscreen();
   window.scrollTo({ top: 0, behavior: "instant" });
   try {
     painter ??= new Painter($("#game-canvas"));
@@ -516,31 +515,7 @@ $("#coop-touch").onchange = (e) => {
   configureCoop();
   save();
 };
-// Gamepad polling has no browser user activation. The viewport layout is the
-// reliable fullscreen fallback; a click/key can additionally hide browser chrome.
-let gameFullscreen = false;
-function enterGameFullscreen() {
-  if (document.fullscreenElement || !navigator.userActivation?.isActive) return;
-  const request = document.documentElement.requestFullscreen?.();
-  request
-    ?.then(() => {
-      gameFullscreen = true;
-      if (mode === "home") leaveGameFullscreen();
-    })
-    .catch(() => {});
-}
-function leaveGameFullscreen() {
-  if (gameFullscreen && document.fullscreenElement)
-    document.exitFullscreen().catch(() => {});
-  gameFullscreen = false;
-}
-document.addEventListener("fullscreenchange", () => {
-  if (!document.fullscreenElement && gameFullscreen) {
-    gameFullscreen = false;
-    if (mode === "playing") pause();
-  }
-  painter?.resize();
-});
+// Games fill the browser viewport through CSS, without changing browser mode.
 function fitPlayView() {
   window.scrollTo({ top: 0, behavior: "instant" });
   painter?.resize();
@@ -549,7 +524,6 @@ function home() {
   latchMenu();
   sound.stop();
   mode = "home";
-  leaveGameFullscreen();
   input.enabled = false;
   input.clear();
   $("#play").hidden = true;
