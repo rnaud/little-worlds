@@ -147,39 +147,59 @@ test("Bean reveals keepsakes only nearby and opens a real woodland shortcut afte
 });
 
 import { meadowDriver } from "./meadow-driver.js";
-test("all six meadow stages can be completed with ordinary controls in both difficulties", () => {
-  for (const gentle of [false, true])
-    for (let level = 0; level < 6; level++) {
-      const game = new Platformer("meadow", gentle, undefined, level),
-        driver = meadowDriver(level);
-      for (let tick = 0; tick < 120 * 30 && !game.done; tick++)
-        game.update(1 / 120, driver.input(game));
-      assert.equal(game.done, true, `${level}, gentle ${gentle}: complete`);
-      assert.equal(game.deaths, 0, `${level}: fair route without retries`);
-    }
+const cadenceStep = (game, driver, fps) => {
+  const controls = driver.input(game);
+  for (let sub = 0; sub < 120 / fps && !game.done; sub++)
+    game.update(
+      1 / 120,
+      sub ? { ...controls, pressed: {}, released: {} } : controls,
+    );
+};
+test("all meadow stages work for every family hero at 30, 60 and 120 input frames per second", () => {
+  for (const fps of [30, 60, 120])
+    for (const hero of ["gaia", "bean", "nur", "arnaud"])
+      for (const gentle of [false, true])
+        for (let level = 0; level < 6; level++) {
+          const game = new Platformer("meadow", gentle, undefined, level),
+            driver = meadowDriver(level);
+          game.hero = hero;
+          for (let frame = 0; frame < fps * 30 && !game.done; frame++)
+            cadenceStep(game, driver, fps);
+          const context = `${hero}, stage ${level}, gentle ${gentle}, ${fps} Hz`;
+          assert.equal(game.done, true, `${context}: complete`);
+          assert.equal(
+            game.deaths,
+            0,
+            `${context}: fair route without retries`,
+          );
+        }
 });
 
 import { summitDriver } from "./summit-driver.js";
-test("all three summit stages teach jumps, dash crossings and cracked ice with safe checkpoints", () => {
-  for (const gentle of [false, true])
-    for (let level = 0; level < 3; level++) {
-      const g = new Platformer("summit", gentle, undefined, level),
-        driver = summitDriver(level);
-      for (const point of g.checkpoints)
-        assert.ok(
-          g.platforms.some(
-            (b) =>
-              !b.crumble &&
-              Math.abs(b.x - point.x) < b.w / 2 &&
-              Math.abs(b.y - b.h / 2 - point.y - 27) < 1,
-          ),
-        );
-      for (let tick = 0; tick < 120 * 40 && !g.done; tick++)
-        g.update(1 / 120, driver.input(g));
-      assert.ok(g.done, `stage ${level} gentle ${gentle}`);
-      assert.equal(g.deaths, 0);
-      assert.equal(g.score, 3);
-    }
+test("all summit stages work for every family hero at 30, 60 and 120 input frames per second", () => {
+  for (const fps of [30, 60, 120])
+    for (const hero of ["gaia", "bean", "nur", "arnaud"])
+      for (const gentle of [false, true])
+        for (let level = 0; level < 3; level++) {
+          const g = new Platformer("summit", gentle, undefined, level),
+            driver = summitDriver(level);
+          g.hero = hero;
+          for (const point of g.checkpoints)
+            assert.ok(
+              g.platforms.some(
+                (b) =>
+                  !b.crumble &&
+                  Math.abs(b.x - point.x) < b.w / 2 &&
+                  Math.abs(b.y - b.h / 2 - point.y - 27) < 1,
+              ),
+            );
+          for (let frame = 0; frame < fps * 40 && !g.done; frame++)
+            cadenceStep(g, driver, fps);
+          const context = `${hero}, stage ${level}, gentle ${gentle}, ${fps} Hz`;
+          assert.ok(g.done, context);
+          assert.equal(g.deaths, 0, context);
+          assert.equal(g.score, 3, context);
+        }
 });
 
 test("Meadows thin ledges allow jumping up and deliberate down-jump drops", () => {

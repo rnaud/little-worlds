@@ -654,6 +654,8 @@ export class Input {
     this.padName = "";
     this.padHistory = new Map();
     this.activePadIndex = 0;
+    this.coopPadSlots = [null, null];
+    this.controllerDisconnected = false;
     this.onPause = () => {};
     this.onRestart = () => {};
     this.enabled = true;
@@ -752,6 +754,7 @@ export class Input {
   }
   poll() {
     const c = {};
+    this.controllerDisconnected = false;
     const secondary = {};
     if (this.multiplayer) {
       for (const k of this.secondPending) secondary[k] = true;
@@ -765,6 +768,14 @@ export class Input {
       const pads = Array.from(navigator.getGamepads?.() || [])
         .map((p, index) => ({ p, index }))
         .filter(({ p }) => p?.connected);
+      const lost = [...this.padHistory.keys()].filter(
+        (index) => !pads.some((entry) => entry.index === index),
+      );
+      this.controllerDisconnected = lost.some((index) =>
+        this.multiplayer
+          ? this.coopPadSlots.includes(index)
+          : index === this.activePadIndex,
+      );
       const activity = pads.map(({ p, index }) => {
         const buttons = p.buttons.map((b) => !!b.pressed),
           axes = p.axes.some((a) => Math.abs(a) > 0.28),
@@ -780,10 +791,25 @@ export class Input {
         activity.find((a) => a.buttonEdge) || activity.find((a) => a.axisEdge);
       if (changed && !this.multiplayer) this.activePadIndex = changed.index;
       if (this.multiplayer) {
-        pad = this.coopTouch ? null : pads[0]?.p;
-        secondPad = pads[this.coopTouch ? 0 : 1]?.p;
-      } else
+        // Keep each player's slot across pauses and disconnections. A missing
+        // lead controller must never promote the parent's controller to Gaia.
+        for (const slot of this.coopTouch ? [1] : [0, 1]) {
+          if (this.coopPadSlots[slot] === null)
+            this.coopPadSlots[slot] =
+              pads.find((entry) => !this.coopPadSlots.includes(entry.index))
+                ?.index ?? null;
+        }
+        pad = this.coopTouch
+          ? null
+          : pads.find((entry) => entry.index === this.coopPadSlots[0])?.p;
+        secondPad = pads.find(
+          (entry) => entry.index === this.coopPadSlots[1],
+        )?.p;
+      } else {
         pad = (pads.find((a) => a.index === this.activePadIndex) || pads[0])?.p;
+        if (pad)
+          this.activePadIndex = pads.find((entry) => entry.p === pad).index;
+      }
       for (const index of this.padHistory.keys())
         if (!pads.some((a) => a.index === index)) this.padHistory.delete(index);
     } catch {}

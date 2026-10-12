@@ -482,6 +482,7 @@ function configureCoop() {
     coopHero,
   );
   input.coopTouch = coopTouch;
+  input.coopPadSlots = [null, null];
   $("#coop-on").checked = coopEnabled;
   $("#coop-touch").checked = coopTouch;
   $("#coop-details").hidden = !coopEnabled;
@@ -791,6 +792,10 @@ function frame(now) {
   input.multiplayer = mode === "playing" && !!game?.buddy;
   input.poll();
   const pad = !!input.padName;
+  if (input.controllerDisconnected && mode === "playing") {
+    pause();
+    toast("Controller disconnected. Your game is paused.");
+  }
   if (pad !== wasPad) {
     if (wasPad && !pad && mode === "playing") {
       pause();

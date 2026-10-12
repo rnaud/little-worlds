@@ -46,6 +46,8 @@ In The Lantern Woods, approach pawprints and press A to ask Bean to investigate.
 
 For Meadows or Bubble Rescue co-op, enable **Play together** in the cartridge setup. Choose a human family helper. Controller 1 drives the lead and controller 2 drives the helper; both share progress (bananas or rescued sprites). Alternatively, enable **Touch + one controller**: Gaia uses touch and a parent uses the controller. Keyboard lead: arrows/Space/Shift; helper: WASD/F/G, Q to return. Controller Y returns the helper. Falling or being left behind recalls the helper without costing the lead a retry. Bean follows the lead with his own movement.
 
+Disconnecting an assigned controller pauses play. Controller roles remain fixed across pause, resume and reconnection, so the parent's controller cannot silently take over the lead character. The remaining controller can still navigate the pause menu.
+
 ## GitHub Pages
 
 The deployment workflow in `.github/workflows/pages.yml` tests and builds every push or pull request to `main`, then publishes successful main-branch builds with GitHub Pages. Repository settings must use **GitHub Actions** as the Pages source. It follows the [GitHub Pages custom workflow documentation](https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages).
@@ -211,3 +213,5 @@ Unicorns in Orbit now ends with the Moon Keeper, a larger crystal guardian drawn
 Gaia has shorter body proportions than the adults in both native size sets. Splash Garden marks a balloon's splash cells immediately and shows three fuse ticks; it no longer waits until the final second to reveal the affected cells.
 
 Small native-pixel goal counters and charge meters supplement the accessible text HUD: collectible slots, lanterns, flowers, bubbles, hearts, remaining balls, boost, shield and timed catch. Gentle mode omits finite-life hearts. Bean routes away from imminent balloon crosses and active splashes, without affecting the player’s collision or scoring. The brick paddle’s visible top matches its bounce surface and leaves the carrier’s face visible.
+
+Platform route checks cover all four family heroes in both difficulties at 30, 60 and 120 input frames per second (216 complete routes), using the same 120 Hz physics substeps as the browser loop. The driver uses elapsed game time for dash timing instead of counting rendered frames.

@@ -42,7 +42,8 @@ export function summitDriver(level = 0) {
   let at = 0,
     held = false,
     airTime = 0,
-    dashUsed = false;
+    dashUsed = false,
+    lastTime = 0;
   return {
     get waypoint() {
       return at;
@@ -80,7 +81,10 @@ export function summitDriver(level = 0) {
           ? p.x > edge - 24
           : closest < 225 * flight * 0.86 &&
             (Math.abs(delta) < 190 || p.x > edge - 32));
-      airTime = p.ground ? 0 : airTime + 1 / 120;
+      const now = g.t ?? g.time ?? lastTime + 1 / 120;
+      const elapsed = Math.max(0, now - lastTime);
+      lastTime = now;
+      airTime = p.ground ? 0 : airTime + elapsed;
       if (p.ground) dashUsed = false;
       const dash =
         !dashUsed &&

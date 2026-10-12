@@ -89,6 +89,44 @@ const { chromium } = require("playwright"),
         s.player.x > b.player.x + 15 && s.buddy.player.x < b.buddy.player.x - 15
       );
     }, padsBefore);
+    await page.evaluate(() => {
+      window.testPads.forEach((pad) => (pad.axes[0] = 0));
+    });
+    await page.waitForFunction(
+      () => Math.abs(window.arcade.snapshot().player.vx) < 1,
+    );
+    await page.evaluate(() => {
+      window.disconnectedLead = window.testPads[0];
+      window.testPads[0] = null;
+    });
+    await page.waitForFunction(
+      () => window.arcade.snapshot().mode === "paused",
+    );
+    await page.locator("#overlay-action").click();
+    const disconnectedBefore = await page.evaluate(() =>
+      window.arcade.snapshot(),
+    );
+    await page.evaluate(() => (window.testPads[1].axes[0] = 1));
+    await page.waitForFunction(
+      (x) => window.arcade.snapshot().buddy.player.x > x + 15,
+      disconnectedBefore.buddy.player.x,
+    );
+    assert.ok(
+      Math.abs(
+        (await page.evaluate(() => window.arcade.snapshot())).player.x -
+          disconnectedBefore.player.x,
+      ) < 1,
+      "remaining parent controller keeps its role after lead disconnects",
+    );
+    await page.evaluate(() => {
+      window.testPads[1].axes[0] = 0;
+      window.testPads[0] = window.disconnectedLead;
+      window.testPads[0].axes[0] = 1;
+    });
+    await page.waitForFunction(
+      (x) => window.arcade.snapshot().player.x > x + 15,
+      disconnectedBefore.player.x,
+    );
     await page.evaluate(() => (window.testPads = []));
     await page.waitForFunction(
       () => window.arcade.snapshot().mode === "paused",
@@ -158,7 +196,7 @@ const { chromium } = require("playwright"),
     });
     assert.deepEqual(errors, []);
     console.log(
-      "PASS: independent keyboard heroes, simultaneous jumps, fixed two-controller roles, touch plus one parent controller, responsive co-op setup",
+      "PASS: independent keyboard heroes, simultaneous jumps, fixed two-controller roles across disconnect/resume/reconnect, touch plus one parent controller, responsive co-op setup",
     );
   } finally {
     await browser.close();
