@@ -112,8 +112,11 @@ const assert = require("node:assert/strict");
   }
   assert.deepEqual(
     [...new Set(assets)].sort(),
-    [],
-    "runtime draws native art without image requests",
+    [
+      "/art/generated-family/atlas-v1.png",
+      "/art/generated-family/manifest.json",
+    ],
+    "runtime loads the restored family atlas",
   );
   await page.locator('[data-game="summit"]').click();
   await page.locator("#overlay-action").click();
@@ -193,7 +196,7 @@ const assert = require("node:assert/strict");
       checks: [
         "148 family poses plus karts, creatures and props",
         "binary alpha and limited palettes",
-        "no artwork image requests",
+        "compact generated family atlas",
         "distinct poses",
         "idle/run/jump/dash respond to gameplay",
         "pause freezes animation",

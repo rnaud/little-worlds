@@ -14,7 +14,7 @@ const assert = require("node:assert/strict");
         errors = [];
       page.on("pageerror", (error) => errors.push(error.message));
       await page.route(
-        failure === "atlas" ? "**/art/native/**" : "**/art/**",
+        failure === "atlas" ? "**/art/generated-family/**" : "**/art/**",
         (route) => route.abort(),
       );
       await page.goto(process.env.ARCADE_URL || "http://127.0.0.1:5174");
@@ -46,7 +46,7 @@ const assert = require("node:assert/strict");
         failure,
         gamesPlayable: 9,
         artwork: art.characterArtwork.loaded
-          ? "native code-authored actors"
+          ? "native emergency fallback"
           : "code fallback",
       });
       await page.close();

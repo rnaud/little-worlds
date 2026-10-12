@@ -114,8 +114,8 @@
       <a href="%BASE_URL%">← Back to the arcade</a>
       <h1>Family animation studio</h1>
       <p>
-        Original pixel stencils, drawn directly at their display resolution. No
-        reduced illustrations. Inspect both independently drawn sizes.
+        Restored image-generated family designs and animations. Inspect the
+        prepared sprite pixels and compact gameplay variants.
       </p>
       <label
         >Animation
@@ -130,13 +130,13 @@
         </select></label
       >
       <label
-        >Native size
+        >Sprite size
         <select id="native-size">
           <option value="regular">Regular</option>
-          <option value="small">Small · separately drawn</option>
+          <option value="small">Small · compact variant</option>
         </select></label
       >
-      <p id="status">Preparing native drawings…</p>
+      <p id="status">Loading family sprites…</p>
       <label
         >Inspect frames
         <select id="character">
@@ -230,7 +230,7 @@
       };
       inspect();
       document.querySelector("#status").textContent = characterArtStatus.loaded
-        ? `${Object.values(characterArtStatus.characters).reduce((n, c) => n + c.frames, 0)} family poses × 2 native sizes · 16 kart poses · ${creatureArtStatus.frames} creature frames · binary alpha`
+        ? `${Object.values(characterArtStatus.characters).reduce((n, c) => n + c.frames, 0)} family poses × regular and compact sizes · 16 kart poses · ${creatureArtStatus.frames} creature frames · binary alpha`
         : characterArtStatus.error;
       for (const [container, entries] of [
         ["karts", ids],

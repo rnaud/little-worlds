@@ -1,6 +1,6 @@
 # Little Worlds — the family arcade
 
-Nine original, bite-sized 2D games, rendered with Three.js and an orthographic camera. Built for Gaia and family play, with the unicorn, woodland, and banana motifs from the existing Rainbow Flight project. The family party includes Gaia (5, blonde), Bean (a light-brown Italian greyhound), Nur (Italian, dark bob), and Arnaud (French, 39). Choose a character through Players on the shelf; the choice persists on the device. The native pixel sprites use the supplied family photos only as design references: Gaia’s loose sandy-blonde hair, red headband and blue dress; Nur’s dark bob and striped blouse; Arnaud’s wavy hair, beard and navy shirt; Bean’s fawn coat, white chest, muzzle and paws, and black collar. The original photographs are not copied into the game or its public assets. The original game is preserved at `/rainbow-flight/`.
+Nine original, bite-sized 2D games, rendered with Three.js and an orthographic camera. Built for Gaia and family play, with the unicorn, woodland, and banana motifs from the existing Rainbow Flight project. The family party includes Gaia (5, blonde), Bean (a light-brown Italian greyhound), Nur (Italian, dark bob), and Arnaud (French, 39). Choose a character through Players on the shelf; the choice persists on the device. The image-generated family sprites use the supplied family photos only as design references: Gaia’s loose sandy-blonde hair, red headband and blue dress; Nur’s dark bob and striped blouse; Arnaud’s wavy hair, beard and navy shirt; Bean’s fawn coat, white chest, muzzle and paws, and black collar. The original photographs are not copied into the game or its public assets. The original game is preserved at `/rainbow-flight/`.
 
 ## Run
 
@@ -14,7 +14,7 @@ npm run build
 npm run preview
 ```
 
-Vite prints the local and LAN URLs. Open the LAN URL from a phone on the same network for touch play. Browser checks run in background test contexts with native OS fullscreen declined, so they exercise the full-viewport layout without taking over the developer’s screen. Normal game launches retain fullscreen on the published site. Serve the `build/` output with any static HTTP host. The production build bundles Three.js locally; all graphics and fonts use local code and system resources; no external asset requests are needed.
+Vite prints the local and LAN URLs. Open the LAN URL from a phone on the same network for touch play. Browser checks run in background test contexts with native OS fullscreen declined, so they exercise the full-viewport layout without taking over the developer’s screen. Normal game launches retain fullscreen on the published site. Serve the `build/` output with any static HTTP host. The production build bundles Three.js locally; graphics use bundled local assets and code, and fonts use system resources; no external asset requests are needed.
 
 ## Games
 
@@ -76,7 +76,7 @@ Open the printed `/little-worlds/` URL. Original family photographs are not incl
 ## Structure
 
 - `src/catalog.js`: game titles, instructions and shelf metadata.
-- `src/characters.js`, `src/animation.js`: native family pixel stencils, named animation clips and gameplay-driven pose selection.
+- `src/characters.js`, `src/animation.js`: generated family atlas, named animation clips and gameplay-driven pose selection.
 - `src/creatures.js`, `src/objects.js`, `src/world-art.js`: animated creatures, interactive objects, foreground props and nine environments. Native drawings live in `native-actors.js`, `native-creatures.js`, `native-objects.js` and `native-scenes.js`.
 - `src/sprite-pipeline.js`: unfiltered canvas creation for Mode 7 distance projections.
 - `src/art.js` and `src/pixels.js`: shelf covers and code-authored fallback art.
@@ -126,7 +126,7 @@ The browser suite opens all nine games and checks pause/resume, filtering, profi
 
 ## Pixel-art rendering
 
-The Three.js framebuffer is exactly 320×180 on every device. One art pixel maps to one framebuffer pixel. Regular and small actors are independently authored. Variable-size props are drawn directly at their target integer dimensions; at runtime every texture texel maps 1:1 onto that grid. All edges snap to integer pixels, including odd-width sprites. Curves use binary pixel masks, lines use Bresenham steps, and transparency uses binary screen-aligned dithering. There are no rotated meshes, filtered edges, or fractional texture scaling. The canvas enlarges only by whole physical-device-pixel multiples and letterboxes unused space; it never stretches to fill the stage. Shelf artwork follows integer enlargement too. DOM text and controls remain normal accessible browser UI, outside the game artwork grid. The runtime art uses integer pixel coordinates and limited 16-bit-inspired palettes. Family animation has 37 distinct poses per character, with named clips and nonuniform frame timing. Family characters, karts and creatures are now authored directly as native pixel stencils and pixel-line poses in `src/native-actors.js` and `src/native-creatures.js`. Their regular and small sizes are separately drawn; ordinary actors are never resized. Only Mode 7 kart perspective projects a native source into distance-dependent sizes. It uses original artwork, not ripped SNES assets. The archived original Rainbow Flight retains its original artwork.
+The Three.js framebuffer is exactly 320×180 on every device. One art pixel maps to one framebuffer pixel. Family actors use prepared generated frames and nearest-neighbor compact variants. Variable-size props are drawn directly at their target integer dimensions; at runtime every texture texel maps 1:1 onto that grid. All edges snap to integer pixels, including odd-width sprites. Curves use binary pixel masks, lines use Bresenham steps, and transparency uses binary screen-aligned dithering. There are no rotated meshes, filtered edges, or fractional texture scaling. The canvas enlarges only by whole physical-device-pixel multiples and letterboxes unused space; it never stretches to fill the stage. Shelf artwork follows integer enlargement too. DOM text and controls remain normal accessible browser UI, outside the game artwork grid. The runtime art uses integer pixel coordinates and limited 16-bit-inspired palettes. Family animation has 37 distinct poses per character, with named clips and nonuniform frame timing. Family characters and karts use restored generated sheets; creatures remain code-drawn in `src/native-creatures.js`. Actor variants are rasterized to integer canvases before being drawn on the framebuffer; Mode 7 projects karts into distance-dependent sizes. It uses original artwork, not ripped SNES assets. The archived original Rainbow Flight retains its original artwork.
 
 ## Gameplay audit and improvements (October 2026)
 
@@ -164,7 +164,7 @@ The original scene kit repeated the same mountain, tree and star shapes across u
 
 Research: [SLYNYRD’s side-view tiles](https://www.slynyrd.com/blog/2020/5/21/pixelblog-28-side-view-tiles) informed foreground/background separation, small tile vocabularies, restrained palettes and material variants. His [texture tutorial](https://www.slynyrd.com/blog/2018/2/15/pixelblog-2-texture) informed clustered detail, empty areas and suppression of incidental single-pixel noise. [Saint11’s anti-aliasing and banding article](https://saint11.art/pixel_art_articles/article5/) informed the distinction between intentional pixel clusters and accidental filtering. These are design references, not copied artwork.
 
-All active environments and props are now authored on the native pixel grid in `src/native-scenes.js`, `src/native-objects.js`, `src/party-art.js` and `src/rally-art.js`. The old generated backgrounds, props and character sheets have been removed from public assets. No generated image is shrunk into the game, and no image download is required during play. Simple, deliberate clusters and subdued play areas keep characters, threats and objectives legible.
+All active environments and props are now authored on the native pixel grid in `src/native-scenes.js`, `src/native-objects.js`, `src/party-art.js` and `src/rally-art.js`. The family and kart sprites use a compact generated atlas; environments and props remain code-drawn. Simple, deliberate clusters and subdued play areas keep characters, threats and objectives legible.
 
 Platformer backgrounds have three independently scrolling native layers, using a maximum of five colors per layer. Platforms have a bright continuous top edge and a sparse dark body so landings read at a glance. Banana Bay has broad, short-gap beach islands and optional elevated bananas; thin Meadows ledges allow jumping up through them or dropping with Down + A. Cloudberry Climb has deliberate jump practice, two dash gaps, recovery terrain and three checkpoints.
 
@@ -176,19 +176,13 @@ Rainbow Rally also has a native-pixel circuit map: the gold marker is the player
 
 ## Native character artwork (October 2026 redraw)
 
-The generated-and-reduced family sheets have been replaced. The active source of truth is **`src/native-actors.js`**, with creatures in **`src/native-creatures.js`**. `PixelDrawing` writes discrete palette indexes using authored stencils, rectangles and pixel-line steps. There is no high-resolution character input, anti-aliasing, silhouette extraction, quantization or downscaling step.
+The family uses the restored **image-generated designs** from release `3b27527`. Gaia, Bean, Nur and Arnaud each have 37 prepared animation frames and four rear-view kart frames. The runtime source is `public/art/generated-family/atlas-v1.png`, with its companion manifest. Regular actors retain the prepared source pixels; compact variants and kart perspective use nearest-neighbor rasterization. These are generated illustrations prepared for a low-resolution game, not hand-drawn native pixel stencils.
 
-Every family member has 37 distinct poses in **two independently authored sizes** (296 family drawings): idle expressions, running, jumping, falling, dashing, landing, side/front/back wand actions, celebration, front/back walking, riding, pushing, carrying and wall clinging. Human canvases are 24×32 and 16×24; Bean uses 32×24 and 24×18. Named clips use explicit durations. Side-facing actions have profile heads, and rear views have their own hair clusters. Families use at most 15 colors per sprite and strictly binary transparency. Normal gameplay draws these canvases directly at one texel per framebuffer pixel; the artist does not rely on runtime shrinking to clean up detail.
-
-Karts have four rear-view poses for each family member, drawn at 24×32 and separately at 16×20. Mode 7 perspective selects the appropriate native detail level and uses nearest-neighbor projection. Five creatures (leaf slimes, fern spirits, winged unicorns, moon rocks and the Moon Keeper) also have two native size sets and four distinct poses. All nine games, shelf covers, player portraits and victory parties share this artwork. Collision geometry remains independent of sprite shape. Stars and small projectiles also have separate 3, 5, 7 and 13 pixel stencils, keeping their silhouettes intact without shrinking a larger icon.
+The original generated sheets and the historical preparation atlas are preserved in `assets/characters/generated/` outside the published assets. `tests/restore-generated-family.cjs` extracts only the family and kart groups without changing their pixels. The newer quiet backgrounds, parallax, props, creatures, gameplay and all nine cartridges remain intact. Original family photos are not included.
 
 Bean still follows independently, explores and returns. The water-balloon maze uses a grid route that avoids stone, hedges and balloons. He never blocks the player, pushes puzzle pieces or takes damage. Selecting Bean as the hero hides the companion copy.
 
-The old generated sheets and obsolete atlases have been removed from the published assets; they remain recoverable in Git history. No original family photographs are included. Environment and prop artwork has also been redrawn directly on the native grid.
-
-Open `/sprite-lab.html` to inspect the actual pixel artwork, play named animation clips, reverse direction, slow playback, and compare the two native sizes. `npm run test:animation` verifies all 148 regular family poses, kart/creature poses, palette limits, binary transparency, action transitions and paused animations. Native-art unit tests also inspect the separately authored small sets.
-
-The optional export atlas is `public/art/native/arcade-v6.png`, indexed by `manifest.json`. It contains 415 frames: both family/kart/creature size sets, 32 objects, nine backgrounds and six parallax layers. Runtime artwork is drawn directly from code, so missing image files cannot bring back the old reduced sprites. Normal play requests **zero artwork images**. Rebuild the inspection atlas after changing native artwork:
+Open `/sprite-lab.html` to inspect actual sprites and animation clips. The animation suite verifies all 148 regular family poses, kart/creature poses, palette limits, binary transparency and action transitions. The optional combined inspection atlas is `public/art/native/arcade-v7.png`; runtime loads only the compact generated-family atlas and manifest. A failed family download uses the code-drawn emergency fallback so games remain playable. Rebuild the inspection atlas after changing native artwork:
 
 ```sh
 npm run prepare:art
@@ -214,7 +208,7 @@ The three Starlight Bounce boards are Star Chart, Twin Telescopes and The Crysta
 
 Unicorns in Orbit now ends with the Moon Keeper, a larger crystal guardian drawn at 48×40 pixels with a separately authored 32×28 version. Its fan shots are signaled before firing, and its remaining starlights appear beneath it. B reflects hostile stars forward while the shield lasts. The second wave also drifts horizontally and uses shallow diagonal shots; the finale replenishes some shield energy. Gentle mode remains forgiving, and Classic completion with shielding is tested.
 
-Gaia has shorter body proportions than the adults in both native size sets. Splash Garden marks a balloon's splash cells immediately and shows three fuse ticks; it no longer waits until the final second to reveal the affected cells.
+Splash Garden marks a balloon's splash cells immediately and shows three fuse ticks; it no longer waits until the final second to reveal the affected cells.
 
 Small native-pixel goal counters and charge meters supplement the accessible text HUD: collectible slots, lanterns, flowers, bubbles, hearts, remaining balls, boost, shield and timed catch. Gentle mode omits finite-life hearts. Bean routes away from imminent balloon crosses and active splashes, without affecting the player’s collision or scoring. The brick paddle’s visible top matches its bounce surface and leaves the carrier’s face visible.
 

@@ -70,7 +70,7 @@ const fs = require("node:fs");
           objects.OBJECT_SPECS.map(([id]) => [id, [objects.objectFrame(id)]]),
         ),
       };
-      const manifest = { version: 6, image: "arcade-v6.png", groups: {} },
+      const manifest = { version: 7, image: "arcade-v7.png", groups: {} },
         placements = [];
       let x = 0,
         y = 0,
@@ -106,7 +106,7 @@ const fs = require("node:fs");
     });
     fs.mkdirSync("public/art/native", { recursive: true });
     fs.writeFileSync(
-      "public/art/native/arcade-v6.png",
+      "public/art/native/arcade-v7.png",
       Buffer.from(result.png, "base64"),
     );
     fs.writeFileSync(

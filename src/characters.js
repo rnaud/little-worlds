@@ -1,3 +1,4 @@
+import { assetPath } from "./asset-path.js";
 import { surface } from "./sprite-pipeline.js";
 import { clipFrame } from "./animation.js";
 import {
@@ -11,14 +12,14 @@ export const characterArtStatus = {
   loaded: false,
   characters: {},
   error: null,
-  authored: "native-pixel-stencils",
+  authored: "image-generated-sprite-sheets",
 };
 const frames = new Map(),
   mini = new Map(),
   karts = new Map(),
   smallKarts = new Map(),
   kartVariants = new Map();
-export async function loadCharacterArt() {
+function loadFallbackArt() {
   // No image decode, silhouette extraction, quantization or downscaling. Both
   // sizes are independent pixel drawings, shared by all cartridges and menus.
   for (const id of CHARACTER_IDS) {
@@ -58,6 +59,70 @@ export async function loadCharacterArt() {
   characterArtStatus.error = null;
   characterArtStatus.prepared = false;
 }
+// Reuse the approved generated designs. Regular frames retain every prepared
+// source pixel; compact poses and Mode 7 projections use nearest-neighbor sampling.
+let loading;
+export function loadCharacterArt() {
+  return (loading ||= loadGeneratedArt());
+}
+async function loadGeneratedArt() {
+  try {
+    const response = await fetch(
+      assetPath("art/generated-family/manifest.json"),
+    );
+    if (!response.ok) throw new Error("Family atlas manifest unavailable");
+    const manifest = await response.json();
+    const image = new Image();
+    image.src = assetPath("art/generated-family/" + manifest.image);
+    await image.decode();
+    const extract = (cell) => {
+      const [c, ctx] = surface(cell.w, cell.h);
+      ctx.drawImage(
+        image,
+        cell.x,
+        cell.y,
+        cell.w,
+        cell.h,
+        0,
+        0,
+        cell.w,
+        cell.h,
+      );
+      return c;
+    };
+    const compact = (source) => {
+      const [c, ctx] = surface(Math.round(source.width * 0.6), 24);
+      ctx.drawImage(source, 0, 0, c.width, c.height);
+      return c;
+    };
+    for (const id of CHARACTER_IDS) {
+      const actors = manifest.groups.characters[id];
+      const racers = manifest.groups.karts[id];
+      if (actors.length !== CHARACTER_FRAME_COUNT || racers.length !== 4)
+        throw new Error("Incomplete family animation: " + id);
+      frames.set(id, actors.map(extract));
+      mini.set(id, frames.get(id).map(compact));
+      karts.set(id, racers.map(extract));
+      smallKarts.set(id, karts.get(id).map(compact));
+      characterArtStatus.characters[id] = {
+        frames: actors.length,
+        kartFrames: racers.length,
+        nativeWidth: actors[0].w,
+        nativeHeight: actors[0].h,
+        smallWidth: mini.get(id)[0].width,
+      };
+    }
+    characterArtStatus.loaded = true;
+    characterArtStatus.prepared = true;
+    characterArtStatus.error = null;
+    characterArtStatus.authored = "image-generated-sprite-sheets";
+  } catch (error) {
+    // A failed download must not prevent the family from opening a cartridge.
+    loadFallbackArt();
+    characterArtStatus.authored = "native-pixel-fallback";
+    characterArtStatus.error = String(error);
+  }
+}
 export function characterFrame(id, state, time) {
   return frames.get(id)?.[clipFrame(id, state, time)] || null;
 }
@@ -72,8 +137,7 @@ export function kartVariant(id, frame, width, height) {
   if (kartVariants.has(key)) return kartVariants.get(key);
   const source = (width < 22 ? smallKarts : karts).get(id)?.[frame];
   if (!source) return null;
-  // Only Mode 7 perspective requires projected raster sizes. Its two source
-  // detail levels are native drawings; no filtered or large-image input exists.
+  // Project the restored generated kart into the integer Mode 7 raster size.
   const [c, ctx] = surface(width, height);
   ctx.drawImage(source, 0, 0, width, height);
   kartVariants.set(key, c);
@@ -86,7 +150,7 @@ export function characterPreview(id) {
   ctx.drawImage(
     source,
     Math.floor((40 - source.width) / 2),
-    38 - source.height,
+    40 - source.height,
   );
   return c.toDataURL();
 }

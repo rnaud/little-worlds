@@ -25,13 +25,16 @@ const { chromium } = require("playwright"),
       () => window.arcade?.snapshot().characterArtwork.loaded,
     );
     const state = await page.evaluate(() => window.arcade.snapshot());
-    assert.equal(state.characterArtwork.authored, "native-pixel-stencils");
+    assert.equal(
+      state.characterArtwork.authored,
+      "image-generated-sprite-sheets",
+    );
     assert.equal(state.objectArtwork.authored, "native-pixel-stencils");
     assert.equal(state.artwork.authored, "native-pixel-stencils");
     assert.equal(
       art.length,
-      0,
-      "normal game boot draws its native art locally without image requests",
+      2,
+      "normal game boot loads the family manifest and compact atlas",
     );
     assert.ok(
       art.every((p) => p.startsWith(new URL(url).pathname + "art/")),
@@ -69,7 +72,7 @@ const { chromium } = require("playwright"),
         url,
         checks: [
           "repository-prefixed production assets",
-          "native art without image downloads",
+          "generated family atlas and native environments",
           "nine games launch",
           "sprite studio",
           "studio returns to site",
